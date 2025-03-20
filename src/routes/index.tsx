@@ -27,8 +27,11 @@ const Logout = React.lazy(() => import('../pages/auth/Logout'));
 
 // dashboards
 const DashBoard1 = React.lazy(() => import('../pages/dashboards/DashBoard1/'));
-const Interests = React.lazy(() => import('../pages/interests/'));
-
+const Interests = React.lazy(() => import('../pages/interests'));
+const ReportedAndBlocked = React.lazy(() => import('../pages/ReportAndBlock/'));
+const Analytics = React.lazy(() => import('../pages/Analytics/'));
+const TwinnerUsers = React.lazy(() => import('../pages/TwinnerUsers/'));
+const SubAdminUsers = React.lazy(() => import('../pages/SubAdminUsers/'));
 // apps
 const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
 const ChatApp = React.lazy(() => import('../pages/apps/Chat'));
@@ -196,15 +199,15 @@ const AllRoutes = () => {
                 // },
                 {
                     path: 'dashboard',
-                    element: <LoadComponent component={Interests} />,
+                    element: <LoadComponent component={DashBoard1} />,
                 },
                 {
                     path: 'sub-admin-users',
-                    element: <LoadComponent component={Interests} />,
+                    element: <LoadComponent component={SubAdminUsers} />,
                 },
                 {
                     path: 'twinner-users',
-                    element: <LoadComponent component={Interests} />,
+                    element: <LoadComponent component={TwinnerUsers} />,
                 },
                 {
                     path: 'interests-and-hobbies',
@@ -212,11 +215,11 @@ const AllRoutes = () => {
                 },
                 {
                     path: 'analytics',
-                    element: <LoadComponent component={Interests} />,
+                    element: <LoadComponent component={Analytics} />,
                 },
                 {
                     path: 'reported-and-blocked',
-                    element: <LoadComponent component={Interests} />,
+                    element: <LoadComponent component={ReportedAndBlocked} />,
                 },
                 // {
                 //     path: 'apps',

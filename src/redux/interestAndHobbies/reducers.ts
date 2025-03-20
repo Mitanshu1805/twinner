@@ -6,14 +6,21 @@ const api = new APICore();
 
 interface InterestListSuccessPayload {
     message: string;
+    data: Interest[];
 }
 
 interface InterestListErrorPayload {
     error: string;
 }
 
+interface Interest {
+    interest_id: string;
+    interest_name: string;
+    interest_image: string;
+}
+
 interface InterestState {
-    interests: any[];
+    interests: Interest[];
     loading: boolean;
     error: string | null;
     message: string | null;
@@ -45,23 +52,58 @@ const interestReducer = (state = initialState, action: IntAndHobActionType): Int
     switch (action.type) {
         case IntAndHobActionTypes.INTERESTS_LIST:
         case IntAndHobActionTypes.INTERESTS_ADD:
-        case IntAndHobActionTypes.INTERESTS_DELETE:
         case IntAndHobActionTypes.INTERESTS_UPDATE:
-            return { ...state, loading: true, error: null, message: null };
+        case IntAndHobActionTypes.INTERESTS_DELETE:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+                message: null,
+            };
 
         case IntAndHobActionTypes.INTERESTS_LIST_SUCCESS:
-            return { ...state, loading: false, interests: action.payload.message, message: 'Fetched successfully' };
+            return {
+                ...state,
+                loading: false,
+                interests: action.payload.data, // Adjust based on actual API response
+                message: 'Interests fetched successfully',
+                error: null,
+            };
 
         case IntAndHobActionTypes.INTERESTS_ADD_SUCCESS:
-        case IntAndHobActionTypes.INTERESTS_DELETE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                message: action.payload.message,
+                error: null,
+            };
+
         case IntAndHobActionTypes.INTERESTS_UPDATE_SUCCESS:
-            return { ...state, loading: false, message: action.payload.message, error: null };
+            return {
+                ...state,
+                loading: false,
+                message: action.payload.message,
+                error: null,
+            };
+
+        case IntAndHobActionTypes.INTERESTS_DELETE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                message: action.payload.message,
+                error: null,
+            };
 
         case IntAndHobActionTypes.INTERESTS_LIST_ERROR:
         case IntAndHobActionTypes.INTERESTS_ADD_ERROR:
-        case IntAndHobActionTypes.INTERESTS_DELETE_ERROR:
         case IntAndHobActionTypes.INTERESTS_UPDATE_ERROR:
-            return { ...state, loading: false, error: action.payload.error, message: null };
+        case IntAndHobActionTypes.INTERESTS_DELETE_ERROR:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload.error,
+                message: null,
+            };
 
         default:
             return state;

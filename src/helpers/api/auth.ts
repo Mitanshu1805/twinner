@@ -31,4 +31,33 @@ function forgotPassword(params: { email: string }) {
     return api.create(`${baseUrl}`, params);
 }
 
-export { sendOTP, verifyOTP, login, logout, signup, forgotPassword };
+function interestList(data: any) {
+    const baseUrl = '/interest/list';
+    return api.get(`${baseUrl}`, data);
+}
+
+function interestAdd(data: any) {
+    const baseUrl = '/interest/add';
+    return api.create(`${baseUrl}`, data);
+}
+function interestUpdate(data: any) {
+    const baseUrl = '/interest/update';
+    return api.update(`${baseUrl}`, data);
+}
+function interestDelete(data: any) {
+    const baseUrl = '/interest/delete';
+    return api.delete(`${baseUrl}`, data);
+}
+
+export {
+    sendOTP,
+    verifyOTP,
+    login,
+    logout,
+    signup,
+    forgotPassword,
+    interestList,
+    interestAdd,
+    interestDelete,
+    interestUpdate,
+};

@@ -1,24 +1,33 @@
-import { Col, Row } from 'react-bootstrap';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { interestList } from '../../redux/interestAndHobbies/actions';
+import { RootState } from '../../redux/store'; // Import your RootState type
 
-// hooks
-import { usePageTitle } from '../../hooks';
+const InterestHobbies = () => {
+    const dispatch = useDispatch();
+    const { interests, loading, error } = useSelector((state: RootState) => state.interestReducer);
 
-// dummy data
+    useEffect(() => {
+        dispatch(interestList());
+    }, [dispatch]);
 
-const Interests = () => {
-    // set pagetitle
-    usePageTitle({
-        title: 'DashBoard',
-        breadCrumbItems: [
-            {
-                path: '/dashboard',
-                label: 'DashBoard',
-                active: true,
-            },
-        ],
-    });
+    return (
+        <div>
+            <h1>Interests & Hobbies</h1>
 
-    return <></>;
+            {loading && <p>Loading...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            <ul>
+                {/* {interests.map((interest) => (
+                    <li key={interest.interest_id}>
+                        {interest.interest_name}{' '}
+                        <img src={interest.interest_image} alt={interest.interest_name} width="50" />
+                    </li>
+                ))} */}
+            </ul>
+        </div>
+    );
 };
 
-export default Interests;
+export default InterestHobbies;
