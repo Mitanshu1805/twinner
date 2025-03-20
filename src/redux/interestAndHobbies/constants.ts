@@ -1,0 +1,17 @@
+export enum IntAndHobActionTypes {
+    INTERESTS_LIST = '@@interestAndHobbies/INTERESTS_LIST',
+    INTERESTS_LIST_SUCCESS = '@@interestAndHobbies/INTERESTS_LIST_SUCCESS',
+    INTERESTS_LIST_ERROR = '@@interestAndHobbies/INTERESTS_LIST_ERROR',
+
+    INTERESTS_ADD = '@@interestAndHobbies/INTERESTS_ADD',
+    INTERESTS_ADD_SUCCESS = '@@interestAndHobbies/INTERESTS_ADD_SUCCESS',
+    INTERESTS_ADD_ERROR = '@@interestAndHobbies/INTERESTS_ADD_ERROR',
+
+    INTERESTS_UPDATE = '@@interestAndHobbies/INTERESTS_UPDATE',
+    INTERESTS_UPDATE_SUCCESS = '@@interestAndHobbies/INTERESTS_UPDATE_SUCCESS',
+    INTERESTS_UPDATE_ERROR = '@@interestAndHobbies/INTERESTS_UPDATE_ERROR',
+
+    INTERESTS_DELETE = '@@interestAndHobbies/INTERESTS_DELETE',
+    INTERESTS_DELETE_SUCCESS = '@@interestAndHobbies/INTERESTS_DELETE_SUCCESS',
+    INTERESTS_DELETE_ERROR = '@@interestAndHobbies/INTERESTS_DELETE_ERROR',
+}
