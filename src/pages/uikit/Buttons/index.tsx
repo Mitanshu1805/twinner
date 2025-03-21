@@ -75,7 +75,11 @@ const Buttons = () => {
                     <Card.Body>
                         <Row>
                             <Col xl={6}>
-                                <SoftButton variants={variants} />
+                                {variants.map((variant) => (
+                                    <SoftButton key={variant} variant={variant}>
+                                        {variant.charAt(0).toUpperCase() + variant.slice(1)}
+                                    </SoftButton>
+                                ))}
                             </Col>
                             <Col xl={6}>
                                 <SoftRoundedButton variants={variants} />

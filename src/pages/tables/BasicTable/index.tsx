@@ -1,4 +1,4 @@
-import { Col, Row } from 'react-bootstrap';
+import { Col, Row, Table } from 'react-bootstrap';
 
 // hooks
 import { usePageTitle } from '../../../hooks';
@@ -56,7 +56,24 @@ const BasicTable = () => {
                     <StripedRowsTable />
                 </Col>
                 <Col lg={6}>
-                    <BorderedTable interests={[]} />
+                    <BorderedTable title="Sample Table">
+                        <Table className="mb-0" bordered>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Column 1</th>
+                                    <th>Column 2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Sample Data 1</td>
+                                    <td>Sample Data 2</td>
+                                </tr>
+                            </tbody>
+                        </Table>
+                    </BorderedTable>
                 </Col>
             </Row>
             <Row>

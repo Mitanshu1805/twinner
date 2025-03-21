@@ -21,7 +21,8 @@ import { IntAndHobActionTypes } from './constants';
 
 function* interestListSaga(action: any): SagaIterator {
     try {
-        const response = yield call(interestList, action.payload);
+        const { page, limit } = action.payload;
+        const response = yield call(interestList, { page, limit });
         yield put(interestListSuccess(response.data));
     } catch (error: any) {
         yield put(interestListError(error.message || 'Error Occured'));

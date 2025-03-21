@@ -3,17 +3,23 @@ import { Card, Dropdown, Table } from 'react-bootstrap';
 // data
 import { records } from './data';
 
-interface Interest {
-    interest_id: string;
-    interest_name: string;
-    interest_image: string;
+// interface Interest {
+//     interest_id: string;
+//     interest_name: string;
+//     interest_image: string;
+// }
+
+// interface TableProps {
+//     interests: Interest[];
+// }
+
+interface TableWrapperProps {
+    title: string;
+    children: React.ReactNode;
+    actionButton?: React.ReactNode;
 }
 
-interface TableProps {
-    interests: Interest[];
-}
-
-const BorderedTable: React.FC<TableProps> = ({ interests }) => {
+const BorderedTable: React.FC<TableWrapperProps> = ({ title, children, actionButton }) => {
     return (
         <Card>
             <Card.Body>
@@ -29,12 +35,19 @@ const BorderedTable: React.FC<TableProps> = ({ interests }) => {
                     </Dropdown.Menu>
                 </Dropdown>
 
-                <h4 className="header-title">Interests & Hobbies</h4>
+                <div className="d-flex justify-content-between align-items-center">
+                    <h4 className="header-title">{title}</h4>
+                    {actionButton && <div>{actionButton}</div>}
+                </div>
+
+                <div className="table-responsive">{children}</div>
+
+                {/* <h4 className="header-title">Interests & Hobbies</h4> */}
                 {/* <p className="text-muted font-14 mb-4">
                     Add <code>bordered</code> attribute for borders on all sides of the table and cells.
                 </p> */}
 
-                <div className="table-responsive">
+                {/* <div className="table-responsive">
                     <Table className="mb-0" bordered>
                         <thead>
                             <tr>
@@ -55,7 +68,7 @@ const BorderedTable: React.FC<TableProps> = ({ interests }) => {
                                                 alt={interest.interest_name}
                                                 width="50"
                                                 height="50"
-                                                style={{ borderRadius: "8px" }}
+                                                style={{ borderRadius: '8px' }}
                                             />
                                         </td>
                                     </tr>
@@ -69,7 +82,7 @@ const BorderedTable: React.FC<TableProps> = ({ interests }) => {
                             )}
                         </tbody>
                     </Table>
-                </div>
+                </div> */}
 
                 {/* <h4 className="header-title">Bordered table</h4>
                 <p className="text-muted font-14 mb-4">

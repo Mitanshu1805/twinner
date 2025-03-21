@@ -1,0 +1,11 @@
+.soft-button {
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    margin: 0px 16px 3px 0px;
+}
+
+.disabled-button {
+    pointer-events: none;
+    opacity: 0.5;
+}

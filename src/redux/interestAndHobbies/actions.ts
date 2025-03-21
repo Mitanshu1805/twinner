@@ -1,3 +1,4 @@
+import { PageTitleState } from './../pageTitle/constants';
 // import { IntAndHobActionType } from './actions';
 import { IntAndHobActionTypes } from './constants';
 
@@ -5,10 +6,16 @@ type Interest = {
     interest_id: string;
     interest_name: string;
     interest_image: string;
-}
+};
 
 export type IntAndHobActionType =
-    | { type: typeof IntAndHobActionTypes.INTERESTS_LIST }
+    | {
+          type: typeof IntAndHobActionTypes.INTERESTS_LIST;
+          payload: {
+              page: number;
+              limit: number;
+          };
+      }
     | { type: typeof IntAndHobActionTypes.INTERESTS_LIST_SUCCESS; payload: { data: Interest } }
     | { type: typeof IntAndHobActionTypes.INTERESTS_LIST_ERROR; payload: { error: string } }
     | { type: typeof IntAndHobActionTypes.INTERESTS_ADD; payload: FormData }
@@ -21,8 +28,9 @@ export type IntAndHobActionType =
     | { type: typeof IntAndHobActionTypes.INTERESTS_DELETE_SUCCESS; payload: { message: string } }
     | { type: typeof IntAndHobActionTypes.INTERESTS_DELETE_ERROR; payload: { error: string } };
 
-export const interestList = (): IntAndHobActionType => ({
+export const interestList = (page: number = 1, limit: number = 3): IntAndHobActionType => ({
     type: IntAndHobActionTypes.INTERESTS_LIST,
+    payload: { page, limit },
 });
 
 export const interestListSuccess = (data: Interest): IntAndHobActionType => ({
