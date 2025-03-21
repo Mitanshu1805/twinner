@@ -3,7 +3,17 @@ import { Card, Dropdown, Table } from 'react-bootstrap';
 // data
 import { records } from './data';
 
-const BorderedTable = () => {
+interface Interest {
+    interest_id: string;
+    interest_name: string;
+    interest_image: string;
+}
+
+interface TableProps {
+    interests: Interest[];
+}
+
+const BorderedTable: React.FC<TableProps> = ({ interests }) => {
     return (
         <Card>
             <Card.Body>
@@ -18,12 +28,55 @@ const BorderedTable = () => {
                         <Dropdown.Item>Separated link</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
-                <h4 className="header-title">Bordered table</h4>
-                <p className="text-muted font-14 mb-4">
+
+                <h4 className="header-title">Interests & Hobbies</h4>
+                {/* <p className="text-muted font-14 mb-4">
                     Add <code>bordered</code> attribute for borders on all sides of the table and cells.
-                </p>
+                </p> */}
 
                 <div className="table-responsive">
+                    <Table className="mb-0" bordered>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Interest Name</th>
+                                <th>Image</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {interests.length > 0 ? (
+                                interests.map((interest, index) => (
+                                    <tr key={interest.interest_id}>
+                                        <td>{index + 1}</td>
+                                        <td>{interest.interest_name}</td>
+                                        <td>
+                                            <img
+                                                src={interest.interest_image}
+                                                alt={interest.interest_name}
+                                                width="50"
+                                                height="50"
+                                                style={{ borderRadius: "8px" }}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="text-center">
+                                        No Interests Found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </Table>
+                </div>
+
+                {/* <h4 className="header-title">Bordered table</h4>
+                <p className="text-muted font-14 mb-4">
+                    Add <code>bordered</code> attribute for borders on all sides of the table and cells.
+                </p> */}
+
+                {/* <div className="table-responsive">
                     <Table className="mb-0" bordered>
                         <thead>
                             <tr>
@@ -46,7 +99,7 @@ const BorderedTable = () => {
                             })}
                         </tbody>
                     </Table>
-                </div>
+                </div> */}
             </Card.Body>
         </Card>
     );

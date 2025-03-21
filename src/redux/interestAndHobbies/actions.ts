@@ -1,9 +1,15 @@
 // import { IntAndHobActionType } from './actions';
 import { IntAndHobActionTypes } from './constants';
 
+type Interest = {
+    interest_id: string;
+    interest_name: string;
+    interest_image: string;
+}
+
 export type IntAndHobActionType =
     | { type: typeof IntAndHobActionTypes.INTERESTS_LIST }
-    | { type: typeof IntAndHobActionTypes.INTERESTS_LIST_SUCCESS; payload: { message: string } }
+    | { type: typeof IntAndHobActionTypes.INTERESTS_LIST_SUCCESS; payload: { data: Interest } }
     | { type: typeof IntAndHobActionTypes.INTERESTS_LIST_ERROR; payload: { error: string } }
     | { type: typeof IntAndHobActionTypes.INTERESTS_ADD; payload: FormData }
     | { type: typeof IntAndHobActionTypes.INTERESTS_ADD_SUCCESS; payload: { message: string } }
@@ -19,9 +25,9 @@ export const interestList = (): IntAndHobActionType => ({
     type: IntAndHobActionTypes.INTERESTS_LIST,
 });
 
-export const interestListSuccess = (message: string): IntAndHobActionType => ({
+export const interestListSuccess = (data: Interest): IntAndHobActionType => ({
     type: IntAndHobActionTypes.INTERESTS_LIST_SUCCESS,
-    payload: { message },
+    payload: { data },
 });
 
 export const interestListError = (error: string): IntAndHobActionType => ({

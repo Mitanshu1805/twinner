@@ -5,9 +5,12 @@ import Layout from './layout/reducers';
 import PageTitle from './pageTitle/reducers';
 import interestReducer from './interestAndHobbies/reducers';
 
-export default combineReducers({
+const rootReducer = combineReducers({
     Auth,
     Layout,
     PageTitle,
-    interestReducer,
+    interest: interestReducer,
 });
+
+export type RootState = ReturnType<typeof rootReducer>;
+export default rootReducer;

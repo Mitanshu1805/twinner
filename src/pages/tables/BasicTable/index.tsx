@@ -56,7 +56,7 @@ const BasicTable = () => {
                     <StripedRowsTable />
                 </Col>
                 <Col lg={6}>
-                    <BorderedTable />
+                    <BorderedTable interests={[]} />
                 </Col>
             </Row>
             <Row>

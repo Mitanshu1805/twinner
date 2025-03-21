@@ -221,271 +221,271 @@ const AllRoutes = () => {
                     path: 'reported-and-blocked',
                     element: <LoadComponent component={ReportedAndBlocked} />,
                 },
-                // {
-                //     path: 'apps',
-                //     children: [
-                //         {
-                //             path: 'calendar',
-                //             element: <LoadComponent component={CalendarApp} />,
-                //         },
-                //         {
-                //             path: 'chat',
-                //             element: <LoadComponent component={ChatApp} />,
-                //         },
-                //         {
-                //             path: 'email/inbox',
-                //             element: <LoadComponent component={Inbox} />,
-                //         },
-                //         {
-                //             path: 'tasks/kanban',
-                //             element: <LoadComponent component={Kanban} />,
-                //         },
-                //         {
-                //             path: 'tasks/details',
-                //             element: <LoadComponent component={TaskDetail} />,
-                //         },
-                //         {
-                //             path: 'projects',
-                //             element: <LoadComponent component={Projects} />,
-                //         },
-                //         {
-                //             path: 'contacts/list',
-                //             element: <LoadComponent component={List} />,
-                //         },
-                //         {
-                //             path: 'contacts/profile',
-                //             element: <LoadComponent component={Profile} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'pages',
-                //     children: [
-                //         {
-                //             path: 'starter',
-                //             element: <LoadComponent component={Starter} />,
-                //         },
-                //         {
-                //             path: 'pricing',
-                //             element: <LoadComponent component={Pricing} />,
-                //         },
-                //         {
-                //             path: 'timeline',
-                //             element: <LoadComponent component={Timeline} />,
-                //         },
-                //         {
-                //             path: 'invoice',
-                //             element: <LoadComponent component={Invoice} />,
-                //         },
-                //         {
-                //             path: 'faq',
-                //             element: <LoadComponent component={FAQ} />,
-                //         },
-                //         {
-                //             path: 'gallery',
-                //             element: <LoadComponent component={Gallery} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'base-ui',
-                //     children: [
-                //         {
-                //             path: 'buttons',
-                //             element: <LoadComponent component={Buttons} />,
-                //         },
-                //         {
-                //             path: 'cards',
-                //             element: <LoadComponent component={Cards} />,
-                //         },
-                //         {
-                //             path: 'avatars',
-                //             element: <LoadComponent component={Avatars} />,
-                //         },
-                //         {
-                //             path: 'tabs-accordions',
-                //             element: <LoadComponent component={TabsAccordions} />,
-                //         },
-                //         {
-                //             path: 'notifications',
-                //             element: <LoadComponent component={Notifications} />,
-                //         },
-                //         {
-                //             path: 'modals',
-                //             element: <LoadComponent component={Modals} />,
-                //         },
-                //         {
-                //             path: 'progress',
-                //             element: <LoadComponent component={Progress} />,
-                //         },
-                //         {
-                //             path: 'offcanvas',
-                //             element: <LoadComponent component={Offcanvases} />,
-                //         },
-                //         {
-                //             path: 'placeholders',
-                //             element: <LoadComponent component={Placeholders} />,
-                //         },
-                //         {
-                //             path: 'spinners',
-                //             element: <LoadComponent component={Spinners} />,
-                //         },
-                //         {
-                //             path: 'images',
-                //             element: <LoadComponent component={Images} />,
-                //         },
-                //         {
-                //             path: 'carousel',
-                //             element: <LoadComponent component={Carousel} />,
-                //         },
-                //         {
-                //             path: 'embedvideo',
-                //             element: <LoadComponent component={EmbedVedio} />,
-                //         },
-                //         {
-                //             path: 'dropdowns',
-                //             element: <LoadComponent component={Dropdowns} />,
-                //         },
-                //         {
-                //             path: 'popovers-tooltips',
-                //             element: <LoadComponent component={PopoversAndTooltips} />,
-                //         },
-                //         {
-                //             path: 'general',
-                //             element: <LoadComponent component={GeneralUI} />,
-                //         },
-                //         {
-                //             path: 'typography',
-                //             element: <LoadComponent component={Typography} />,
-                //         },
-                //         {
-                //             path: 'grid',
-                //             element: <LoadComponent component={Grid} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'widgets',
-                //     element: <LoadComponent component={Widgets} />,
-                // },
-                // {
-                //     path: 'extended-ui',
-                //     children: [
-                //         {
-                //             path: 'nestable',
-                //             element: <LoadComponent component={NestableList} />,
-                //         },
-                //         {
-                //             path: 'rangesliders',
-                //             element: <LoadComponent component={RangeSliders} />,
-                //         },
-                //         {
-                //             path: 'sweet-alert',
-                //             element: <LoadComponent component={SweetAlerts} />,
-                //         },
-                //         {
-                //             path: 'tour',
-                //             element: <LoadComponent component={Tourpage} />,
-                //         },
-                //         {
-                //             path: 'treeview',
-                //             element: <LoadComponent component={TreeViewExample} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'icons',
-                //     children: [
-                //         {
-                //             path: 'feather',
-                //             element: <LoadComponent component={FeatherIcons} />,
-                //         },
-                //         {
-                //             path: 'mdi',
-                //             element: <LoadComponent component={MDIIcons} />,
-                //         },
-                //         {
-                //             path: 'dripicons',
-                //             element: <LoadComponent component={Dripicons} />,
-                //         },
-                //         {
-                //             path: 'font-awesome',
-                //             element: <LoadComponent component={FontAwesomeIcons} />,
-                //         },
-                //         {
-                //             path: 'themify',
-                //             element: <LoadComponent component={ThemifyIcons} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'forms',
-                //     children: [
-                //         {
-                //             path: 'basic',
-                //             element: <LoadComponent component={GeneralElements} />,
-                //         },
-                //         {
-                //             path: 'advanced',
-                //             element: <LoadComponent component={FormAdvanced} />,
-                //         },
-                //         {
-                //             path: 'validation',
-                //             element: <LoadComponent component={Validation} />,
-                //         },
-                //         {
-                //             path: 'wizard',
-                //             element: <LoadComponent component={FormWizard} />,
-                //         },
-                //         {
-                //             path: 'upload',
-                //             element: <LoadComponent component={FileUpload} />,
-                //         },
-                //         {
-                //             path: 'editors',
-                //             element: <LoadComponent component={Editors} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'tables',
-                //     children: [
-                //         {
-                //             path: 'basic',
-                //             element: <LoadComponent component={BasicTable} />,
-                //         },
-                //         {
-                //             path: 'advanced',
-                //             element: <LoadComponent component={AdvancedTable} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'charts',
-                //     children: [
-                //         {
-                //             path: 'apex',
-                //             element: <LoadComponent component={ApexChart} />,
-                //         },
-                //         {
-                //             path: 'chartjs',
-                //             element: <LoadComponent component={ChartJs} />,
-                //         },
-                //     ],
-                // },
-                // {
-                //     path: 'maps',
-                //     children: [
-                //         {
-                //             path: 'google',
-                //             element: <LoadComponent component={GoogleMaps} />,
-                //         },
-                //         {
-                //             path: 'vector',
-                //             element: <LoadComponent component={VectorMaps} />,
-                //         },
-                //     ],
-                // },
+                {
+                    path: 'apps',
+                    children: [
+                        {
+                            path: 'calendar',
+                            element: <LoadComponent component={CalendarApp} />,
+                        },
+                        {
+                            path: 'chat',
+                            element: <LoadComponent component={ChatApp} />,
+                        },
+                        {
+                            path: 'email/inbox',
+                            element: <LoadComponent component={Inbox} />,
+                        },
+                        {
+                            path: 'tasks/kanban',
+                            element: <LoadComponent component={Kanban} />,
+                        },
+                        {
+                            path: 'tasks/details',
+                            element: <LoadComponent component={TaskDetail} />,
+                        },
+                        {
+                            path: 'projects',
+                            element: <LoadComponent component={Projects} />,
+                        },
+                        {
+                            path: 'contacts/list',
+                            element: <LoadComponent component={List} />,
+                        },
+                        {
+                            path: 'contacts/profile',
+                            element: <LoadComponent component={Profile} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'pages',
+                    children: [
+                        {
+                            path: 'starter',
+                            element: <LoadComponent component={Starter} />,
+                        },
+                        {
+                            path: 'pricing',
+                            element: <LoadComponent component={Pricing} />,
+                        },
+                        {
+                            path: 'timeline',
+                            element: <LoadComponent component={Timeline} />,
+                        },
+                        {
+                            path: 'invoice',
+                            element: <LoadComponent component={Invoice} />,
+                        },
+                        {
+                            path: 'faq',
+                            element: <LoadComponent component={FAQ} />,
+                        },
+                        {
+                            path: 'gallery',
+                            element: <LoadComponent component={Gallery} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'base-ui',
+                    children: [
+                        {
+                            path: 'buttons',
+                            element: <LoadComponent component={Buttons} />,
+                        },
+                        {
+                            path: 'cards',
+                            element: <LoadComponent component={Cards} />,
+                        },
+                        {
+                            path: 'avatars',
+                            element: <LoadComponent component={Avatars} />,
+                        },
+                        {
+                            path: 'tabs-accordions',
+                            element: <LoadComponent component={TabsAccordions} />,
+                        },
+                        {
+                            path: 'notifications',
+                            element: <LoadComponent component={Notifications} />,
+                        },
+                        {
+                            path: 'modals',
+                            element: <LoadComponent component={Modals} />,
+                        },
+                        {
+                            path: 'progress',
+                            element: <LoadComponent component={Progress} />,
+                        },
+                        {
+                            path: 'offcanvas',
+                            element: <LoadComponent component={Offcanvases} />,
+                        },
+                        {
+                            path: 'placeholders',
+                            element: <LoadComponent component={Placeholders} />,
+                        },
+                        {
+                            path: 'spinners',
+                            element: <LoadComponent component={Spinners} />,
+                        },
+                        {
+                            path: 'images',
+                            element: <LoadComponent component={Images} />,
+                        },
+                        {
+                            path: 'carousel',
+                            element: <LoadComponent component={Carousel} />,
+                        },
+                        {
+                            path: 'embedvideo',
+                            element: <LoadComponent component={EmbedVedio} />,
+                        },
+                        {
+                            path: 'dropdowns',
+                            element: <LoadComponent component={Dropdowns} />,
+                        },
+                        {
+                            path: 'popovers-tooltips',
+                            element: <LoadComponent component={PopoversAndTooltips} />,
+                        },
+                        {
+                            path: 'general',
+                            element: <LoadComponent component={GeneralUI} />,
+                        },
+                        {
+                            path: 'typography',
+                            element: <LoadComponent component={Typography} />,
+                        },
+                        {
+                            path: 'grid',
+                            element: <LoadComponent component={Grid} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'widgets',
+                    element: <LoadComponent component={Widgets} />,
+                },
+                {
+                    path: 'extended-ui',
+                    children: [
+                        {
+                            path: 'nestable',
+                            element: <LoadComponent component={NestableList} />,
+                        },
+                        {
+                            path: 'rangesliders',
+                            element: <LoadComponent component={RangeSliders} />,
+                        },
+                        {
+                            path: 'sweet-alert',
+                            element: <LoadComponent component={SweetAlerts} />,
+                        },
+                        {
+                            path: 'tour',
+                            element: <LoadComponent component={Tourpage} />,
+                        },
+                        {
+                            path: 'treeview',
+                            element: <LoadComponent component={TreeViewExample} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'icons',
+                    children: [
+                        {
+                            path: 'feather',
+                            element: <LoadComponent component={FeatherIcons} />,
+                        },
+                        {
+                            path: 'mdi',
+                            element: <LoadComponent component={MDIIcons} />,
+                        },
+                        {
+                            path: 'dripicons',
+                            element: <LoadComponent component={Dripicons} />,
+                        },
+                        {
+                            path: 'font-awesome',
+                            element: <LoadComponent component={FontAwesomeIcons} />,
+                        },
+                        {
+                            path: 'themify',
+                            element: <LoadComponent component={ThemifyIcons} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'forms',
+                    children: [
+                        {
+                            path: 'basic',
+                            element: <LoadComponent component={GeneralElements} />,
+                        },
+                        {
+                            path: 'advanced',
+                            element: <LoadComponent component={FormAdvanced} />,
+                        },
+                        {
+                            path: 'validation',
+                            element: <LoadComponent component={Validation} />,
+                        },
+                        {
+                            path: 'wizard',
+                            element: <LoadComponent component={FormWizard} />,
+                        },
+                        {
+                            path: 'upload',
+                            element: <LoadComponent component={FileUpload} />,
+                        },
+                        {
+                            path: 'editors',
+                            element: <LoadComponent component={Editors} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'tables',
+                    children: [
+                        {
+                            path: 'basic',
+                            element: <LoadComponent component={BasicTable} />,
+                        },
+                        {
+                            path: 'advanced',
+                            element: <LoadComponent component={AdvancedTable} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'charts',
+                    children: [
+                        {
+                            path: 'apex',
+                            element: <LoadComponent component={ApexChart} />,
+                        },
+                        {
+                            path: 'chartjs',
+                            element: <LoadComponent component={ChartJs} />,
+                        },
+                    ],
+                },
+                {
+                    path: 'maps',
+                    children: [
+                        {
+                            path: 'google',
+                            element: <LoadComponent component={GoogleMaps} />,
+                        },
+                        {
+                            path: 'vector',
+                            element: <LoadComponent component={VectorMaps} />,
+                        },
+                    ],
+                },
             ],
         },
     ]);
