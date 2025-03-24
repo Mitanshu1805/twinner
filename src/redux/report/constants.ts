@@ -1,0 +1,9 @@
+export enum ReportActionTypes {
+    REPORT_LIST = '@@report/REPORT_LIST',
+    REPORT_LIST_SUCCESS = '@@report/REPORT_LIST_SUCCESS',
+    REPORT_LIST_ERROR = '@@report/REPORT_LIST_ERROR',
+
+    REPORT_REVIEW = '@@report/REPORT_REVIEW',
+    REPORT_REVIEW_SUCCESS = '@@report/REPORT_REVIEW_SUCCESS',
+    REPORT_REVIEW_ERROR = '@@report/REPORT_REVIEW_ERROR',
+}

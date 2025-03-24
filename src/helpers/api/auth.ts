@@ -1,3 +1,5 @@
+// import { reportList } from './../../redux/report/actions';
+// import { UpdateAdminStatus } from './../../redux/subAdminUser/actions';
 import { APICore } from './apiCore';
 
 const api = new APICore();
@@ -49,6 +51,38 @@ function interestDelete(data: any) {
     return api.delete(`${baseUrl}`, data);
 }
 
+function adminUserList(data: any) {
+    const baseUrl = '/admin/list';
+    return api.get(`${baseUrl}`, data);
+}
+
+function adminUserAdd(data: any) {
+    const baseUrl = '/admin/register';
+    return api.create(`${baseUrl}`, data);
+}
+function adminUserDelete(data: any) {
+    const baseUrl = '/admin/delete';
+    return api.delete(`${baseUrl}`, data);
+}
+function adminUserUpdate(data: any) {
+    const baseUrl = '/admin/update';
+    return api.update(`${baseUrl}`, data);
+}
+function updateAdminStatus(data: any) {
+    const baseUrl = '/admin/update/status';
+    return api.update(`${baseUrl}`, data);
+}
+
+function reportList(data: any) {
+    const baseUrl = '/support/report/list';
+    return api.get(`${baseUrl}`, data);
+}
+
+function reportReview(data: any) {
+    const baseUrl = '/support/report/review';
+    return api.update(`${baseUrl}`, data);
+}
+
 export {
     sendOTP,
     verifyOTP,
@@ -60,4 +94,11 @@ export {
     interestAdd,
     interestDelete,
     interestUpdate,
+    adminUserList,
+    adminUserAdd,
+    adminUserDelete,
+    adminUserUpdate,
+    updateAdminStatus,
+    reportList,
+    reportReview,
 };
