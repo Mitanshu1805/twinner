@@ -2,8 +2,28 @@ import { ReportActionTypes } from './constants';
 
 type Report = {
     report_id: string;
-    reporter_user_id: string;
-    reported_user_id: string;
+    reported_user: {
+        user_id: string;
+        first_name: string;
+        last_name: string;
+        user_name: string;
+        phone_number: string;
+        country: string;
+        city: string;
+        profile_image: File;
+        dob: string;
+    };
+    reporter_user: {
+        user_id: string;
+        first_name: string;
+        last_name: string;
+        user_name: string;
+        phone_number: string;
+        country: string;
+        city: string;
+        profile_image: File;
+        dob: string;
+    };
     description: string;
     created_at: string;
 };

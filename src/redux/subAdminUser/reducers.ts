@@ -123,8 +123,12 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
             return { ...state, loading: true, error: null };
 
         case SubAdminUserActionTypes.UPDATE_ADMIN_STATUS_SUCCESS:
+            console.log('Current adminUsers state:', state.adminUsers);
+            console.log('Is adminUsers an array?', Array.isArray(state.adminUsers));
+
             return {
                 ...state,
+
                 loading: false,
                 message: action.payload.message,
                 adminUsers: state.adminUsers.map((user) =>

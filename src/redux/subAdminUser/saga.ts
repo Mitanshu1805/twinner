@@ -72,23 +72,23 @@ function* updateAdminStatusSaga(action: any): SagaIterator {
 }
 
 function* watchAdminUserList() {
-    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_LIST, adminUserList);
+    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_LIST, adminUserListSaga);
 }
 
 function* watchAdminUserAdd() {
-    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_ADD, adminUserAdd);
+    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_ADD, adminUserAddSaga);
 }
 
 function* watchAdminUserDelete() {
-    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_DELETE, adminUserDelete);
+    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_DELETE, adminUserDeleteSaga);
 }
 
 function* watchAdminUserUpdate() {
-    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_EDIT, adminUserUpdate);
+    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_EDIT, adminUserUpdateSaga);
 }
 
 function* watchUpdateAdminStatus() {
-    yield takeEvery(SubAdminUserActionTypes.UPDATE_ADMIN_STATUS, updateAdminStatus);
+    yield takeEvery(SubAdminUserActionTypes.UPDATE_ADMIN_STATUS, updateAdminStatusSaga);
 }
 
 export default function* subAdminUsersSaga(): SagaIterator {

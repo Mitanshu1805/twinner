@@ -82,7 +82,7 @@ export const adminUserAddError = (error: string): SubAdminUserActionType => ({
     payload: { error },
 });
 
-export const adminUserDelete = (data: AdminUserAdd): SubAdminUserActionType => ({
+export const adminUserDelete = (): SubAdminUserActionType => ({
     type: SubAdminUserActionTypes.ADMIN_USERS_DELETE,
     // payload: data,
 });
@@ -112,9 +112,9 @@ export const adminUserUpdateError = (error: string): SubAdminUserActionType => (
     payload: { error },
 });
 
-export const updateAdminStatus = (data: UpdateAdminStatus): SubAdminUserActionType => ({
+export const updateAdminStatus = (admin_user_id: string, is_active: boolean): SubAdminUserActionType => ({
     type: SubAdminUserActionTypes.UPDATE_ADMIN_STATUS,
-    payload: data,
+    payload: { admin_user_id, is_active },
 });
 
 export const updateAdminStatusSuccess = (message: string): SubAdminUserActionType => ({
