@@ -13,9 +13,15 @@ import AppMenu from './Menu';
 
 // images
 import profileImg from '../assets/images/users/user-1.jpg';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store'; // Adjust path based on your structure
+import RegisterAdminUserModal from '../pages/SubAdminUsers/RegisterAdminUserModal';
 
 /* user box */
 const UserBox = () => {
+    // Inside UserBox component
+    // const user = useSelector((state) => state.Auth?.user);
+    const user = useSelector((state: RootState) => state.Auth?.user);
     // get the profilemenu
     const ProfileMenus = [
         {
@@ -59,7 +65,7 @@ const UserBox = () => {
                     as={Link}
                     onClick={toggleDropdown}
                     className="user-name h5 mt-2 mb-1 d-block">
-                    John Wick
+                    {`${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'John Wick'}
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="user-pro-dropdown">
                     <div onClick={toggleDropdown}>

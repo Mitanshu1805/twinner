@@ -26,6 +26,8 @@ import logoSm from '../../assets/images/logo-sm.png';
 import avatar1 from '../../assets/images/users/user-1.jpg';
 import logoDark from '../../assets/images/Twinner.svg';
 import logoLight from '../../assets/images/Twinner.svg';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 type TopbarProps = {
     openLeftMenuCallBack: () => void;
@@ -35,6 +37,7 @@ type TopbarProps = {
 const Topbar = ({ openLeftMenuCallBack, containerClass }: TopbarProps) => {
     const { dispatch, appSelector } = useRedux();
     const [isopen, setIsopen] = useState<boolean>(false);
+    const user = useSelector((state: RootState) => state.Auth?.user);
 
     const { layout, pageTitle } = appSelector((state) => ({
         layout: state.Layout.layoutType,
@@ -72,7 +75,7 @@ const Topbar = ({ openLeftMenuCallBack, containerClass }: TopbarProps) => {
                     </li>
                     <li className="dropdown notification-list topbar-dropdown">
                         {/* User */}
-                        <ProfileDropdown userImage={avatar1} username={'John'} menuItems={profileMenus} />
+                        <ProfileDropdown userImage={avatar1} username={user?.user_name} menuItems={profileMenus} />
                     </li>
                     <li className="dropdown notification-list">
                         <ThemeSetting handleRightSideBar={handleRightSideBar} />

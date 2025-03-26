@@ -148,8 +148,7 @@ const CustomModals = () => {
                                         className="form-control"
                                         id="field-7"
                                         placeholder="Write something about yourself"
-                                        required
-                                    ></textarea>
+                                        required></textarea>
                                 </div>
                             </div>
                         </div>
@@ -159,8 +158,7 @@ const CustomModals = () => {
                         <button
                             type="button"
                             className="btn btn-secondary waves-effect"
-                            onClick={toggleResponsiveModal}
-                        >
+                            onClick={toggleResponsiveModal}>
                             Close
                         </button>
                         <button type="submit" className="btn btn-info waves-effect waves-light">

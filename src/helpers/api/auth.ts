@@ -83,6 +83,16 @@ function reportReview(data: any) {
     return api.update(`${baseUrl}`, data);
 }
 
+function userListFilter(data: any) {
+    const baseUrl = '/user/list/filter';
+    return api.get(`${baseUrl}`, data);
+}
+
+function userUpdateStatus(data: any) {
+    const baseUrl = '/user/update/status';
+    return api.update(`${baseUrl}`, data);
+}
+
 export {
     sendOTP,
     verifyOTP,
@@ -101,4 +111,6 @@ export {
     updateAdminStatus,
     reportList,
     reportReview,
+    userListFilter,
+    userUpdateStatus,
 };

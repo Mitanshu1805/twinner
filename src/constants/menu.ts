@@ -45,10 +45,10 @@ const MENU_ITEMS: MenuItemTypes[] = [
     },
     {
         key: 'analytics',
-        label: 'Analytic Reports',
+        label: 'Help & Support',
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
-        url: '/analytics',
+        url: '/help-and-support',
     },
     {
         key: 'reported-and-blocked',

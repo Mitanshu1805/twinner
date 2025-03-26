@@ -23,6 +23,7 @@ const AdminUser = () => {
     const { dispatch, appSelector } = useRedux();
     const { adminUsers = [], loading, error } = appSelector((state: RootState) => state.adminUser);
     const adminUsersData = adminUsers?.data || [];
+    console.log('adminUsersData: ', adminUsersData);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
     const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUser | null>(null);
     const [showAdminUserRegModal, setShowAdminUserRegModal] = useState(false);

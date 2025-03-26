@@ -29,7 +29,7 @@ const Logout = React.lazy(() => import('../pages/auth/Logout'));
 const DashBoard1 = React.lazy(() => import('../pages/dashboards/DashBoard1/'));
 const Interests = React.lazy(() => import('../pages/interests'));
 const ReportedAndBlocked = React.lazy(() => import('../pages/ReportAndBlock/'));
-const Analytics = React.lazy(() => import('../pages/Analytics/'));
+const HelpAndSupport = React.lazy(() => import('../pages/HelpAndSupport'));
 const TwinnerUsers = React.lazy(() => import('../pages/TwinnerUsers/'));
 const SubAdminUsers = React.lazy(() => import('../pages/SubAdminUsers/'));
 // apps
@@ -214,8 +214,8 @@ const AllRoutes = () => {
                     element: <LoadComponent component={Interests} />,
                 },
                 {
-                    path: 'analytics',
-                    element: <LoadComponent component={Analytics} />,
+                    path: 'help-and-support',
+                    element: <LoadComponent component={HelpAndSupport} />,
                 },
                 {
                     path: 'reported-and-blocked',

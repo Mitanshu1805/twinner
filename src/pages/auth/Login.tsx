@@ -80,8 +80,12 @@ const Login = () => {
     handle form submission
     */
     const onSubmit = (formData: UserData) => {
+        console.log('Entered OTP: ', local_otp);
+        console.log('Redux OTP: ', otp);
+
         if (otp) {
-            dispatch(verifyOTP(phone_number, otp));
+            // Use the OTP entered by the user instead of the one in Redux
+            dispatch(verifyOTP(phone_number, local_otp));
         } else {
             dispatch(sendOTP(formData['phone_number']));
         }

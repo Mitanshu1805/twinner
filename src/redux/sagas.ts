@@ -5,7 +5,8 @@ import layoutSaga from './layout/saga';
 import IndAndHobSaga from './interestAndHobbies/saga';
 import reportSaga from './report/saga';
 import subAdminUsersSaga from './subAdminUser/saga';
+import userManagementSaga from './userManagement/saga';
 
 export default function* rootSaga() {
-    yield all([authSaga(), layoutSaga(), IndAndHobSaga(), reportSaga(), subAdminUsersSaga()]);
+    yield all([authSaga(), layoutSaga(), IndAndHobSaga(), reportSaga(), subAdminUsersSaga(), userManagementSaga()]);
 }
