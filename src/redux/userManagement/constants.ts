@@ -6,4 +6,8 @@ export enum UserManagementActionTypes {
     USER_UPDATE_STATUS = '@@userManagement/USER_UPDATE_STATUS',
     USER_UPDATE_STATUS_SUCCESS = '@@userManagement/USER_UPDATE_STATUS_SUCCESS',
     USER_UPDATE_STATUS_ERROR = '@@userManagement/USER_UPDATE_STATUS_ERROR',
+
+    USER_DELETE = '@@userManagement/USER_DELETE',
+    USER_DELETE_SUCCESS = '@@userManagement/USER_DELETE_SUCCESS',
+    USER_DELETE_ERROR = '@@userManagement/USER_DELETE_ERROR',
 }

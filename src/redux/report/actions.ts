@@ -32,6 +32,15 @@ type ReportReview = {
     report_id: string;
 };
 
+type helpAndSupport = {
+    help_center_id: string;
+    name: string;
+    emails: string;
+    description: string;
+    user_id: string;
+    created_at: string;
+};
+
 export type ReportActionType =
     | {
           type: ReportActionTypes.REPORT_LIST;
@@ -54,6 +63,17 @@ export type ReportActionType =
       }
     | {
           type: ReportActionTypes.REPORT_REVIEW_ERROR;
+          payload: { error: string };
+      }
+    | {
+          type: ReportActionTypes.SUPPORT_HELP_LIST;
+      }
+    | {
+          type: ReportActionTypes.SUPPORT_HELP_LIST_SUCCESS;
+          payload: { data: helpAndSupport };
+      }
+    | {
+          type: ReportActionTypes.SUPPORT_HELP_LIST_ERROR;
           payload: { error: string };
       };
 
@@ -83,5 +103,19 @@ export const reportReviewSuccess = (message: string): ReportActionType => ({
 
 export const reportReviewError = (error: string): ReportActionType => ({
     type: ReportActionTypes.REPORT_REVIEW_ERROR,
+    payload: { error },
+});
+
+export const supportHelpList = (): ReportActionType => ({
+    type: ReportActionTypes.SUPPORT_HELP_LIST,
+});
+
+export const supportHelpListSuccess = (data: helpAndSupport): ReportActionType => ({
+    type: ReportActionTypes.SUPPORT_HELP_LIST_SUCCESS,
+    payload: { data },
+});
+
+export const supportHelpListError = (error: string): ReportActionType => ({
+    type: ReportActionTypes.SUPPORT_HELP_LIST_ERROR,
     payload: { error },
 });

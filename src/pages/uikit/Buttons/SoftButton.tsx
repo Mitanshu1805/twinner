@@ -8,6 +8,7 @@ type SoftButtonProps = {
     onClick?: () => void;
     children: React.ReactNode;
     className?: string;
+    disabled?: boolean;
 };
 
 type ButtonVariant = Variant;

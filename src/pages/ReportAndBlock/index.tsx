@@ -200,13 +200,6 @@ const ReportAndBlock = () => {
                                         </td>
 
                                         <td>
-                                            {/* <span
-                                                style={{
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={() => handleUserClick(report.reporter_user)}>
-                                                {report.reported_user.first_name} {report.reported_user.last_name}
-                                            </span> */}
                                             {report.reported_user.first_name} {report.reported_user.last_name}
                                         </td>
                                         <td>{report.reported_user.user_name}</td>

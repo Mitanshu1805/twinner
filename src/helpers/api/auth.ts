@@ -85,12 +85,22 @@ function reportReview(data: any) {
 
 function userListFilter(data: any) {
     const baseUrl = '/user/list/filter';
-    return api.get(`${baseUrl}`, data);
+    return api.create(`${baseUrl}`, data);
 }
 
 function userUpdateStatus(data: any) {
     const baseUrl = '/user/update/status';
     return api.update(`${baseUrl}`, data);
+}
+
+function userDelete(data: any) {
+    const baseUrl = '/user/delete';
+    return api.delete(`${baseUrl}`, data);
+}
+
+function supportHelpList(data: any) {
+    const baseUrl = '/support/help/list';
+    return api.get(`${baseUrl}`, data);
 }
 
 export {
@@ -113,4 +123,6 @@ export {
     reportReview,
     userListFilter,
     userUpdateStatus,
+    userDelete,
+    supportHelpList,
 };
