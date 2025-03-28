@@ -47,9 +47,12 @@ import { useRedux } from '../../hooks';
 import { userListFilter, userDelete } from '../../redux/userManagement/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
-import { Table } from 'react-bootstrap';
+import { Table, Button, Form, Modal } from 'react-bootstrap';
 import SoftButton from '../uikit/Buttons/SoftButton';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaFilter } from 'react-icons/fa';
+import ToggleSwitch from '../../components/ToggleSwitch';
+import { Filter } from 'react-feather';
+import { number } from 'yup';
 
 interface User {
     age: string;
@@ -62,6 +65,8 @@ interface User {
     interested_in: string;
     is_active: boolean;
     name: string;
+    page: number;
+    limit: number;
 }
 
 const UserManagement = () => {
@@ -69,9 +74,24 @@ const UserManagement = () => {
     const usersData = appSelector((state: RootState) => state.userManagement.users || []);
     const loading = appSelector((state: RootState) => state.userManagement.loading);
     const error = appSelector((state: RootState) => state.userManagement.error);
+    const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    const [showFilterModal, setShowFilterModal] = useState(false);
+    const [filtersApplied, setFiltersApplied] = useState(false);
+
+    const [filters, setFilters] = useState({
+        min_age: null,
+        max_age: null,
+        education: '',
+        country: '',
+        city: '',
+        birthdate: '',
+        interested_in: '',
+        progress_status: '',
+    });
 
     // Fetch Data Once
     useEffect(() => {
@@ -83,22 +103,27 @@ const UserManagement = () => {
             city: null,
             birthdate: null,
             interested_in: null,
+            // page: Number(currentPage),
+            // limit: Number(itemsPerPage),
         };
         dispatch(userListFilter(filterPayload));
+        // dispatch(userListFilter(filterPayload, currentPage, itemsPerPage));
+
+        // dispatch(userListFilter({ ...filterPayload, page: currentPage, limit: itemsPerPage }));
     }, [dispatch]);
 
     // Calculate Total Pages
-    const totalPages = Math.ceil(usersData.length / itemsPerPage);
-    console.log('user data length', usersData.length);
-    // Get the Current Page Data
-    const paginatedUsers = usersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    // const totalPages = Math.ceil(usersData.length / itemsPerPage);
+    // console.log('user data length', usersData.length);
+    // // Get the Current Page Data
+    // const paginatedUsers = usersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     // Change Page
-    const handlePageChange = (newPage: number) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setCurrentPage(newPage);
-        }
-    };
+    // const handlePageChange = (newPage: number) => {
+    //     if (newPage >= 1 && newPage <= totalPages) {
+    //         setCurrentPage(newPage);
+    //     }
+    // };
 
     const handleDeleteUser = (user_id: string) => {
         console.log('Deleting User ID:', user_id); // Debug log
@@ -107,8 +132,103 @@ const UserManagement = () => {
         }
     };
 
+    const handleShowModal = () => setShowFilterModal(true);
+    // const handleCloseModal = () => setShowFilterModal(false);
+    const handleCloseModal = () => {
+        setFilters({
+            min_age: null,
+            max_age: null,
+            education: '',
+            country: '',
+            city: '',
+            birthdate: '',
+            interested_in: '',
+            progress_status: '',
+        });
+
+        setShowFilterModal(false); // Assuming you're using a state variable for modal visibility
+    };
+
+    // const handleFilterChange: React.ChangeEventHandler<any> = (e) => {
+    //     const { name, value, type } = e.target;
+
+    //     setFilters((prevFilters) => ({
+    //         ...prevFilters,
+    //         [name]: type === 'number' ? (value ? Number(value) : null) : value,
+    //     }));
+    // };
+
+    const handleFilterChange: React.ChangeEventHandler<any> = (e) => {
+        const { name, value, type } = e.target;
+
+        setFilters((prevFilters) => {
+            const updatedFilters: any = {
+                ...prevFilters,
+                [name]: type === 'number' ? (value ? Number(value) : null) : value,
+            };
+
+            // If min_age is set and max_age is empty, set max_age to 100
+            if (name === 'min_age' && !prevFilters.max_age) {
+                updatedFilters.max_age = 100;
+            }
+
+            // If max_age is cleared, reset min_age to 0
+            if (name === 'max_age' && !value) {
+                updatedFilters.min_age = 0;
+            }
+
+            if (name === 'max_age' && !prevFilters.min_age) {
+                updatedFilters.min_age = 1;
+            }
+
+            if (name === 'min_age' && !value) {
+                updatedFilters.max_age = 0;
+            }
+
+            return updatedFilters;
+        });
+    };
+
+    // Apply Filters
+    const handleApplyFilters = async () => {
+        try {
+            setFiltersApplied(true); // Mark that a filter was applied
+
+            const updatedFilters = {
+                ...filters,
+                min_age: filters.min_age ? Number(filters.min_age) : null,
+                max_age: filters.max_age ? Number(filters.max_age) : null,
+                page: currentPage, // ✅ Add page
+                limit: itemsPerPage, // ✅ Add limit
+            };
+
+            await Promise.resolve(dispatch(userListFilter(updatedFilters)));
+
+            console.log('Filter applied, waiting for usersData update...');
+            handleCloseModal();
+        } catch (error) {
+            console.error('Error applying filters:', error);
+        }
+    };
+
+    // Check for no data AFTER Redux state updates
+    useEffect(() => {
+        if (filtersApplied && !loading) {
+            console.log('Checking usersData:', usersData); // Debugging
+            if (usersData.length === 0) {
+                alert('No data found for the applied filters.');
+            }
+            setFiltersApplied(false); // Reset flag after showing the alert
+        }
+    }, [usersData, loading, filtersApplied]);
+
     return (
         <div>
+            {/* Filter Button */}
+            <Button variant="primary" onClick={handleShowModal} style={{ marginBottom: '10px' }}>
+                <FaFilter /> Filter Users
+            </Button>
+
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
@@ -132,8 +252,8 @@ const UserManagement = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {paginatedUsers.length > 0 ? (
-                                paginatedUsers.map((user: User, index: number) => (
+                            {usersData.length > 0 ? (
+                                usersData.map((user: User, index: number) => (
                                     <tr key={user.user_id}>
                                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
 
@@ -168,25 +288,146 @@ const UserManagement = () => {
             )}
 
             {/* Pagination Controls */}
-            <div className="pagination" style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <div
+                className="pagination-controls"
+                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <SoftButton
                     variant="secondary"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}>
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                    className={currentPage === 1 ? 'disabled-button' : ''}>
                     Previous
                 </SoftButton>
 
-                <span style={{ margin: '0 10px' }}>
-                    Page {currentPage} of {totalPages}
-                </span>
-
                 <SoftButton
                     variant="secondary"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}>
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    className={usersData.length < itemsPerPage ? 'disabled-button' : ''}>
                     Next
                 </SoftButton>
             </div>
+            <Modal show={showFilterModal} onHide={handleCloseModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Filter Users</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <div className="row">
+                            {/* Age Range */}
+                            <div className="col-md-6">
+                                <Form.Group controlId="min_age">
+                                    <Form.Label>Min Age</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        name="min_age"
+                                        value={filters.min_age || ''}
+                                        onChange={handleFilterChange}
+                                        placeholder="Enter min age"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group controlId="max_age">
+                                    <Form.Label>Max Age</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        name="max_age"
+                                        value={filters.max_age || ''}
+                                        onChange={handleFilterChange}
+                                        placeholder="Enter max age"
+                                    />
+                                </Form.Group>
+                            </div>
+
+                            {/* Education & Interested In */}
+                            <div className="col-md-6">
+                                <Form.Group controlId="education">
+                                    <Form.Label>Education</Form.Label>
+
+                                    <Form.Select
+                                        name="education"
+                                        value={filters.education}
+                                        onChange={handleFilterChange}>
+                                        <option value="">Select Education</option>
+                                        <option value="High school">High school</option>
+                                        <option value="Non-degree qualification">Non-degree qualification</option>
+                                        <option value="Undergraduate degree">Undergraduate degree</option>
+                                        <option value="Postgraduate degree">Postgraduate degree</option>
+                                        <option value="Doctorate">Doctorate</option>
+                                        <option value="Other educational level">Other educational level</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group controlId="interested_in">
+                                    <Form.Label>Interested In</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="interested_in"
+                                        value={filters.interested_in}
+                                        onChange={handleFilterChange}
+                                        placeholder="Enter interest"
+                                    />
+                                </Form.Group>
+                            </div>
+
+                            {/* Country & City */}
+                            <div className="col-md-6">
+                                <Form.Group controlId="country">
+                                    <Form.Label>Country</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="country"
+                                        value={filters.country}
+                                        onChange={handleFilterChange}
+                                        placeholder="Enter country"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6">
+                                <Form.Group controlId="city">
+                                    <Form.Label>City</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="city"
+                                        value={filters.city}
+                                        onChange={handleFilterChange}
+                                        placeholder="Enter city"
+                                    />
+                                </Form.Group>
+                            </div>
+
+                            {/* Progress Status */}
+                            <div className="col-md-12">
+                                <Form.Group controlId="progress_status">
+                                    <Form.Label>Progress Status</Form.Label>
+                                    <Form.Select
+                                        name="progress_status"
+                                        value={filters.progress_status || ''}
+                                        onChange={handleFilterChange}>
+                                        <option value="">Select Progress Status</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="completed">Completed</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </div>
+                        </div>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Close
+                    </Button>
+                    {/* <Button variant="danger" onClick={() => setFilters({})}>
+                        Reset Filters
+                    </Button> */}
+                    <Button variant="primary" onClick={handleApplyFilters}>
+                        Apply Filters
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

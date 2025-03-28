@@ -8,6 +8,8 @@ type UserFilterPayload = {
     city: string | null;
     birthdate: string | null;
     interested_in: string | null;
+
+    // pagination?: { page: number; limit: number };
 };
 
 type Interest = {
@@ -87,6 +89,11 @@ export const userListFilter = (payload: UserFilterPayload): UserManagementAction
     type: UserManagementActionTypes.USER_LIST_WITH_FILTER,
     payload,
 });
+
+// export const userListFilter = (payload: UserFilterPayload, page: number, limit: number): UserManagementActionType => ({
+//     type: UserManagementActionTypes.USER_LIST_WITH_FILTER,
+//     payload: { ...payload, pagination: { page, limit } }, // ✅ Nested inside `pagination`
+// });
 
 export const userListFilterSuccess = (data: UserManagementSuccessPayload): UserManagementActionType => ({
     type: UserManagementActionTypes.USER_LIST_WITH_FILTER_SUCCESS,

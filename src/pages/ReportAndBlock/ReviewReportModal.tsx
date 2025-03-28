@@ -3,11 +3,6 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { reportList, reportReview } from '../../redux/actions';
 
-// interface ReportReview {
-//     report_id: string;
-//     response: string;
-// }
-
 interface ReportReviewModalProps {
     show: boolean;
     onClose: () => void;
@@ -27,23 +22,21 @@ const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, re
     const handleReport = () => {
         if (response.trim() === '') {
             alert('Please enter a response before reporting.');
-
-            const newReport = {
-                report_id: reportId,
-                response: 'response',
-            };
-
-            dispatch(reportReview(newReport));
-
-            setTimeout(() => {
-                dispatch(reportList);
-                setResponse('');
-
-                onClose();
-            }, 500);
+            return; // Prevent further execution if response is empty
         }
-        // dispatch(reportReview({ report_id: reportId, response }));
-        onClose();
+
+        const newReport = {
+            report_id: reportId,
+            response,
+        };
+
+        dispatch(reportReview(newReport));
+
+        setTimeout(() => {
+            dispatch(reportList()); // Corrected function call
+            setResponse('');
+            onClose();
+        }, 500);
     };
 
     return (

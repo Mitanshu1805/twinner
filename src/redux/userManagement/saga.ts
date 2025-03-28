@@ -14,15 +14,84 @@ import {
 
 import { UserManagementActionTypes } from './constants';
 
+// function* userListFilterSaga(action: any): SagaIterator {
+//     try {
+//         const { payload, params } = action;
+//         const { page, limit } = params;
+
+//         // ✅ Convert page and limit to query string
+//         const queryParams = new URLSearchParams({
+//             page: page.toString(),
+//             limit: limit.toString(),
+//         }).toString();
+
+//         // ✅ API call: Pass arguments separately
+//         const response = yield call(userListFilter, payload, page, limit);
+
+//         console.log('Full API response of Twinner Users:', response);
+
+//         if (!response || !response.data.data) {
+//             throw new Error('No users found for such filter');
+//         }
+
+//         const users = response.data.data.users;
+//         console.log('Extracted Users from response:', users);
+
+//         yield put(userListFilterSuccess(users));
+//     } catch (error: any) {
+//         console.error('Error in userListFilterSaga:', error);
+//         yield put(userListFilterError(error.message || 'Error Occurred'));
+//     }
+// }
+
+// function* userListFilterSaga(action: any): SagaIterator {
+//     try {
+//         const response = yield call(userListFilter, action.payload);
+//         console.log('Full API response of Twinner Users:', response);
+
+//         // Handle 404 response properly
+//         if (response?.status === 404 || !response?.data) {
+//             console.warn('No users found, setting empty list');
+
+//             yield put(userListFilterSuccess({
+//                 success: true,  // Assuming the API response structure
+//                 message: "No users found",
+//                 data: { users: [] }  // Ensure correct data structure
+//             }));
+
+//             return;
+//         }
+
+//         // Ensure response structure is valid before accessing properties
+//         const users = response.data?.data?.users || [];
+
+//         console.log('Extracted Users from response:', users);
+
+//         yield put(userListFilterSuccess({
+//             success: true,
+//             message: "Users retrieved successfully",
+//             data: { users }
+//         }));
+//     } catch (error: any) {
+//         console.error('Error in userListFilterSaga:', error);
+
+//         // Handle error response more gracefully
+//         if (error.response?.status === 404) {
+//             yield put(userListFilterSuccess({
+//                 success: false,
+//                 message: "No users found",
+//                 data: { users: [] }
+//             }));
+//         } else {
+//             yield put(userListFilterError(error.message || 'Error Occurred'));
+//         }
+//     }
+// }
+
 function* userListFilterSaga(action: any): SagaIterator {
     try {
         const response = yield call(userListFilter, action.payload);
-        console.log('Full API response:', response);
-
-        const users = response.data.data.users; // Ensure correct path
-        console.log('Extracted Users from response:', users);
-
-        yield put(userListFilterSuccess(users));
+        yield put(userListFilterSuccess(response.data));
     } catch (error: any) {
         console.error('Error in userListFilterSaga:', error);
         yield put(userListFilterError(error.message || 'Error Occurred'));

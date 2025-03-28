@@ -88,6 +88,22 @@ function userListFilter(data: any) {
     return api.create(`${baseUrl}`, data);
 }
 
+// function userListFilter(payload: any, page: number, limit: number) {
+//     const baseUrl = `/user/list/filter?page=${page}&limit=${limit}`;
+
+//     return api.create(baseUrl, payload); // ✅ Send pagination in query params and filters in body
+// }
+
+// function userListFilter = (payload: any, page: number, limit: number) => {
+//     return api.get(`/users`, {
+//         params: {
+//             ...payload,
+//             page,
+//             limit,
+//         },
+//     });
+// };
+
 function userUpdateStatus(data: any) {
     const baseUrl = '/user/update/status';
     return api.update(`${baseUrl}`, data);

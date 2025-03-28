@@ -129,6 +129,7 @@ interface Report {
     reporter_user: User;
     description: string;
     created_at: string;
+    response: string;
 }
 
 const ReportAndBlock = () => {
@@ -184,6 +185,7 @@ const ReportAndBlock = () => {
                                 <th>Age</th>
                                 <th>Time</th>
                                 <th>Reporter User</th>
+                                <th>Response</th>
                                 <th>Report Review</th>
                             </tr>
                         </thead>
@@ -218,6 +220,7 @@ const ReportAndBlock = () => {
                                             onClick={() => handleUserClick(report.reporter_user)}>
                                             <FileText size={20} />
                                         </td>
+                                        <td>{report.response}</td>
                                         <td>
                                             <Clipboard size={20} onClick={handleRegisterNewReport} />
                                             <ReportReviewModal

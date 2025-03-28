@@ -333,6 +333,7 @@ const InterestHobbies = () => {
                         <SoftButton
                             variant="secondary"
                             onClick={() => setCurrentPage((prev) => prev + 1)}
+                            // disabled={interestListData.length < itemsPerPage}
                             className={interestListData.length < itemsPerPage ? 'disabled-button' : ''}>
                             Next
                         </SoftButton>
