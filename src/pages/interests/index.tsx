@@ -245,7 +245,8 @@ const InterestHobbies = () => {
 
     const handleCloseRegModal = () => {
         setShowInterestRegModal(false);
-        dispatch(interestList(currentPage, itemsPerPage)); // Refresh list after adding/editing
+        // dispatch(interestList(currentPage, itemsPerPage)); // Refresh list after adding/editing
+        dispatch(interestList());
     };
 
     const handleDeleteInterest = (interest_id: string) => {

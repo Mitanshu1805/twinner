@@ -35,7 +35,8 @@ function* reportReviewSaga(action: any): SagaIterator {
 
 function* supportHelpListSaga(action: any): SagaIterator {
     try {
-        const response = yield call(supportHelpList, action.payload);
+        const { currentPage, itemsPerPage } = action.meta;
+        const response = yield call(supportHelpList, action.payload, currentPage, itemsPerPage);
         console.log('Help List Response', response);
         yield put(supportHelpListSuccess(response.data.data));
     } catch (error: any) {

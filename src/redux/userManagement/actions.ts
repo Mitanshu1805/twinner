@@ -47,48 +47,73 @@ type UserManagementSuccessPayload = {
 
 export type UserManagementActionType =
     | {
-          type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER;
-          payload: UserFilterPayload;
-      }
+        type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER;
+        payload: UserFilterPayload;
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER_SUCCESS;
-          payload: { data: UserManagementSuccessPayload };
-      }
+        type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER_SUCCESS;
+        payload: { data: UserManagementSuccessPayload };
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR;
-          payload: string; // Error message
-      }
+        type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR;
+        payload: string; // Error message
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_UPDATE_STATUS;
-          payload: { user_id: string; is_active: boolean };
-      }
+        type: typeof UserManagementActionTypes.USER_UPDATE_STATUS;
+        payload: { user_id: string; is_active: boolean };
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_SUCCESS;
-          payload: { message: string }; // Success message
-      }
+        type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_SUCCESS;
+        payload: { message: string }; // Success message
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_ERROR;
-          payload: string; // Error message
-      }
+        type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_ERROR;
+        payload: string; // Error message
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_DELETE;
-          payload: { user_id: string };
-      }
+        type: typeof UserManagementActionTypes.USER_DELETE;
+        payload: { user_id: string };
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_DELETE_SUCCESS;
-          payload: { message: string }; // Success message
-      }
+        type: typeof UserManagementActionTypes.USER_DELETE_SUCCESS;
+        payload: { message: string }; // Success message
+    }
     | {
-          type: typeof UserManagementActionTypes.USER_DELETE_ERROR;
-          payload: string; // Error message
-      };
+        type: typeof UserManagementActionTypes.USER_DELETE_ERROR;
+        payload: string; // Error message
+    };
 
 // Action Creators
 
-export const userListFilter = (payload: UserFilterPayload): UserManagementActionType => ({
+// export const userListFilter = (payload: UserFilterPayload): UserManagementActionType => ({
+//     type: UserManagementActionTypes.USER_LIST_WITH_FILTER,
+//     payload,
+// });
+export const userListFilter = (
+    data: UserFilterPayload = {
+        min_age: null,
+        max_age: null,
+        education: null,
+        country: null,
+        city: null,
+        birthdate: null,
+        interested_in: null,
+    }, // ✅ Default values to match UserFilterPayload type
+    currentPage: number,
+    itemsPerPage: number
+): {
+    type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER;
+    payload: UserFilterPayload;
+    meta: { currentPage: number; itemsPerPage: number };
+} => ({
     type: UserManagementActionTypes.USER_LIST_WITH_FILTER,
-    payload,
+    payload: data, // ✅ Now it will always be a valid UserFilterPayload
+    meta: { currentPage, itemsPerPage },
 });
+
+
+
+
 
 // export const userListFilter = (payload: UserFilterPayload, page: number, limit: number): UserManagementActionType => ({
 //     type: UserManagementActionTypes.USER_LIST_WITH_FILTER,

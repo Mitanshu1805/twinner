@@ -1,53 +1,11 @@
-// import React, { useEffect } from 'react';
-// import { useRedux } from '../../hooks';
-// import { userListFilter } from '../../redux/actions';
-// import { RootState } from '../../redux/store';
-// import BorderedTable from '../tables/BasicTable/BorderedTable';
-
-// const UserManagement = () => {
-//     const { dispatch, appSelector } = useRedux();
-
-//     // Corrected: Get users array correctly
-//     const users = appSelector((state: RootState) => state.userManagement.users);
-//     const loading = appSelector((state: RootState) => state.userManagement.loading);
-//     const error = appSelector((state: RootState) => state.userManagement.error);
-
-//     console.log('User List Data in Component:', users);
-
-//     useEffect(() => {
-//         const filterPayload = {
-//             min_age: null,
-//             max_age: null,
-//             education: null,
-//             country: null,
-//             city: null,
-//             birthdate: null,
-//             interested_in: null,
-//         };
-//         dispatch(userListFilter(filterPayload));
-//     }, [dispatch]);
-
-//     return (
-//         <div>
-//             <h2>Twinner Users</h2>
-//             {/* {loading && <p>Loading...</p>}
-//             {error && <p>Error: {error}</p>}
-//             {!loading && users.length === 0 && <p>No users found</p>}
-//             {!loading && users.length > 0 && (
-//                 <BorderedTable data={users} />
-//             )} */}
-//         </div>
-//     );
-// };
-
-// export default UserManagement;
-
 import React, { useEffect, useState } from 'react';
 import { useRedux } from '../../hooks';
 import { userListFilter, userDelete } from '../../redux/userManagement/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import { Table, Button, Form, Modal } from 'react-bootstrap';
+import { useSelector } from "react-redux";
+
 import SoftButton from '../uikit/Buttons/SoftButton';
 import { FaTrash, FaFilter } from 'react-icons/fa';
 import ToggleSwitch from '../../components/ToggleSwitch';
@@ -72,12 +30,20 @@ interface User {
 const UserManagement = () => {
     const { dispatch, appSelector } = useRedux();
     const usersData = appSelector((state: RootState) => state.userManagement.users || []);
+
     const loading = appSelector((state: RootState) => state.userManagement.loading);
     const error = appSelector((state: RootState) => state.userManagement.error);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    // const paginatedUsers = usersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedUsers = usersData.slice(startIndex, startIndex + itemsPerPage);
+    console.log("paginatedUsers", paginatedUsers)
+    const users = useSelector((state: RootState) => state.userManagement.users);
+    const pagination = useSelector((state: RootState) => state.userManagement.pagination);
+
 
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filtersApplied, setFiltersApplied] = useState(false);
@@ -103,27 +69,14 @@ const UserManagement = () => {
             city: null,
             birthdate: null,
             interested_in: null,
-            // page: Number(currentPage),
-            // limit: Number(itemsPerPage),
+
         };
-        dispatch(userListFilter(filterPayload));
-        // dispatch(userListFilter(filterPayload, currentPage, itemsPerPage));
+        console.log("Dispatching filterPayload:", filterPayload);
+        console.log("📌 Users in Component:", paginatedUsers);
 
-        // dispatch(userListFilter({ ...filterPayload, page: currentPage, limit: itemsPerPage }));
-    }, [dispatch]);
 
-    // Calculate Total Pages
-    // const totalPages = Math.ceil(usersData.length / itemsPerPage);
-    // console.log('user data length', usersData.length);
-    // // Get the Current Page Data
-    // const paginatedUsers = usersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    // Change Page
-    // const handlePageChange = (newPage: number) => {
-    //     if (newPage >= 1 && newPage <= totalPages) {
-    //         setCurrentPage(newPage);
-    //     }
-    // };
+        dispatch(userListFilter(filterPayload, currentPage, itemsPerPage));
+    }, [dispatch, currentPage]);
 
     const handleDeleteUser = (user_id: string) => {
         console.log('Deleting User ID:', user_id); // Debug log
@@ -198,11 +151,12 @@ const UserManagement = () => {
                 ...filters,
                 min_age: filters.min_age ? Number(filters.min_age) : null,
                 max_age: filters.max_age ? Number(filters.max_age) : null,
-                page: currentPage, // ✅ Add page
-                limit: itemsPerPage, // ✅ Add limit
+
             };
 
-            await Promise.resolve(dispatch(userListFilter(updatedFilters)));
+            setCurrentPage(1)
+
+            await Promise.resolve(dispatch(userListFilter(updatedFilters, currentPage, itemsPerPage)));
 
             console.log('Filter applied, waiting for usersData update...');
             handleCloseModal();
@@ -223,6 +177,7 @@ const UserManagement = () => {
     }, [usersData, loading, filtersApplied]);
 
     return (
+
         <div>
             {/* Filter Button */}
             <Button variant="primary" onClick={handleShowModal} style={{ marginBottom: '10px' }}>
@@ -252,8 +207,9 @@ const UserManagement = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {usersData.length > 0 ? (
-                                usersData.map((user: User, index: number) => (
+
+                            {paginatedUsers.length > 0 ? (
+                                paginatedUsers.map((user: User, index: number) => (
                                     <tr key={user.user_id}>
                                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
 
@@ -291,20 +247,30 @@ const UserManagement = () => {
             <div
                 className="pagination-controls"
                 style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+
                 <SoftButton
                     variant="secondary"
                     onClick={() => setCurrentPage((prev) => prev - 1)}
-                    className={currentPage === 1 ? 'disabled-button' : ''}>
+                    disabled={currentPage === 1} // Correct check
+                >
                     Previous
                 </SoftButton>
+
+                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
+                    Page {currentPage} of {pagination?.totalPages || 1}
+                </span>
 
                 <SoftButton
                     variant="secondary"
                     onClick={() => setCurrentPage((prev) => prev + 1)}
-                    className={usersData.length < itemsPerPage ? 'disabled-button' : ''}>
+                    disabled={currentPage >= (pagination?.totalPages || 1)} // Correct check
+                >
                     Next
                 </SoftButton>
+
             </div>
+
+
             <Modal show={showFilterModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Filter Users</Modal.Title>
@@ -313,7 +279,7 @@ const UserManagement = () => {
                     <Form>
                         <div className="row">
                             {/* Age Range */}
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
                                 <Form.Group controlId="min_age">
                                     <Form.Label>Min Age</Form.Label>
                                     <Form.Control
@@ -325,7 +291,7 @@ const UserManagement = () => {
                                     />
                                 </Form.Group>
                             </div>
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
                                 <Form.Group controlId="max_age">
                                     <Form.Label>Max Age</Form.Label>
                                     <Form.Control
@@ -339,14 +305,14 @@ const UserManagement = () => {
                             </div>
 
                             {/* Education & Interested In */}
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
                                 <Form.Group controlId="education">
                                     <Form.Label>Education</Form.Label>
-
                                     <Form.Select
                                         name="education"
                                         value={filters.education}
-                                        onChange={handleFilterChange}>
+                                        onChange={handleFilterChange}
+                                    >
                                         <option value="">Select Education</option>
                                         <option value="High school">High school</option>
                                         <option value="Non-degree qualification">Non-degree qualification</option>
@@ -357,7 +323,7 @@ const UserManagement = () => {
                                     </Form.Select>
                                 </Form.Group>
                             </div>
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
                                 <Form.Group controlId="interested_in">
                                     <Form.Label>Interested In</Form.Label>
                                     <Form.Control
@@ -371,7 +337,7 @@ const UserManagement = () => {
                             </div>
 
                             {/* Country & City */}
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
                                 <Form.Group controlId="country">
                                     <Form.Label>Country</Form.Label>
                                     <Form.Control
@@ -383,7 +349,7 @@ const UserManagement = () => {
                                     />
                                 </Form.Group>
                             </div>
-                            <div className="col-md-6">
+                            <div className="col-md-6 mb-3">
                                 <Form.Group controlId="city">
                                     <Form.Label>City</Form.Label>
                                     <Form.Control
@@ -397,13 +363,14 @@ const UserManagement = () => {
                             </div>
 
                             {/* Progress Status */}
-                            <div className="col-md-12">
+                            <div className="col-md-12 mb-3">
                                 <Form.Group controlId="progress_status">
                                     <Form.Label>Progress Status</Form.Label>
                                     <Form.Select
                                         name="progress_status"
                                         value={filters.progress_status || ''}
-                                        onChange={handleFilterChange}>
+                                        onChange={handleFilterChange}
+                                    >
                                         <option value="">Select Progress Status</option>
                                         <option value="0">0</option>
                                         <option value="1">1</option>
@@ -420,14 +387,12 @@ const UserManagement = () => {
                     <Button variant="secondary" onClick={handleCloseModal}>
                         Close
                     </Button>
-                    {/* <Button variant="danger" onClick={() => setFilters({})}>
-                        Reset Filters
-                    </Button> */}
                     <Button variant="primary" onClick={handleApplyFilters}>
                         Apply Filters
                     </Button>
                 </Modal.Footer>
             </Modal>
+
         </div>
     );
 };

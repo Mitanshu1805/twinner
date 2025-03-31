@@ -83,10 +83,27 @@ function reportReview(data: any) {
     return api.update(`${baseUrl}`, data);
 }
 
-function userListFilter(data: any) {
-    const baseUrl = '/user/list/filter';
-    return api.create(`${baseUrl}`, data);
+function userListFilter(data: any, currentPage: number = 1, itemsPerPage: number = 10) {
+    const baseUrl = "/user/list/filter";
+    const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+    });
+
+    const fullUrl = `${baseUrl}?${params.toString()}`;
+    return api.create(fullUrl, data);
 }
+// function userListFilter(data: any, page: number = 1, limit: number = 10) {
+//     const baseUrl = "/user/list/filter";
+//     const params = new URLSearchParams({
+//         page: page.toString(),
+//         limit: limit.toString(),
+//     });
+
+//     const fullUrl = `${baseUrl}?${params.toString()}`;
+//     return api.create(fullUrl, data);
+// }
+
 
 // function userListFilter(payload: any, page: number, limit: number) {
 //     const baseUrl = `/user/list/filter?page=${page}&limit=${limit}`;
@@ -114,9 +131,54 @@ function userDelete(data: any) {
     return api.delete(`${baseUrl}`, data);
 }
 
-function supportHelpList(data: any) {
+function supportHelpList(data: any, currentPage: number = 1, itemsPerPage: number = 2) {
     const baseUrl = '/support/help/list';
-    return api.get(`${baseUrl}`, data);
+    const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+    });
+    const fullUrl = `${baseUrl}?${params.toString()}`;
+    return api.get(fullUrl, data);
+}
+
+// function userListFilter(data: any, currentPage: number = 1, itemsPerPage: number = 10) {
+//     const baseUrl = "/user/list/filter";
+//     const params = new URLSearchParams({
+//         page: currentPage.toString(),
+//         limit: itemsPerPage.toString(),
+//     });
+
+//     const fullUrl = `${baseUrl}?${params.toString()}`;
+//     return api.create(fullUrl, data);
+// }
+
+function permissionModuleAdd(data: any) {
+    const baseUrl = '/permission/module/add';
+    return api.create(`${baseUrl}`, data)
+}
+function permissionModuleList(data: any) {
+    const baseUrl = '/permission/module/list';
+    return api.get(`${baseUrl}`, data)
+}
+function permissionModuleDelete(data: any) {
+    const baseUrl = '/permission/module/delete';
+    return api.delete(`${baseUrl}`, data)
+}
+function permissionAdd(data: any) {
+    const baseUrl = '/permission/add';
+    return api.create(`${baseUrl}`, data)
+}
+function permissionList(data: any) {
+    const baseUrl = '/permission/list';
+    return api.get(`${baseUrl}`, data)
+}
+function permissionDelete(data: any) {
+    const baseUrl = '/permission/delete';
+    return api.delete(`${baseUrl}`, data)
+}
+function permissionAssign(data: any) {
+    const baseUrl = '/permission/assign';
+    return api.update(`${baseUrl}`, data)
 }
 
 export {
@@ -141,4 +203,11 @@ export {
     userUpdateStatus,
     userDelete,
     supportHelpList,
+    permissionModuleAdd,
+    permissionModuleList,
+    permissionModuleDelete,
+    permissionAdd,
+    permissionAssign,
+    permissionDelete,
+    permissionList,
 };

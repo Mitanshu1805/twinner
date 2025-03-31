@@ -4,6 +4,8 @@ import { useRedux } from '../../hooks';
 import { supportHelpList } from '../../redux/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
+import SoftButton from '../uikit/Buttons/SoftButton';
+import { useSelector } from "react-redux";
 
 interface Help {
     help_center_id: string;
@@ -28,11 +30,23 @@ interface User {
 const HelpAndSupport = () => {
     const { dispatch, appSelector } = useRedux();
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
+    // const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    // const paginatedUsers = helpAndSupports.slice(startIndex, startIndex + itemsPerPage);
+    // console.log("paginated users", paginatedUsers)
+    const pagination = useSelector((state: RootState) => state.userManagement.pagination);
+    const { help_requests = [], current_page, total_pages, loading, error } = useSelector(
+        (state: RootState) => state.report
+    );
 
+    // useEffect(() => {
+    //     dispatch(supportHelpList());
+    // }, [dispatch]);
     useEffect(() => {
-        dispatch(supportHelpList());
-    }, [dispatch]);
+        dispatch(supportHelpList(currentPage, 10));
+    }, [dispatch, currentPage]);
 
     useEffect(() => {
         console.log('Selected User Changed:', selectedUser);
@@ -42,6 +56,18 @@ const HelpAndSupport = () => {
         if (user) {
             console.log('Clicked User:', user);
             setSelectedUser(user);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < total_pages) {
+            setCurrentPage(prev => prev + 1);
+        }
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prev => prev - 1);
         }
     };
 
@@ -63,8 +89,8 @@ const HelpAndSupport = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {helpAndSupports.length > 0 ? (
-                                helpAndSupports.map((help: Help) => (
+                            {help_requests.length > 0 ? (
+                                help_requests.map((help: Help) => (
                                     <tr key={help.help_center_id}>
                                         <td style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                             <img
@@ -83,13 +109,6 @@ const HelpAndSupport = () => {
                                         </td>
 
                                         <td
-                                        // onClick={() => {
-                                        //     console.log('Clicked user:', help.user); // 🔥 Debugging Log
-                                        //     if (help.user) {
-                                        //         setSelectedUser(help.user);
-                                        //     }
-                                        // }}
-                                        // style={{ cursor: 'pointer' }} // 🔥 Makes it clear that it's clickable
                                         >
                                             {help.name}
                                         </td>
@@ -111,6 +130,49 @@ const HelpAndSupport = () => {
                 </BorderedTable>
             )}
 
+            {/* Pagination Controls
+            <div
+                className="pagination-controls"
+                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+
+                <SoftButton
+                    variant="secondary"
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                    disabled={currentPage === 1} // Correct check
+                >
+                    Previous
+                </SoftButton>
+
+                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
+                    Page {currentPage} of {pagination?.totalPages || 1}
+                </span>
+
+                <SoftButton
+                    variant="secondary"
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    disabled={currentPage >= (pagination?.totalPages || 1)}
+                >
+                    Next
+                </SoftButton>
+
+            </div> */}
+
+            {/* Pagination Controls */}
+            <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
+                    Previous
+                </SoftButton>
+
+                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
+                    Page {currentPage} of {total_pages}
+                </span>
+
+                <SoftButton variant="secondary" onClick={handleNextPage} disabled={currentPage >= total_pages}>
+                    Next
+                </SoftButton>
+            </div>
+
+
             {/* User Details Modal */}
             <Modal show={selectedUser !== null} onHide={() => setSelectedUser(null)} centered>
                 <Modal.Header closeButton>
@@ -119,13 +181,6 @@ const HelpAndSupport = () => {
                 <Modal.Body>
                     {selectedUser && (
                         <div>
-                            {/* <img
-                                src={selectedUser.profile_image ?? '/default-profile.jpg'}
-                                alt={selectedUser.first_name}
-                                width="80"
-                                height="80"
-                                style={{ borderRadius: '50%', marginBottom: '10px' }}
-                            /> */}
                             <p>
                                 <strong>Name:</strong> {selectedUser.first_name} {selectedUser.last_name}
                             </p>

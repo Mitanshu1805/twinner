@@ -12,7 +12,7 @@ interface UserManagementFilterPayload {
 }
 
 interface UserType {
-    user_id: number;
+    user_id: number | string;
     name: string;
     email: string;
     age: number;
@@ -75,9 +75,9 @@ type UserManagementActionType =
     | { type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR; payload: string }
     | { type: typeof UserManagementActionTypes.USER_UPDATE_STATUS; payload: { user_id: string; is_active: boolean } }
     | {
-          type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_SUCCESS;
-          payload: { user_id: string; message: string };
-      } // Include `user_id`
+        type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_SUCCESS;
+        payload: { user_id: string; message: string };
+    } // Include `user_id`
     | { type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_ERROR; payload: string }
     | { type: typeof UserManagementActionTypes.USER_DELETE; payload: { user_id: string } }
     | { type: typeof UserManagementActionTypes.USER_DELETE_SUCCESS; payload: { message: string; user_id: string } }
@@ -88,31 +88,54 @@ const userReducer = (state = initialState, action: UserManagementActionType): Us
         case UserManagementActionTypes.USER_LIST_WITH_FILTER:
             return { ...state, loading: true, error: null };
 
+        // case UserManagementActionTypes.USER_LIST_WITH_FILTER_SUCCESS:
+        //     console.log('Reducer received USER_LIST_WITH_FILTER_SUCCESS with payload:', action.payload);
+
+        //     const usersArray = Array.isArray(action.payload?.data) ? action.payload.data : action.payload?.data?.users;
+
+        //     console.log('Users Array in Reducer:', usersArray);
+
+        //     return {
+        //         ...state,
+        //         loading: false,
+        //         users:
+        //             usersArray?.map((user) => ({
+        //                 user_id: user.user_id ? Number(user.user_id) || user.user_id : null,
+        //                 name: `${user.first_name} ${user.last_name}`,
+        //                 email: user.user_name,
+        //                 age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
+        //                 education: user.education,
+        //                 country: user.country,
+        //                 city: user.city,
+        //                 birthdate: user.dob,
+        //                 interested_in:
+        //                     user.interests?.map((i: { interest_name: string }) => i.interest_name).join(', ') || '',
+        //                 is_active: user.is_active,
+        //             })) || [],
+        //     };
         case UserManagementActionTypes.USER_LIST_WITH_FILTER_SUCCESS:
             console.log('Reducer received USER_LIST_WITH_FILTER_SUCCESS with payload:', action.payload);
 
-            const usersArray = Array.isArray(action.payload?.data) ? action.payload.data : action.payload?.data?.users;
-
+            const usersArray = action.payload?.data?.users || [];
             console.log('Users Array in Reducer:', usersArray);
 
             return {
                 ...state,
                 loading: false,
-                users:
-                    usersArray?.map((user) => ({
-                        user_id: user.user_id ? Number(user.user_id) || user.user_id : null,
-                        name: `${user.first_name} ${user.last_name}`,
-                        email: user.user_name,
-                        age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
-                        education: user.education,
-                        country: user.country,
-                        city: user.city,
-                        birthdate: user.dob,
-                        interested_in:
-                            user.interests?.map((i: { interest_name: string }) => i.interest_name).join(', ') || '',
-                        is_active: user.is_active,
-                    })) || [],
+                users: [...state.users, ...usersArray.map((user) => ({
+                    user_id: user.user_id,
+                    name: `${user.first_name} ${user.last_name}`,
+                    email: user.user_name,
+                    age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
+                    education: user.education,
+                    country: user.country,
+                    city: user.city,
+                    birthdate: user.dob,
+                    interested_in: user.interests?.map((i) => i.interest_name).join(', ') || '',
+                    is_active: user.is_active,
+                }))],
             };
+
 
         case UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR:
             return { ...state, loading: false, error: action.payload };

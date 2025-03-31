@@ -43,39 +43,39 @@ type helpAndSupport = {
 
 export type ReportActionType =
     | {
-          type: ReportActionTypes.REPORT_LIST;
-      }
+        type: ReportActionTypes.REPORT_LIST;
+    }
     | {
-          type: ReportActionTypes.REPORT_LIST_SUCCESS;
-          payload: { data: Report[] };
-      }
+        type: ReportActionTypes.REPORT_LIST_SUCCESS;
+        payload: { data: Report[] };
+    }
     | {
-          type: ReportActionTypes.REPORT_LIST_ERROR;
-          payload: { error: string };
-      }
+        type: ReportActionTypes.REPORT_LIST_ERROR;
+        payload: { error: string };
+    }
     | {
-          type: ReportActionTypes.REPORT_REVIEW;
-          payload: ReportReview;
-      }
+        type: ReportActionTypes.REPORT_REVIEW;
+        payload: ReportReview;
+    }
     | {
-          type: ReportActionTypes.REPORT_REVIEW_SUCCESS;
-          payload: { message: string };
-      }
+        type: ReportActionTypes.REPORT_REVIEW_SUCCESS;
+        payload: { message: string };
+    }
     | {
-          type: ReportActionTypes.REPORT_REVIEW_ERROR;
-          payload: { error: string };
-      }
+        type: ReportActionTypes.REPORT_REVIEW_ERROR;
+        payload: { error: string };
+    }
     | {
-          type: ReportActionTypes.SUPPORT_HELP_LIST;
-      }
+        type: ReportActionTypes.SUPPORT_HELP_LIST;
+    }
     | {
-          type: ReportActionTypes.SUPPORT_HELP_LIST_SUCCESS;
-          payload: { data: helpAndSupport };
-      }
+        type: ReportActionTypes.SUPPORT_HELP_LIST_SUCCESS;
+        payload: { data: helpAndSupport };
+    }
     | {
-          type: ReportActionTypes.SUPPORT_HELP_LIST_ERROR;
-          payload: { error: string };
-      };
+        type: ReportActionTypes.SUPPORT_HELP_LIST_ERROR;
+        payload: { error: string };
+    };
 
 export const reportList = (): ReportActionType => ({
     type: ReportActionTypes.REPORT_LIST,
@@ -106,9 +106,11 @@ export const reportReviewError = (error: string): ReportActionType => ({
     payload: { error },
 });
 
-export const supportHelpList = (): ReportActionType => ({
-    type: ReportActionTypes.SUPPORT_HELP_LIST,
-});
+export const supportHelpList = (currentPage: number,
+    itemsPerPage: number): ReportActionType => ({
+        type: ReportActionTypes.SUPPORT_HELP_LIST,
+
+    });
 
 export const supportHelpListSuccess = (data: helpAndSupport): ReportActionType => ({
     type: ReportActionTypes.SUPPORT_HELP_LIST_SUCCESS,

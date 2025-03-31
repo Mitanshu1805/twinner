@@ -88,15 +88,41 @@ import { UserManagementActionTypes } from './constants';
 //     }
 // }
 
+// function* userListFilterSaga(action: any): SagaIterator {
+//     try {
+//         const response = yield call(userListFilter, action.payload);
+//         yield put(userListFilterSuccess(response.data.data));
+//     } catch (error: any) {
+//         console.error('Error in userListFilterSaga:', error);
+//         yield put(userListFilterError(error.message || 'Error Occurred'));
+//     }
+// }
 function* userListFilterSaga(action: any): SagaIterator {
     try {
-        const response = yield call(userListFilter, action.payload);
-        yield put(userListFilterSuccess(response.data));
+        console.log("🔥 Saga Received Action:", action);
+
+        const data = action.payload; // ✅ This is correct
+        const { currentPage, itemsPerPage } = action.meta; // ✅ Get from `meta`
+
+        console.log("📌 Extracted Filter Payload:", data);
+        console.log("📌 Extracted Pagination:", { currentPage, itemsPerPage });
+
+        // Call the API function that already appends `page` and `limit` to the URL
+        console.log("📤 Sending request with:", action.payload, action.meta);
+        const response = yield call(userListFilter, data, currentPage, itemsPerPage);
+        console.log("📥 API Response:", response.data);
+        console.log("📌 Users in API response:", response.data?.data?.users);
+
+
+        yield put(userListFilterSuccess(response.data.data));
     } catch (error: any) {
-        console.error('Error in userListFilterSaga:', error);
-        yield put(userListFilterError(error.message || 'Error Occurred'));
+        console.error("Error in userListFilterSaga:", error);
+        yield put(userListFilterError(error.message || "Error Occurred"));
     }
 }
+
+
+
 
 function* userUpdateStatusSaga(action: any): SagaIterator {
     try {
