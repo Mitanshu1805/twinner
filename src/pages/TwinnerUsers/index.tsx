@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useRedux } from '../../hooks';
-import { userListFilter, userDelete } from '../../redux/userManagement/actions';
+import { userListFilter, userDelete, userUpdateStatus } from '../../redux/userManagement/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import { Table, Button, Form, Modal } from 'react-bootstrap';
-import { useSelector } from "react-redux";
+import { useSelector } from 'react-redux';
 
 import SoftButton from '../uikit/Buttons/SoftButton';
 import { FaTrash, FaFilter } from 'react-icons/fa';
-import ToggleSwitch from '../../components/ToggleSwitch';
+import ToggleSwitch from '../../components/ToggleSwitch/index';
 import { Filter } from 'react-feather';
 import { number } from 'yup';
 
@@ -27,6 +27,11 @@ interface User {
     limit: number;
 }
 
+type Permission = {
+    module_name: string;
+    permissions: string; // Stored as a string (e.g., '{read}')
+};
+
 const UserManagement = () => {
     const { dispatch, appSelector } = useRedux();
     const usersData = appSelector((state: RootState) => state.userManagement.users || []);
@@ -34,16 +39,32 @@ const UserManagement = () => {
     const loading = appSelector((state: RootState) => state.userManagement.loading);
     const error = appSelector((state: RootState) => state.userManagement.error);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
+    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+
+    // Find the user's permission object for the "User" module
+    const userPermission = permissions.find((perm) => perm.module_name === 'User');
+
+    // Ensure the permission string is cleaned and parsed correctly
+    // const userPermissionsArray: string[] = userPermission
+    //     ? userPermission.permissions.replace(/\{|\}/g, '').split(',') // Removes `{}` and splits by comma
+    //     : [];
+    const userPermissionsArray: string[] = userPermission
+        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+        : [];
+
+    // Debugging logs
+    console.log('Raw Permissions:', userPermission?.permissions);
+    console.log('Parsed Permissions:', userPermissionsArray);
+    console.log("Includes 'read':", userPermissionsArray.includes('read'));
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     // const paginatedUsers = usersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedUsers = usersData.slice(startIndex, startIndex + itemsPerPage);
-    console.log("paginatedUsers", paginatedUsers)
+    console.log('paginatedUsers', paginatedUsers);
     const users = useSelector((state: RootState) => state.userManagement.users);
     const pagination = useSelector((state: RootState) => state.userManagement.pagination);
-
 
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filtersApplied, setFiltersApplied] = useState(false);
@@ -69,11 +90,9 @@ const UserManagement = () => {
             city: null,
             birthdate: null,
             interested_in: null,
-
         };
-        console.log("Dispatching filterPayload:", filterPayload);
-        console.log("📌 Users in Component:", paginatedUsers);
-
+        console.log('Dispatching filterPayload:', filterPayload);
+        console.log('📌 Users in Component:', paginatedUsers);
 
         dispatch(userListFilter(filterPayload, currentPage, itemsPerPage));
     }, [dispatch, currentPage]);
@@ -151,10 +170,9 @@ const UserManagement = () => {
                 ...filters,
                 min_age: filters.min_age ? Number(filters.min_age) : null,
                 max_age: filters.max_age ? Number(filters.max_age) : null,
-
             };
 
-            setCurrentPage(1)
+            setCurrentPage(1);
 
             await Promise.resolve(dispatch(userListFilter(updatedFilters, currentPage, itemsPerPage)));
 
@@ -163,6 +181,19 @@ const UserManagement = () => {
         } catch (error) {
             console.error('Error applying filters:', error);
         }
+    };
+
+    const handleUserToggle = (user_id: string, is_active: boolean) => {
+        setToggleStates((prev) => ({
+            ...prev,
+            [user_id]: is_active,
+        }));
+
+        dispatch(userUpdateStatus(user_id, is_active));
+
+        setTimeout(() => {
+            dispatch(userListFilter);
+        }, 100);
     };
 
     // Check for no data AFTER Redux state updates
@@ -176,8 +207,7 @@ const UserManagement = () => {
         }
     }, [usersData, loading, filtersApplied]);
 
-    return (
-
+    return userPermissionsArray.includes('read') ? (
         <div>
             {/* Filter Button */}
             <Button variant="primary" onClick={handleShowModal} style={{ marginBottom: '10px' }}>
@@ -193,7 +223,6 @@ const UserManagement = () => {
                         <thead>
                             <tr>
                                 <th>#</th>
-
                                 <th>Name</th>
                                 <th>Age</th>
                                 <th>Birthday</th>
@@ -203,16 +232,14 @@ const UserManagement = () => {
                                 <th>Email</th>
                                 <th>Interested In</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                {userPermissionsArray?.includes('delete') && <th>Actions</th>}
                             </tr>
                         </thead>
                         <tbody>
-
-                            {paginatedUsers.length > 0 ? (
+                            {paginatedUsers?.length > 0 ? (
                                 paginatedUsers.map((user: User, index: number) => (
                                     <tr key={user.user_id}>
                                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-
                                         <td>{user.name}</td>
                                         <td>{user.age}</td>
                                         <td>{user.birthdate}</td>
@@ -221,14 +248,21 @@ const UserManagement = () => {
                                         <td>{user.education}</td>
                                         <td>{user.email}</td>
                                         <td>{user.interested_in}</td>
-                                        <td>{user.is_active ? 'Active' : 'Inactive'}</td>
                                         <td>
-                                            <FaTrash
-                                                size={20}
-                                                style={{ cursor: 'pointer', color: 'red' }}
-                                                onClick={() => handleDeleteUser(user.user_id)}
+                                            <ToggleSwitch
+                                                checked={toggleStates[user.user_id] || false}
+                                                onChange={(checked) => handleUserToggle(user.user_id, checked)}
                                             />
                                         </td>
+                                        {userPermissionsArray?.includes('delete') && (
+                                            <td>
+                                                <FaTrash
+                                                    size={20}
+                                                    style={{ cursor: 'pointer', color: 'red' }}
+                                                    onClick={() => handleDeleteUser(user.user_id)}
+                                                />
+                                            </td>
+                                        )}
                                     </tr>
                                 ))
                             ) : (
@@ -247,29 +281,24 @@ const UserManagement = () => {
             <div
                 className="pagination-controls"
                 style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-
                 <SoftButton
                     variant="secondary"
                     onClick={() => setCurrentPage((prev) => prev - 1)}
-                    disabled={currentPage === 1} // Correct check
-                >
+                    disabled={currentPage === 1}>
                     Previous
                 </SoftButton>
 
                 <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {pagination?.totalPages || 1}
+                    Page {currentPage} of {pagination?.totalPages ?? 1}
                 </span>
 
                 <SoftButton
                     variant="secondary"
                     onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage >= (pagination?.totalPages || 1)} // Correct check
-                >
+                    disabled={currentPage >= (pagination?.totalPages ?? 1)}>
                     Next
                 </SoftButton>
-
             </div>
-
 
             <Modal show={showFilterModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
@@ -285,7 +314,7 @@ const UserManagement = () => {
                                     <Form.Control
                                         type="number"
                                         name="min_age"
-                                        value={filters.min_age || ''}
+                                        value={filters?.min_age ?? ''}
                                         onChange={handleFilterChange}
                                         placeholder="Enter min age"
                                     />
@@ -297,7 +326,7 @@ const UserManagement = () => {
                                     <Form.Control
                                         type="number"
                                         name="max_age"
-                                        value={filters.max_age || ''}
+                                        value={filters?.max_age ?? ''}
                                         onChange={handleFilterChange}
                                         placeholder="Enter max age"
                                     />
@@ -310,9 +339,8 @@ const UserManagement = () => {
                                     <Form.Label>Education</Form.Label>
                                     <Form.Select
                                         name="education"
-                                        value={filters.education}
-                                        onChange={handleFilterChange}
-                                    >
+                                        value={filters?.education ?? ''}
+                                        onChange={handleFilterChange}>
                                         <option value="">Select Education</option>
                                         <option value="High school">High school</option>
                                         <option value="Non-degree qualification">Non-degree qualification</option>
@@ -329,7 +357,7 @@ const UserManagement = () => {
                                     <Form.Control
                                         type="text"
                                         name="interested_in"
-                                        value={filters.interested_in}
+                                        value={filters?.interested_in ?? ''}
                                         onChange={handleFilterChange}
                                         placeholder="Enter interest"
                                     />
@@ -343,7 +371,7 @@ const UserManagement = () => {
                                     <Form.Control
                                         type="text"
                                         name="country"
-                                        value={filters.country}
+                                        value={filters?.country ?? ''}
                                         onChange={handleFilterChange}
                                         placeholder="Enter country"
                                     />
@@ -355,29 +383,10 @@ const UserManagement = () => {
                                     <Form.Control
                                         type="text"
                                         name="city"
-                                        value={filters.city}
+                                        value={filters?.city ?? ''}
                                         onChange={handleFilterChange}
                                         placeholder="Enter city"
                                     />
-                                </Form.Group>
-                            </div>
-
-                            {/* Progress Status */}
-                            <div className="col-md-12 mb-3">
-                                <Form.Group controlId="progress_status">
-                                    <Form.Label>Progress Status</Form.Label>
-                                    <Form.Select
-                                        name="progress_status"
-                                        value={filters.progress_status || ''}
-                                        onChange={handleFilterChange}
-                                    >
-                                        <option value="">Select Progress Status</option>
-                                        <option value="0">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="completed">Completed</option>
-                                    </Form.Select>
                                 </Form.Group>
                             </div>
                         </div>
@@ -392,8 +401,11 @@ const UserManagement = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
         </div>
+    ) : (
+        <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
+            You do not have permission to view this list.
+        </p>
     );
 };
 

@@ -5,7 +5,7 @@ import { supportHelpList } from '../../redux/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import SoftButton from '../uikit/Buttons/SoftButton';
-import { useSelector } from "react-redux";
+import { useSelector } from 'react-redux';
 
 interface Help {
     help_center_id: string;
@@ -27,25 +27,56 @@ interface User {
     profile_image: string;
 }
 
+type Permission = {
+    module_name: string;
+    permissions: string; // Stored as a string (e.g., '{read}')
+};
+
 const HelpAndSupport = () => {
     const { dispatch, appSelector } = useRedux();
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    // const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
+    const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-    const startIndex = (currentPage - 1) * itemsPerPage;
+    const itemsPerPageFixed = Number(itemsPerPage).toString(); // Ensure it's a clean number string
+
+    // const startIndex = (currentPage - 1) * itemsPerPage;
     // const paginatedUsers = helpAndSupports.slice(startIndex, startIndex + itemsPerPage);
-    // console.log("paginated users", paginatedUsers)
+
+    const paginatedUsers = helpAndSupports;
+    console.log('paginated users', paginatedUsers);
     const pagination = useSelector((state: RootState) => state.userManagement.pagination);
-    const { help_requests = [], current_page, total_pages, loading, error } = useSelector(
-        (state: RootState) => state.report
-    );
+    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+
+    // Find the user's permission object for the "User" module
+    const userPermission = permissions.find((perm) => perm.module_name === 'Support');
+
+    // Ensure the permission string is cleaned and parsed correctly
+    const userPermissionsArray: string[] = userPermission
+        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+        : [];
+
+    console.log('Raw Permissions:', userPermission?.permissions);
+    console.log('Parsed Permissions Array:', userPermissionsArray);
+    console.log("Includes 'read'?", userPermissionsArray.includes('read'));
+
+    // const {
+    //     help_requests = [],
+    //     current_page,
+    //     total_pages,
+    //     loading,
+    //     error,
+    // } = useSelector((state: RootState) => state.report);
+    // console.log('help requests', help_requests);
 
     // useEffect(() => {
     //     dispatch(supportHelpList());
     // }, [dispatch]);
     useEffect(() => {
-        dispatch(supportHelpList(currentPage, 10));
+        // console.log('Current Page Changed:', currentPage);
+        // console.log('Items Page Changed:', itemsPerPage);
+        console.log('Dispatching supportHelpList with:', currentPage, itemsPerPage);
+        dispatch(supportHelpList(currentPage, itemsPerPage));
     }, [dispatch, currentPage]);
 
     useEffect(() => {
@@ -59,19 +90,19 @@ const HelpAndSupport = () => {
         }
     };
 
-    const handleNextPage = () => {
-        if (currentPage < total_pages) {
-            setCurrentPage(prev => prev + 1);
-        }
-    };
+    // const handleNextPage = () => {
+    //     if (currentPage < total_pages) {
+    //         setCurrentPage((prev) => prev + 1);
+    //     }
+    // };
 
     const handlePrevPage = () => {
         if (currentPage > 1) {
-            setCurrentPage(prev => prev - 1);
+            setCurrentPage((prev) => prev - 1);
         }
     };
 
-    return (
+    return userPermissionsArray.includes('read') ? (
         <div>
             {loading && <p>Loading...</p>}
             {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
@@ -89,8 +120,8 @@ const HelpAndSupport = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {help_requests.length > 0 ? (
-                                help_requests.map((help: Help) => (
+                            {paginatedUsers.length > 0 ? (
+                                paginatedUsers.map((help: Help) => (
                                     <tr key={help.help_center_id}>
                                         <td style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                             <img
@@ -108,10 +139,7 @@ const HelpAndSupport = () => {
                                             />
                                         </td>
 
-                                        <td
-                                        >
-                                            {help.name}
-                                        </td>
+                                        <td>{help.name}</td>
 
                                         <td>{help.description}</td>
                                         <td>{help.email}</td>
@@ -158,20 +186,24 @@ const HelpAndSupport = () => {
             </div> */}
 
             {/* Pagination Controls */}
-            <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <div
+                className="pagination-controls"
+                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                 <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
                     Previous
                 </SoftButton>
 
                 <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {total_pages}
+                    Page {currentPage} of {pagination?.total_pages || 1}
                 </span>
 
-                <SoftButton variant="secondary" onClick={handleNextPage} disabled={currentPage >= total_pages}>
+                <SoftButton
+                    variant="secondary"
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    disabled={currentPage >= (pagination?.total_pages || 1)}>
                     Next
                 </SoftButton>
             </div>
-
 
             {/* User Details Modal */}
             <Modal show={selectedUser !== null} onHide={() => setSelectedUser(null)} centered>
@@ -206,6 +238,10 @@ const HelpAndSupport = () => {
                 </Modal.Footer>
             </Modal>
         </div>
+    ) : (
+        <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
+            You do not have permission to view this list.
+        </p>
     );
 };
 

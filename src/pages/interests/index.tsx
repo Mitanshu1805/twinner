@@ -210,6 +210,7 @@ import SoftButton from '../uikit/Buttons/SoftButton';
 import { Variant } from '../uikit/Buttons/types';
 import './interestFile.css';
 import { FaRegEdit, FaTrash } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 import RegisterInterestModal from './RegisterInterestModal';
 
 interface Interest {
@@ -217,6 +218,11 @@ interface Interest {
     interest_name: string;
     interest_image: string;
 }
+
+type Permission = {
+    module_name: string;
+    permissions: string; // Stored as a string (e.g., '{read}')
+};
 
 const InterestHobbies = () => {
     const { dispatch, appSelector } = useRedux();
@@ -228,6 +234,13 @@ const InterestHobbies = () => {
     const [selectedInterest, setSelectedInterest] = useState<Interest | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+
+    const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
+
+    const userPermissionsArray: string[] = userPermission
+        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+        : [];
 
     useEffect(() => {
         dispatch(interestList(currentPage, itemsPerPage));
@@ -253,9 +266,13 @@ const InterestHobbies = () => {
         if (window.confirm('Are you sure you want to delete this interest?')) {
             dispatch(interestDelete(interest_id));
         }
+
+        setTimeout(() => {
+            dispatch(interestList(currentPage, itemsPerPage));
+        }, 500);
     };
 
-    return (
+    return userPermissionsArray.includes('read') ? (
         <div>
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -264,9 +281,11 @@ const InterestHobbies = () => {
                 <BorderedTable
                     title="Interests & Hobbies"
                     actionButton={
-                        <SoftButton variant="primary" onClick={handleAddInterest}>
-                            Add Interest
-                        </SoftButton>
+                        userPermissionsArray.includes('write') && (
+                            <SoftButton variant="primary" onClick={handleAddInterest}>
+                                Add Interest
+                            </SoftButton>
+                        )
                     }>
                     <RegisterInterestModal
                         show={showInterestRegModal}
@@ -279,7 +298,8 @@ const InterestHobbies = () => {
                                 <th>#</th>
                                 <th>Interest Name</th>
                                 <th>Image</th>
-                                <th>Actions</th>
+                                {(userPermissionsArray?.includes('update') ||
+                                    userPermissionsArray?.includes('delete')) && <th>Actions</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -298,16 +318,20 @@ const InterestHobbies = () => {
                                             />
                                         </td>
                                         <td>
-                                            <FaRegEdit
-                                                size={20}
-                                                style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                onClick={() => handleEditInterest(interest)}
-                                            />
-                                            <FaTrash
-                                                size={20}
-                                                style={{ cursor: 'pointer', color: 'red' }}
-                                                onClick={() => handleDeleteInterest(interest.interest_id)}
-                                            />
+                                            {userPermissionsArray?.includes('update') && (
+                                                <FaRegEdit
+                                                    size={20}
+                                                    style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                    onClick={() => handleEditInterest(interest)}
+                                                />
+                                            )}
+                                            {userPermissionsArray?.includes('delete') && (
+                                                <FaTrash
+                                                    size={20}
+                                                    style={{ cursor: 'pointer', color: 'red' }}
+                                                    onClick={() => handleDeleteInterest(interest.interest_id)}
+                                                />
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -342,6 +366,10 @@ const InterestHobbies = () => {
                 </BorderedTable>
             )}
         </div>
+    ) : (
+        <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
+            You do not have permission to view this list.
+        </p>
     );
 };
 

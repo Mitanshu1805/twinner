@@ -109,7 +109,9 @@ import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import { FileText } from 'react-feather';
 import { Clipboard } from 'react-feather';
+import SoftButton from '../uikit/Buttons/SoftButton';
 import ReportReviewModal from './ReviewReportModal';
+import { useSelector } from 'react-redux';
 
 interface User {
     user_id: string;
@@ -132,13 +134,27 @@ interface Report {
     response: string;
 }
 
+type Permission = {
+    module_name: string;
+    permissions: string; // Stored as a string (e.g., '{read}')
+};
+
 const ReportAndBlock = () => {
     const { dispatch, appSelector } = useRedux();
     const { reports = {}, loading, error } = appSelector((state: RootState) => state.report);
     const [showReportReviewModal, setShowReportReviewModal] = useState(false);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     // Extract reports array
     const reportListData = reports?.data?.reports || [];
+    const pagination = useSelector((state: RootState) => state.report.pagination);
+    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+
+    const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
+
+    const userPermissionsArray: string[] = userPermission
+        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+        : [];
 
     // State for storing selected reporter details
     const [selectedReporter, setSelectedReporter] = useState<User | null>(null);
@@ -152,10 +168,15 @@ const ReportAndBlock = () => {
     const handleCloseRegRepModal = () => {
         setShowReportReviewModal(false);
     };
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage((prev) => prev - 1);
+        }
+    };
 
     useEffect(() => {
-        dispatch(reportList());
-    }, [dispatch]);
+        dispatch(reportList(currentPage, itemsPerPage));
+    }, [dispatch, currentPage]);
 
     // Function to handle click and set reporter details
     const handleUserClick = (reporter: User) => {
@@ -165,7 +186,7 @@ const ReportAndBlock = () => {
     // Function to close modal
     const closeModal = () => setSelectedReporter(null);
 
-    return (
+    return userPermissionsArray.includes('read') ? (
         <div>
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -243,6 +264,26 @@ const ReportAndBlock = () => {
                 </BorderedTable>
             )}
 
+            {/* Pagination Controls */}
+            <div
+                className="pagination-controls"
+                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
+                    Previous
+                </SoftButton>
+
+                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
+                    Page {currentPage} of {pagination?.total_pages || 1}
+                </span>
+
+                <SoftButton
+                    variant="secondary"
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    disabled={currentPage >= (pagination?.total_pages || 1)}>
+                    Next
+                </SoftButton>
+            </div>
+
             {/* Modal for showing reporter details */}
             <Modal show={!!selectedReporter} onHide={closeModal}>
                 <Modal.Header closeButton>
@@ -279,6 +320,10 @@ const ReportAndBlock = () => {
                 </Modal.Footer>
             </Modal>
         </div>
+    ) : (
+        <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
+            You do not have permission to view this list.
+        </p>
     );
 };
 

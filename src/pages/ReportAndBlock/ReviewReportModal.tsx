@@ -12,6 +12,8 @@ interface ReportReviewModalProps {
 const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, reportId }) => {
     const [response, setResponse] = useState('');
     const dispatch = useDispatch();
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         if (!show) {
@@ -33,7 +35,12 @@ const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, re
         dispatch(reportReview(newReport));
 
         setTimeout(() => {
-            dispatch(reportList()); // Corrected function call
+            dispatch(reportList(currentPage, itemsPerPage));
+            onClose();
+        }, 500);
+
+        setTimeout(() => {
+            dispatch(reportList(currentPage, itemsPerPage)); // Corrected function call
             setResponse('');
             onClose();
         }, 500);

@@ -43,6 +43,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/interests-and-hobbies',
     },
+
     {
         key: 'analytics',
         label: 'Help & Support',
@@ -56,6 +57,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/reported-and-blocked',
+    },
+    {
+        key: 'permissions',
+        label: 'Permissions',
+        isTitle: false,
+        icon: 'mdi mdi-view-dashboard-outline',
+        url: '/permissions',
     },
 ];
 

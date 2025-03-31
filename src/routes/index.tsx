@@ -32,6 +32,7 @@ const ReportedAndBlocked = React.lazy(() => import('../pages/ReportAndBlock/'));
 const HelpAndSupport = React.lazy(() => import('../pages/HelpAndSupport'));
 const TwinnerUsers = React.lazy(() => import('../pages/TwinnerUsers/'));
 const SubAdminUsers = React.lazy(() => import('../pages/SubAdminUsers/'));
+const Permissions = React.lazy(() => import('../pages/Permissions/'));
 // apps
 const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
 const ChatApp = React.lazy(() => import('../pages/apps/Chat'));
@@ -220,6 +221,10 @@ const AllRoutes = () => {
                 {
                     path: 'reported-and-blocked',
                     element: <LoadComponent component={ReportedAndBlocked} />,
+                },
+                {
+                    path: 'permissions',
+                    element: <LoadComponent component={Permissions} />,
                 },
                 {
                     path: 'apps',

@@ -41,11 +41,13 @@ const api = new APICore();
 function* login({ payload: { email, password }, type }: UserData): SagaIterator {
     try {
         const response = yield call(loginApi, { email, password });
-        const user = response.data;
+        const user = response.data || [];
+        const token = user.token || null;
+        const permissions = user.permissions || [];
         // NOTE - You can change this according to response format from your api
         api.setLoggedInUser(user);
-        setAuthorization(user['token']);
-        yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, user));
+        setAuthorization(token);
+        yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, { ...user, token, permissions }));
     } catch (error: any) {
         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, error));
         api.setLoggedInUser(null);
@@ -74,12 +76,14 @@ function* verifyOTP({ payload: { phone_number, otp }, type }: UserData): SagaIte
     try {
         const response = yield call(verifyOTPApi, { phone_number, otp });
 
-        const user = response.data.data;
+        const user = response.data?.data || {}; // Ensure user is always an object
+        const token = user.token || null;
+        const permissions = user.permissions || [];
 
         console.log('🚀 => function*verifyOTP => response:', response);
         api.setLoggedInUser(user);
-        setAuthorization(user['token']);
-        yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, user));
+        setAuthorization(token);
+        yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, { ...user, token, permissions }));
     } catch (error: any) {
         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, error));
         api.setLoggedInUser(null);

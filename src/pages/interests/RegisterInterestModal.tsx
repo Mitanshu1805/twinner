@@ -98,7 +98,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { interestAdd, interestUpdate } from '../../redux/actions';
+import { interestAdd, interestList, interestUpdate } from '../../redux/actions';
 
 interface Interest {
     interest_id?: string;
@@ -113,6 +113,8 @@ interface RegisterInterestModalProps {
 }
 
 const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onClose, interestToEdit }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const [interestName, setInterestName] = useState('');
     const [interestImage, setInterestImage] = useState<File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -166,7 +168,10 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
             dispatch(interestAdd(formData));
         }
 
-        onClose();
+        setTimeout(() => {
+            dispatch(interestList(currentPage, itemsPerPage));
+            onClose();
+        }, 500);
     };
 
     return (

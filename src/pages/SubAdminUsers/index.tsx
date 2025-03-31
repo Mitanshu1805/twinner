@@ -6,6 +6,7 @@ import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import SoftButton from '../uikit/Buttons/SoftButton';
 import { FaRegEdit, FaTrash } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 // import ToggleSwitch from '../../components/ToggleSwitch';
 import ToggleSwitch from '../../components/ToggleSwitch/index';
 import RegisterAdminUserModal from './RegisterAdminUserModal';
@@ -19,16 +20,29 @@ interface AdminUser {
     phone_number: string;
 }
 
+type Permission = {
+    module_name: string;
+    permissions: string; // Stored as a string (e.g., '{read}')
+};
+
 const AdminUser = () => {
     const { dispatch, appSelector } = useRedux();
     const { adminUsers = [], loading, error } = appSelector((state: RootState) => state.adminUser);
-    const adminUsersData = adminUsers?.data || [];
+    console.log('adminUsers: ', adminUsers);
+    const adminUsersData = adminUsers?.data?.users || [];
     console.log('adminUsersData: ', adminUsersData);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
     const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUser | null>(null);
     const [showAdminUserRegModal, setShowAdminUserRegModal] = useState(false);
 
     console.log('Admin Users: ', adminUsers);
+    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+
+    const userPermission = permissions.find((perm) => perm.module_name === 'Admin');
+
+    const userPermissionsArray: string[] = userPermission
+        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+        : [];
 
     useEffect(() => {
         if (adminUsersData.length > 0) {
@@ -74,13 +88,13 @@ const AdminUser = () => {
         }, 100);
     };
 
-    const handleDeleteAdminUser = () => {
+    const handleDeleteAdminUser = (admin_user_id: string) => {
         if (window.confirm('Are you sure you want to delete this interest?')) {
-            dispatch(adminUserDelete());
+            dispatch(adminUserDelete(admin_user_id));
         }
     };
 
-    return (
+    return userPermissionsArray.includes('read') ? (
         <div>
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -89,9 +103,11 @@ const AdminUser = () => {
                 <BorderedTable
                     title="Admin Users"
                     actionButton={
-                        <SoftButton variant="primary" onClick={handleAddAdminUser}>
-                            Add Admin User
-                        </SoftButton>
+                        userPermissionsArray.includes('write') && (
+                            <SoftButton variant="primary" onClick={handleAddAdminUser}>
+                                Add Admin User
+                            </SoftButton>
+                        )
                     }>
                     <RegisterAdminUserModal
                         show={showAdminUserRegModal}
@@ -102,11 +118,12 @@ const AdminUser = () => {
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Username</th>
+                                <th> Name</th>
+                                {/* <th>Last Name</th> */}
+                                <th>Contact</th>
                                 <th>Status</th>
                                 {/* <th>Actions</th> */}
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -114,14 +131,28 @@ const AdminUser = () => {
                                 adminUsersData.map((user: AdminUser, index: number) => (
                                     <tr key={user.admin_user_id}>
                                         <td>{index + 1}</td>
-                                        <td>{user.first_name}</td>
-                                        <td>{user.last_name}</td>
-                                        <td>{user.user_name}</td>
+                                        <td>
+                                            {user.first_name} {user.last_name}
+                                        </td>
+                                        {/* <td>{user.last_name}</td> */}
+                                        <td>{user.phone_number}</td>
                                         {/* <td>{user.is_active ? 'Active' : 'Inactive'}</td> */}
                                         <td>
                                             <ToggleSwitch
                                                 checked={toggleStates[user.admin_user_id] || false}
                                                 onChange={(checked) => handleUserToggle(user.admin_user_id, checked)}
+                                            />
+                                        </td>
+                                        <td>
+                                            <FaRegEdit
+                                                size={20}
+                                                style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                onClick={() => handleEditAdminUser(user)}
+                                            />
+                                            <FaTrash
+                                                size={20}
+                                                style={{ cursor: 'pointer', color: 'red' }}
+                                                onClick={() => handleDeleteAdminUser(user.admin_user_id)}
                                             />
                                         </td>
                                         {/* <td>
@@ -150,6 +181,10 @@ const AdminUser = () => {
                 </BorderedTable>
             )}
         </div>
+    ) : (
+        <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
+            You do not have permission to view this list.
+        </p>
     );
 };
 

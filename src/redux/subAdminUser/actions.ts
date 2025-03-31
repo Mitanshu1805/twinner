@@ -36,7 +36,7 @@ export type SubAdminUserActionType =
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_ADD_ERROR; payload: { error: string } }
     | {
           type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE;
-          // payload: AdminUserAdd;
+          payload: { admin_user_id: string };
       }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE_SUCCESS; payload: { message: string } }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE_ERROR; payload: { error: string } }
@@ -82,9 +82,9 @@ export const adminUserAddError = (error: string): SubAdminUserActionType => ({
     payload: { error },
 });
 
-export const adminUserDelete = (): SubAdminUserActionType => ({
+export const adminUserDelete = (admin_user_id: string): SubAdminUserActionType => ({
     type: SubAdminUserActionTypes.ADMIN_USERS_DELETE,
-    // payload: data,
+    payload: { admin_user_id },
 });
 
 export const adminUserDeleteSuccess = (message: string): SubAdminUserActionType => ({

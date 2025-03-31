@@ -8,6 +8,8 @@ const api = new APICore();
 
 const INIT_STATE = {
     user: api.getLoggedInUser(),
+    token: api.getLoggedInUser()?.token || null,
+    permissions: [],
     loading: false,
 };
 
@@ -20,6 +22,7 @@ type UserData = {
     lastName: string;
     role: string;
     token: string;
+    permissions?: { module_name: string; permissions: string[] }[]; // Permissions from API
 };
 
 type AuthActionType = {
@@ -40,7 +43,9 @@ type AuthActionType = {
 };
 
 type State = {
-    user?: UserData | {};
+    user?: UserData | null;
+    token?: string | null;
+    permissions?: { module_name: string; permissions: string[] }[];
     otp?: string;
     loading?: boolean;
     value?: boolean;
@@ -58,10 +63,13 @@ const Auth = (state: State = INIT_STATE, action: AuthActionType): any => {
                     };
                 }
                 case AuthActionTypes.LOGIN_USER: {
+                    const userData = action.payload.data as UserData;
                     return {
                         ...state,
                         user: action.payload.data,
                         userLoggedIn: true,
+                        token: userData.token || null,
+                        permissions: userData.permissions || [], // Store permissions
                         loading: false,
                     };
                 }
@@ -76,6 +84,8 @@ const Auth = (state: State = INIT_STATE, action: AuthActionType): any => {
                     return {
                         ...state,
                         user: null,
+                        token: null,
+                        permissions: [], // Clear permissions on logout
                         loading: false,
                         userLogout: true,
                     };

@@ -55,8 +55,7 @@ const AuthLayout = ({ hasLogo, bottomLinks, children }: AccountLayoutProps) => {
                         <Card>
                             <Card.Body className="p-4">{children}</Card.Body>
                         </Card>
-
-                        {/* bottom links */}
+                        {bottomLinks}
                     </Col>
                 </Row>
             </Container>

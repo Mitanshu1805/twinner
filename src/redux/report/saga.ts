@@ -17,7 +17,8 @@ import { ReportActionTypes } from './constants';
 
 function* reportListSaga(action: any): SagaIterator {
     try {
-        const response = yield call(reportList, action.payload);
+        const { page, limit } = action.payload;
+        const response = yield call(reportList, page, limit);
         yield put(reportListSuccess(response.data));
     } catch (error: any) {
         yield put(reportListError(error.message || 'Error Occurred'));
@@ -35,8 +36,9 @@ function* reportReviewSaga(action: any): SagaIterator {
 
 function* supportHelpListSaga(action: any): SagaIterator {
     try {
-        const { currentPage, itemsPerPage } = action.meta;
-        const response = yield call(supportHelpList, action.payload, currentPage, itemsPerPage);
+        const { page, limit } = action.payload; // ✅ Extract from payload
+        const response = yield call(supportHelpList, page, limit); // ✅ Pass empty object for data
+
         console.log('Help List Response', response);
         yield put(supportHelpListSuccess(response.data.data));
     } catch (error: any) {

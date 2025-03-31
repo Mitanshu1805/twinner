@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { adminUserAdd, adminUserUpdate } from '../../redux/subAdminUser/actions'; // Import Redux actions
+import { adminUserAdd, adminUserUpdate, adminUserList } from '../../redux/subAdminUser/actions'; // Import Redux actions
 
 interface AdminUser {
     admin_user_id?: string;
@@ -67,7 +67,12 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
             dispatch(adminUserAdd(adminUserData));
         }
 
-        onClose(); // Close modal after submitting
+        setTimeout(() => {
+            dispatch(adminUserList());
+            onClose();
+        }, 500);
+
+        // onClose(); // Close modal after submitting
     };
 
     return (
