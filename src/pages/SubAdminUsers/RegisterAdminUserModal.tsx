@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { adminUserAdd, adminUserUpdate, adminUserList } from '../../redux/subAdminUser/actions'; // Import Redux actions
+import { useRedux } from '../../hooks';
+import { RootState } from '../../redux/store';
+import { permissionList } from '../../redux/actions';
 
 interface AdminUser {
     admin_user_id?: string;
     first_name: string;
     last_name: string;
-    user_name: string;
-    phone_number: string; // Changed from number to string
-    // is_active: boolean;
+
+    phone_number: string;
+
 }
 
 interface RegisterAdminUserModalProps {
@@ -21,27 +24,34 @@ interface RegisterAdminUserModalProps {
 const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, onClose, adminUserToEdit }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [userName, setUserName] = useState('');
+
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isActive, setIsActive] = useState(false);
+    const { dispatch, appSelector } = useRedux();
+    const { permissions = [], loading, error } = appSelector((state: RootState) => state.roles);
+    console.log('Permissions: ', permissions);
 
-    const dispatch = useDispatch();
+
 
     useEffect(() => {
         if (adminUserToEdit) {
             setFirstName(adminUserToEdit.first_name);
             setLastName(adminUserToEdit.last_name);
-            setUserName(adminUserToEdit.user_name);
-            setPhoneNumber(adminUserToEdit.phone_number); // Now handled as a string
-            // setIsActive(adminUserToEdit.is_active);
+
+            setPhoneNumber(adminUserToEdit.phone_number);
         } else {
             setFirstName('');
             setLastName('');
-            setUserName('');
-            setPhoneNumber('');
-            // setIsActive(false);
+
+            setPhoneNumber('')
         }
-    }, [show, adminUserToEdit]);
+
+        if (show) {
+            dispatch(permissionList());
+        }
+    }, [dispatch, show, adminUserToEdit]);
+
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,31 +59,34 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
         const adminUserData = {
             first_name: firstName,
             last_name: lastName,
-            user_name: userName,
-            phone_number: phoneNumber, // Now it's a string
-            // is_active: isActive,
+
+            phone_number: phoneNumber,
+
         };
 
         if (adminUserToEdit?.admin_user_id) {
-            // Editing an existing user: Ensure correct type
+
             dispatch(
                 adminUserUpdate({
-                    admin_user_id: adminUserToEdit.admin_user_id, // Pass separately
+                    admin_user_id: adminUserToEdit.admin_user_id,
                     ...adminUserData,
                 } as any)
-            ); // Quick Fix (Temporary Type Override)
+            );
         } else {
-            // Adding a new user: Ensure admin_user_id is NOT included
+
             dispatch(adminUserAdd(adminUserData));
         }
 
         setTimeout(() => {
-            dispatch(adminUserList());
+            console.log("Dispatching permissionList...");
+            dispatch(permissionList());
+            console.log("Dispatched!");
+
             onClose();
         }, 500);
 
-        // onClose(); // Close modal after submitting
     };
+
 
     return (
         <Modal show={show} onHide={onClose}>
@@ -102,15 +115,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
                         />
                     </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Username</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
 
                     <Form.Group className="mb-3">
                         <Form.Label>Phone Number</Form.Label>
@@ -122,14 +126,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
                         />
                     </Form.Group>
 
-                    {/* <Form.Group className="mb-3">
-                        <Form.Check
-                            type="checkbox"
-                            label="Active"
-                            checked={isActive}
-                            onChange={(e) => setIsActive(e.target.checked)}
-                        />
-                    </Form.Group> */}
 
                     <Modal.Footer>
                         <Button variant="secondary" onClick={onClose}>

@@ -34,7 +34,7 @@ function* permissionModuleDeleteSaga(action: any): SagaIterator {
 function* permissionDeleteSaga(action: any): SagaIterator {
     try {
         const response = yield call(permissionDelete, action.payload);
-        yield put(permissionDeleteSuccess(response.data));
+        yield put(permissionDeleteSuccess(response.data.data));
     } catch (error: any) {
         yield put(permissionDeleteError(error.message || 'Error Occurred'));
     }
@@ -44,6 +44,7 @@ function* permissionListSaga(action: any): SagaIterator {
     try {
         const response = yield call(permissionList, action.payload);
         yield put(permissionListSuccess(response.data));
+        console.log('Response of permissionList: ', response);
     } catch (error: any) {
         yield put(permissionListError(error.message || 'Error Occurred'));
     }
