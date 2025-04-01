@@ -38,6 +38,9 @@ function* adminUserListSaga(action: any): SagaIterator {
 function* adminUserAddSaga(action: any): SagaIterator {
     try {
         const response = yield call(adminUserAdd, action.payload);
+        // console.log('response.data.admin_user_id >> ', response.data);
+        console.log('response.data.admin_user_id >> ', response.data.data.admin_user_id);
+        localStorage.setItem('adminUserId', response.data.data.admin_user_id);
         yield put(adminUserAddSuccess(response.data));
     } catch (error: any) {
         yield put(adminUserAddError(error.message || 'Error Occured'));
@@ -79,6 +82,14 @@ function* watchAdminUserAdd() {
     yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_ADD, adminUserAddSaga);
 }
 
+function* watchAdminUserAddSuccess() {
+    yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_ADD_SUCCESS, function* (action: any) {
+        const { admin_user_id } = action.payload;
+        console.log('admin_user_id in Saga:', admin_user_id); // log for debugging
+        // Do something with admin_user_id if needed here (e.g., navigate or store in global state)
+    });
+}
+
 function* watchAdminUserDelete() {
     yield takeEvery(SubAdminUserActionTypes.ADMIN_USERS_DELETE, adminUserDeleteSaga);
 }
@@ -98,5 +109,6 @@ export default function* subAdminUsersSaga(): SagaIterator {
         fork(watchAdminUserDelete),
         fork(watchAdminUserUpdate),
         fork(watchUpdateAdminStatus),
+        fork(watchAdminUserAddSuccess),
     ]);
 }

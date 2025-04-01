@@ -1,26 +1,26 @@
-import { RolesAndRightsActionTypes } from "./constants";
+import { RolesAndRightsActionTypes } from './constants';
 
 type ModuleListSuccessPayload = {
     module_id: string;
     module_name: string;
     created_at: string;
-    updated_at: string
-}
+    updated_at: string;
+};
 
 type PermissionListSuccessPayload = {
     module_name: string;
-    permissions: Permissions[]
-}
+    permissions: Permissions[];
+};
 
 type Permissions = {
     permission_id: string;
-    permission_type: string
-}
+    permission_type: string;
+};
 
 type PermissionAssignPayload = {
     admin_user_id: string;
     permission_ids: string[];
-    assigned_by: string;
+    // assigned_by: string;
 };
 
 type PermissionAssignSuccessPayload = {
@@ -33,113 +33,109 @@ type PermissionAssignSuccessPayload = {
     };
 };
 
-
-
 export type RolesAndRightsActionType =
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_ADD;
-        payload: { module_name: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_ADD;
+          payload: { module_name: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_SUCCESS;
-        payload: { message: string };
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_SUCCESS;
+          payload: { message: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_ERROR;
+          payload: { error: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_LIST;
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_LIST;
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_LIST_SUCCESS;
-        payload: ModuleListSuccessPayload[];
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_LIST_SUCCESS;
+          payload: ModuleListSuccessPayload[];
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_LIST_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_LIST_ERROR;
+          payload: { error: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE;
-        payload: { module_id: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE;
+          payload: { module_id: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_SUCCESS;
-        payload: { message: string };
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_SUCCESS;
+          payload: { message: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_ERROR;
+          payload: { error: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_ADD;
-        payload: {
-            module_id: string, permission_type: string
-        }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_ADD;
+          payload: {
+              module_id: string;
+              permission_type: string;
+          };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_ADD_SUCCESS;
-        payload: { message: string };
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_ADD_SUCCESS;
+          payload: { message: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_ADD_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_ADD_ERROR;
+          payload: { error: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_LIST;
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_LIST;
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_SUCCESS;
-        payload: PermissionListSuccessPayload;
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_SUCCESS;
+          payload: PermissionListSuccessPayload;
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_ERROR;
+          payload: { error: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_DELETE;
-        payload: {
-            permission_id: string
-        }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_DELETE;
+          payload: {
+              permission_id: string;
+          };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_DELETE_SUCCESS;
-        payload: { message: string };
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_DELETE_SUCCESS;
+          payload: { message: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_DELETE_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_DELETE_ERROR;
+          payload: { error: string };
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_ASSIGN;
-        payload: PermissionAssignPayload
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_ASSIGN;
+          payload: PermissionAssignPayload;
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_ASSIGN_SUCCESS;
-        payload: PermissionAssignSuccessPayload;
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_ASSIGN_SUCCESS;
+          payload: PermissionAssignSuccessPayload;
+      }
     | {
-        type: typeof RolesAndRightsActionTypes.PERMISSION_ASSIGN_ERROR;
-        payload: { error: string }
-    }
+          type: typeof RolesAndRightsActionTypes.PERMISSION_ASSIGN_ERROR;
+          payload: { error: string };
+      };
 
-export const permissionModuleAdd = (module_name: string):
-    RolesAndRightsActionType => ({
-        type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD,
-        payload: { module_name }
-    })
+export const permissionModuleAdd = (module_name: string): RolesAndRightsActionType => ({
+    type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD,
+    payload: { module_name },
+});
 
-export const permissionModuleAddSuccess = (message: string):
-    RolesAndRightsActionType => ({
-        type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_SUCCESS,
-        payload: { message }
-    })
+export const permissionModuleAddSuccess = (message: string): RolesAndRightsActionType => ({
+    type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_SUCCESS,
+    payload: { message },
+});
 
-export const permissionModuleAddError = (error: string):
-    RolesAndRightsActionType => ({
-        type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_ERROR,
-        payload: { error }
-    })
+export const permissionModuleAddError = (error: string): RolesAndRightsActionType => ({
+    type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD_ERROR,
+    payload: { error },
+});
 
 export const permissionModuleList = (): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_MODULE_LIST,
@@ -150,7 +146,6 @@ export const permissionModuleListSuccess = (modules: ModuleListSuccessPayload[])
     payload: modules, // ✅ Correct, directly passing the array
 });
 
-
 export const permissionModuleListError = (error: string): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_MODULE_LIST_ERROR,
     payload: { error },
@@ -158,14 +153,13 @@ export const permissionModuleListError = (error: string): RolesAndRightsActionTy
 
 export const permissionModuleDelete = (module_id: string): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE,
-    payload: { module_id }
+    payload: { module_id },
 });
 
 export const permissionModuleDeleteSuccess = (message: string): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_SUCCESS,
     payload: { message },
 });
-
 
 export const permissionModuleDeleteError = (error: string): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_ERROR,
@@ -231,4 +225,3 @@ export const permissionDeleteError = (error: string): RolesAndRightsActionType =
     type: RolesAndRightsActionTypes.PERMISSION_DELETE_ERROR,
     payload: { error },
 });
-

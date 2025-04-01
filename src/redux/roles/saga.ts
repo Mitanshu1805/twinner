@@ -1,8 +1,31 @@
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
 import { SagaIterator } from '@redux-saga/core';
-import { permissionModuleAdd, permissionModuleDelete, permissionModuleList, permissionAdd, permissionAssign, permissionDelete, permissionList } from '../../helpers/api/auth';
+import {
+    permissionModuleAdd,
+    permissionModuleDelete,
+    permissionModuleList,
+    permissionAdd,
+    permissionAssign,
+    permissionDelete,
+    permissionList,
+} from '../../helpers/api/auth';
 
-import { permissionModuleAddSuccess, permissionModuleDeleteSuccess, permissionModuleListSuccess, permissionAddSuccess, permissionAssignSuccess, permissionDeleteSuccess, permissionListSuccess, permissionModuleAddError, permissionModuleDeleteError, permissionModuleListError, permissionAddError, permissionAssignError, permissionDeleteError, permissionListError } from './actions'
+import {
+    permissionModuleAddSuccess,
+    permissionModuleDeleteSuccess,
+    permissionModuleListSuccess,
+    permissionAddSuccess,
+    permissionAssignSuccess,
+    permissionDeleteSuccess,
+    permissionListSuccess,
+    permissionModuleAddError,
+    permissionModuleDeleteError,
+    permissionModuleListError,
+    permissionAddError,
+    permissionAssignError,
+    permissionDeleteError,
+    permissionListError,
+} from './actions';
 
 import { RolesAndRightsActionTypes } from './constants';
 
@@ -43,8 +66,8 @@ function* permissionDeleteSaga(action: any): SagaIterator {
 function* permissionListSaga(action: any): SagaIterator {
     try {
         const response = yield call(permissionList, action.payload);
-        yield put(permissionListSuccess(response.data));
-        console.log('Response of permissionList: ', response);
+        yield put(permissionListSuccess(response.data.data));
+        console.log('Response of permissionList: ', response.data.data);
     } catch (error: any) {
         yield put(permissionListError(error.message || 'Error Occurred'));
     }
@@ -89,5 +112,13 @@ function* watchPermssionAssign() {
 }
 
 export default function* rolesAndRightsSaga(): SagaIterator {
-    yield all([fork(watchPermssionModuleAdd), fork(watchPermssionModuleDelete), fork(watchPermssionModuleList), fork(watchPermssionAdd), fork(watchPermssionList), fork(watchPermssionDelete), fork(watchPermssionAssign)])
+    yield all([
+        fork(watchPermssionModuleAdd),
+        fork(watchPermssionModuleDelete),
+        fork(watchPermssionModuleList),
+        fork(watchPermssionAdd),
+        fork(watchPermssionList),
+        fork(watchPermssionDelete),
+        fork(watchPermssionAssign),
+    ]);
 }

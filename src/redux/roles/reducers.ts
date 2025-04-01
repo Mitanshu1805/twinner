@@ -60,7 +60,7 @@ type RolesAndRightsActionType =
     | { type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_SUCCESS; payload: { message: string } }
     | { type: typeof RolesAndRightsActionTypes.PERMISSION_MODULE_DELETE_ERROR; payload: { error: string } }
     | { type: typeof RolesAndRightsActionTypes.PERMISSION_LIST }
-    | { type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_SUCCESS; payload: PermissionListSuccessPayload }
+    | { type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_SUCCESS; payload: PermissionListSuccessPayload[] }
     | { type: typeof RolesAndRightsActionTypes.PERMISSION_LIST_ERROR; payload: { error: string } }
     | { type: typeof RolesAndRightsActionTypes.PERMISSION_ADD; payload: { module_id: string; permission_type: string } }
     | { type: typeof RolesAndRightsActionTypes.PERMISSION_ADD_SUCCESS; payload: { message: string } }
@@ -97,7 +97,7 @@ const rolesAndRightsReducer = (state = initialState, action: RolesAndRightsActio
             return {
                 ...state,
                 loading: false,
-                // permissions: action.ayload.permissions, // ✅ Extract `permissions` properlyp
+                permissions: action.payload,
                 error: null,
             };
 

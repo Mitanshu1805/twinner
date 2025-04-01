@@ -20,33 +20,11 @@ interface RegisterAdminUserModalProps {
     adminUserToEdit?: AdminUser | null;
 }
 
-interface PermissionList {
-    module_name: string;
-    permissions: Permission[];
-}
-
-interface Permission {
-    permission_id: number;
-    permission_type: string;
-}
-
 const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, onClose, adminUserToEdit }) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const { dispatch, appSelector } = useRedux();
-    const { permissions = [], loading, error } = appSelector((state: RootState) => state.roles);
-
-    const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
-    const adminUserId = useSelector((state: RootState) => state.adminUser.admin_user_id);
-    console.log('ADMIN USER ID', adminUserId);
-
-    // Effect to monitor changes to adminUserId
-    useEffect(() => {
-        if (adminUserId) {
-            console.log('New admin user added with ID:', adminUserId);
-        }
-    }, [adminUserId]); // Will trigger when adminUserId changes
 
     useEffect(() => {
         if (adminUserToEdit) {
@@ -64,15 +42,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
         }
     }, [dispatch, show, adminUserToEdit]);
 
-    const handlePermissionChange = (permissionId: number) => {
-        setSelectedPermissions(
-            (prev) =>
-                prev.includes(permissionId)
-                    ? prev.filter((id) => id !== permissionId) // Remove if already selected
-                    : [...prev, permissionId] // Add if not selected
-        );
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -81,38 +50,23 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
             last_name: lastName,
             phone_number: phoneNumber,
         };
-        console.log('HELLOO');
 
         try {
             let userId = adminUserToEdit?.admin_user_id;
-            console.log('userId: ', userId);
 
-            const id = localStorage.getItem('adminUserId');
-            console.log('id >> ', id);
             if (userId) {
                 // Update existing admin user
                 await dispatch(adminUserUpdate({ ...adminUserData }) as any);
             } else {
                 // Register new admin user
                 const action = await dispatch(adminUserAdd(adminUserData) as any);
+                userId = action.payload.admin_user_id; // Get the admin_user_id from the action payload
             }
-
-            if (id && selectedPermissions.length > 0) {
-                await dispatch(
-                    permissionAssign({
-                        admin_user_id: id,
-                        permission_ids: selectedPermissions.map(String),
-                    }) as any
-                );
-            }
-
-            // Refresh permission list
-            dispatch(permissionList());
-
-            // Close the modal
-            onClose();
         } catch (error) {
-            console.error('Error in form submission: ', error);
+            console.error('Error during submission:', error);
+            // Handle error here (e.g., show a notification)
+        } finally {
+            // Optional: Code to run after the try/catch block (e.g., closing modal)
         }
     };
 
@@ -152,34 +106,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
                             required
                         />
                     </Form.Group>
-                    {/* Show permissions only if we're in register mode (no adminUserToEdit) */}
-                    {!adminUserToEdit && (
-                        <Form.Group className="mb-3">
-                            <Form.Label>Select Permissions</Form.Label>
-                            {loading ? (
-                                <p>Loading permissions...</p>
-                            ) : (
-                                <Accordion>
-                                    {permissions.map((module: PermissionList, index: number) => (
-                                        <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header>{module.module_name}</Accordion.Header>
-                                            <Accordion.Body>
-                                                {module.permissions.map((perm: Permission) => (
-                                                    <Form.Check
-                                                        key={perm.permission_id}
-                                                        type="checkbox"
-                                                        label={perm.permission_type}
-                                                        checked={selectedPermissions.includes(perm.permission_id)}
-                                                        onChange={() => handlePermissionChange(perm.permission_id)}
-                                                    />
-                                                ))}
-                                            </Accordion.Body>
-                                        </Accordion.Item>
-                                    ))}
-                                </Accordion>
-                            )}
-                        </Form.Group>
-                    )}
 
                     <Modal.Footer>
                         <Button variant="secondary" onClick={onClose}>

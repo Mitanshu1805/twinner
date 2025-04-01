@@ -4,14 +4,14 @@ interface AdminUser {
     admin_user_id: string;
     first_name: string;
     last_name: string;
-    user_name: string;
+    // user_name: string;
     is_active: boolean;
 }
 
 interface AdminUserAdd {
     first_name: string;
     last_name: string;
-    user_name: string;
+    // user_name: string;
     phone_number: string;
 }
 
@@ -21,8 +21,12 @@ interface AdminUserSuccessPayload {
 }
 
 interface AdminUserAddSuccessPayload {
-    data: AdminUserAdd;
+    first_name: string;
+    last_name: string;
+    user_name: string;
+    phone_number: string;
     message: string;
+    admin_user_id: string;
 }
 
 interface AdminUserErrorPayload {
@@ -34,6 +38,7 @@ interface AdminUserState {
     loading: boolean;
     error: string | null;
     message: string | null;
+    admin_user_id: string | null;
 }
 
 const initialState: AdminUserState = {
@@ -41,6 +46,7 @@ const initialState: AdminUserState = {
     loading: false,
     error: null,
     message: null,
+    admin_user_id: null,
 };
 
 type SubAdminUserActionType =
@@ -83,8 +89,33 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
         case SubAdminUserActionTypes.ADMIN_USERS_ADD:
             return { ...state, loading: true, error: null };
 
+        // Handle success when a new admin user is added
+        // case SubAdminUserActionTypes.ADMIN_USERS_ADD_SUCCESS:
+        //     // Save the newly created user ID (you can store it in the state if you want to access it later)
+        //     const { admin_user_id, message } = action.payload;
+        //     return {
+        //         ...state,
+        //         loading: false,
+        //         message,
+        //         admin_user_id, // Store the admin user ID
+        //     };
+
         case SubAdminUserActionTypes.ADMIN_USERS_ADD_SUCCESS:
-            return { ...state, loading: false, message: action.payload.message };
+            // Assuming action.payload contains the admin_user_id
+            const newAdminUser = {
+                admin_user_id: action.payload.admin_user_id,
+                first_name: action.payload.first_name,
+                last_name: action.payload.last_name,
+                phone_number: action.payload.phone_number,
+                is_active: true, // Default to active
+            };
+
+            return {
+                ...state,
+                loading: false,
+                admin_user_id: action.payload.admin_user_id,
+                adminUsers: [...state.adminUsers, newAdminUser], // Add the new user to the list
+            };
 
         case SubAdminUserActionTypes.ADMIN_USERS_ADD_ERROR:
             return { ...state, loading: false, error: action.payload.error };
@@ -123,12 +154,8 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
             return { ...state, loading: true, error: null };
 
         case SubAdminUserActionTypes.UPDATE_ADMIN_STATUS_SUCCESS:
-            console.log('Current adminUsers state:', state.adminUsers);
-            console.log('Is adminUsers an array?', Array.isArray(state.adminUsers));
-
             return {
                 ...state,
-
                 loading: false,
                 message: action.payload.message,
                 adminUsers: state.adminUsers.map((user) =>
