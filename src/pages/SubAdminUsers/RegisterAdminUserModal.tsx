@@ -38,15 +38,22 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
     const { permissions = [], loading, error } = appSelector((state: RootState) => state.roles);
 
     const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
-    const adminUserId = useSelector((state: RootState) => state.adminUser.admin_user_id);
-    console.log('ADMIN USER ID from Redux:', adminUserId);
+    // const latestUserId = useSelector((state: RootState) => state.adminUser.admin_user_id);
+    // console.log('AdminUser: ', adminUser);
 
-    // Effect to monitor changes to adminUserId
+    // console.log('ADMIN USER ID from Redux:', latestUserId);
+
     // useEffect(() => {
-    //     if (adminUserId) {
-    //         console.log('New admin user added with ID:', adminUserId);
+    //     if (latestUserId) {
+    //         console.log('Redux State Updated: New Admin User ID:', latestUserId);
+
+    //         // Ensure localStorage has the latest value before reading
+    //         setTimeout(() => {
+    //             const storedId = localStorage.getItem('adminUserId');
+    //             console.log('Stored userId (from localStorage): ', storedId);
+    //         }, 100);
     //     }
-    // }, [adminUserId]); // Will trigger when adminUserId changes
+    // }, [latestUserId]);
 
     useEffect(() => {
         if (adminUserToEdit) {
@@ -73,7 +80,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
         );
     };
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -85,10 +91,7 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
 
         try {
             let userId = adminUserToEdit?.admin_user_id;
-            console.log('userId: ', userId);
-
-            const id = adminUserId || localStorage.getItem('adminUserId');
-            console.log('Stored userId (from Redux or localStorage): ', id);
+            console.log('userId before API call: ', userId);
 
             if (userId) {
                 // Update existing admin user
@@ -98,27 +101,32 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
                 await dispatch(adminUserAdd(adminUserData) as any);
             }
 
-            if (id && selectedPermissions.length > 0) {
-                await dispatch(
-                    permissionAssign({
-                        admin_user_id: id,
-                        permission_ids: selectedPermissions.map(String),
-                    }) as any
-                );
-            }
+            // ✅ Wait for localStorage to update before reading
+            setTimeout(() => {
+                const storedAdminUserId = localStorage.getItem('adminUserId');
+                console.log('Stored userId (from localStorage): ', storedAdminUserId);
 
-            // Refresh permission list
-            dispatch(permissionList());
+                if (storedAdminUserId && selectedPermissions.length > 0) {
+                    dispatch(
+                        permissionAssign({
+                            admin_user_id: storedAdminUserId,
+                            permission_ids: selectedPermissions.map(String),
+                        }) as any
+                    );
+                }
 
-            // Close the modal
-            onClose();
+                // Refresh permission list
+                dispatch(permissionList());
+                const removedId = localStorage.removeItem('adminUserId');
+                console.log('Removed localStorage adminUserId: ', removedId);
+
+                // Close the modal
+                onClose();
+            }, 1000); // Small delay to ensure localStorage is updated
         } catch (error) {
             console.error('Error in form submission: ', error);
         }
     };
-
-
-
 
     return (
         <Modal show={show} onHide={onClose}>

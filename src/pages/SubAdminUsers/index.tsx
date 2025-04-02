@@ -26,14 +26,14 @@ interface AdminUser {
 
 type Permission = {
     module_name: string;
-    permissions: string; // Stored as a string (e.g., '{read}')
+    permissions: string | string[]; // Stored as a string (e.g., '{read}')
 };
 
 const AdminUser = () => {
     const { dispatch, appSelector } = useRedux();
     const { adminUsers = [], loading, error } = appSelector((state: RootState) => state.adminUser);
-    console.log('adminUsers: ', adminUsers);
-    const pagination = useSelector((state: RootState) => state.adminUser?.adminUsers?.data?.pagination);
+    // console.log('adminUsers: ', adminUsers);
+    const pagination = useSelector((state: RootState) => state.adminUser?.adminUsers);
     // console.log('pagination: ', pagination);
 
     // const adminUsersData = adminUsers?.data?.users || [];
@@ -47,12 +47,16 @@ const AdminUser = () => {
     // console.log('Admin Users: ', adminUsers);
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 20;
+    const itemsPerPage = 10;
 
     const userPermission = permissions.find((perm) => perm.module_name === 'Admin');
 
     const userPermissionsArray: string[] = userPermission
-        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+        ? Array.isArray(userPermission.permissions)
+            ? userPermission.permissions // Already an array, use as is
+            : typeof userPermission.permissions === 'string'
+            ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
+            : []
         : [];
 
     useEffect(() => {
@@ -101,17 +105,6 @@ const AdminUser = () => {
         setShowPermissionsModal(false);
         // dispatch(adminUserList);
     };
-    const handleNextPage = () => {
-        if (pagination && currentPage < pagination.totalPages) {
-            setCurrentPage((prev) => prev + 1);
-        }
-    };
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage((prev) => prev - 1);
-        }
-    };
 
     const handleUserToggle = (admin_user_id: string, is_active: boolean) => {
         setToggleStates((prev) => ({
@@ -132,7 +125,6 @@ const AdminUser = () => {
             dispatch(adminUserDelete(admin_user_id));
         }
     };
-
 
     return userPermissionsArray.includes('read') ? (
         <div>
@@ -163,7 +155,10 @@ const AdminUser = () => {
                                 <th>Contact</th>
                                 <th>Status</th>
                                 {/* <th>Actions</th> */}
-                                <th>Actions</th>
+                                {/* <th>Permissions</th> */}
+                                {(userPermissionsArray?.includes('update') ||
+                                    userPermissionsArray?.includes('delete')) && <th>Actions</th>}
+
                                 <th>Permissions</th>
                             </tr>
                         </thead>
@@ -184,45 +179,51 @@ const AdminUser = () => {
                                                 onChange={(checked) => handleUserToggle(user.admin_user_id, checked)}
                                             />
                                         </td>
+                                        {/* <td>
+                                            <Book size={20} style={{ cursor: 'pointer' }} />
+                                        </td> */}
                                         <td>
-                                            <FaRegEdit
-                                                size={20}
-                                                style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                onClick={() => handleEditAdminUser(user)}
-                                            />
-                                            <FaTrash
-                                                size={20}
-                                                style={{ cursor: 'pointer', color: 'red' }}
-                                                onClick={() => handleDeleteAdminUser(user.admin_user_id)}
-                                            />
+                                            {userPermissionsArray?.includes('update') && (
+                                                <FaRegEdit
+                                                    size={20}
+                                                    style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                    onClick={() => handleEditAdminUser(user)}
+                                                />
+                                            )}
+                                            {userPermissionsArray?.includes('delete') && (
+                                                <FaTrash
+                                                    size={20}
+                                                    style={{ cursor: 'pointer', color: 'red' }}
+                                                    onClick={() => handleDeleteAdminUser(user.admin_user_id)}
+                                                />
+                                            )}
                                         </td>
 
                                         <td>
-                                            <td>
-                                                <Book
-                                                    size={20}
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => handlePermissionClick(user)}
-                                                />
-                                                <PermissionsModal
-                                                    show={showPermissionsModal}
-                                                    onClose={handleClosePermissionsModal}
-                                                    user={
-                                                        selectedUserForPermissions
-                                                            ? {
-                                                                ...selectedUserForPermissions,
-                                                                permissions:
-                                                                    selectedUserForPermissions.permissions.map(
-                                                                        (perm, index) => ({
-                                                                            permission_id: index + 1, // Assign a unique permission_id or map it based on your data
-                                                                            permission_type: perm.permissions, // Use the permission string directly
-                                                                        })
-                                                                    ),
-                                                            }
-                                                            : undefined
-                                                    }
-                                                />
-                                            </td>
+                                            <Book
+                                                size={20}
+                                                style={{ cursor: 'pointer' }}
+                                                onClick={() => handlePermissionClick(user)}
+                                            />
+                                            <PermissionsModal
+                                                show={showPermissionsModal}
+                                                onClose={handleClosePermissionsModal}
+                                                user={
+                                                    selectedUserForPermissions
+                                                        ? {
+                                                              ...selectedUserForPermissions,
+                                                              permissions: selectedUserForPermissions.permissions.map(
+                                                                  (perm) => ({
+                                                                      module: perm.module_name, // Ensure this matches your API response
+                                                                      permission: Array.isArray(perm.permissions)
+                                                                          ? perm.permissions
+                                                                          : [perm.permissions], // Convert string to array if needed
+                                                                  })
+                                                              ),
+                                                          }
+                                                        : undefined
+                                                }
+                                            />
                                         </td>
                                     </tr>
                                 ))
@@ -241,7 +242,13 @@ const AdminUser = () => {
             <div
                 className="pagination-controls"
                 style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
+                {/* <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
+                    Previous
+                </SoftButton> */}
+                <SoftButton
+                    variant="secondary"
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                    className={currentPage === 1 ? 'disabled-button' : ''}>
                     Previous
                 </SoftButton>
 
@@ -249,10 +256,16 @@ const AdminUser = () => {
                     Page {currentPage} of {pagination?.totalPages ?? 1}
                 </span>
 
-                <SoftButton
+                {/* <SoftButton
                     variant="secondary"
                     onClick={handleNextPage}
                     disabled={currentPage >= (pagination?.totalPages ?? 1)}>
+                    Next
+                </SoftButton> */}
+                <SoftButton
+                    variant="secondary"
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    className={currentPage >= (pagination?.totalPages ?? 1) ? 'disabled-button' : ''}>
                     Next
                 </SoftButton>
             </div>

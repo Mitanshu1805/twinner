@@ -22,15 +22,17 @@ import {
     adminUserUpdateError,
     updateAdminStatusSuccess,
     updateAdminStatusError,
-    setAdminUserId
+    setAdminUserId,
 } from './actions';
 
 import { SubAdminUserActionTypes } from './constants';
 
 function* adminUserListSaga(action: any): SagaIterator {
     try {
-        const response = yield call(adminUserList, action.payload);
-        console.log("USER LIST RESPONSE:", response)
+        const data = action.payload; // ✅ This is correct
+        const { currentPage, itemsPerPage } = action.meta; // ✅ Get from `meta`
+        const response = yield call(adminUserList, data, currentPage, itemsPerPage);
+        console.log('USER LIST RESPONSE:', response);
         yield put(adminUserListSuccess(response.data.data));
     } catch (error: any) {
         yield put(adminUserListError(error.message || 'Error Occured'));
@@ -65,7 +67,7 @@ function* adminUserAddSaga(action: any): SagaIterator {
         yield put(adminUserAddSuccess(response.data));
 
         // Store the newly added user's ID in localStorage
-        localStorage.setItem('adminUserId', adminUserId);
+        console.log('New added adminUserId: >>>', adminUserId);
 
         // Optionally dispatch an action to update Redux state
         yield put({ type: 'SET_ADMIN_USER_ID', payload: adminUserId }); // You could create a reducer to handle this
@@ -74,9 +76,6 @@ function* adminUserAddSaga(action: any): SagaIterator {
         yield put(adminUserAddError(error.message || 'Error Occurred'));
     }
 }
-
-
-
 
 function* adminUserDeleteSaga(action: any): SagaIterator {
     try {

@@ -228,6 +228,7 @@ const InterestHobbies = () => {
     const { dispatch, appSelector } = useRedux();
     const { interests = [], loading, error } = appSelector((state: RootState) => state.interest);
     const interestListData = interests?.data || [];
+    console.log('interestListData>>>>>>>>>', interestListData);
     const buttonVariant: Variant[] = ['primary'];
     const [message, setMessage] = useState<string>('');
     const [showInterestRegModal, setShowInterestRegModal] = useState(false);

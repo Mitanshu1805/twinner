@@ -35,19 +35,14 @@ type Permission = {
 const UserManagement = () => {
     const { dispatch, appSelector } = useRedux();
     const usersData = appSelector((state: RootState) => state.userManagement.users || []);
+    const justTry = appSelector((state: RootState) => state);
+    console.log('justTry', justTry);
 
     const loading = appSelector((state: RootState) => state.userManagement.loading);
     const error = appSelector((state: RootState) => state.userManagement.error);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
-
-    // Find the user's permission object for the "User" module
     const userPermission = permissions.find((perm) => perm.module_name === 'User');
-
-    // Ensure the permission string is cleaned and parsed correctly
-    // const userPermissionsArray: string[] = userPermission
-    //     ? userPermission.permissions.replace(/\{|\}/g, '').split(',') // Removes `{}` and splits by comma
-    //     : [];
     const userPermissionsArray: string[] = userPermission
         ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
         : [];

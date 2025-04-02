@@ -51,7 +51,7 @@ function interestDelete(data: any) {
     return api.delete(`${baseUrl}`, data);
 }
 
-function adminUserList(currentPage: number = 1, itemsPerPage: number = 20) {
+function adminUserList(data: any, currentPage: number = 1, itemsPerPage: number = 10) {
     const baseUrl = '/admin/list';
     const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -59,7 +59,7 @@ function adminUserList(currentPage: number = 1, itemsPerPage: number = 20) {
     });
 
     const fullUrl = `${baseUrl}?${params.toString()}`;
-    return api.get(fullUrl, undefined);
+    return api.get(fullUrl, data);
 }
 
 // function adminUserList(data: any, currentPage: number = 1, itemsPerPage: number = 10) {
