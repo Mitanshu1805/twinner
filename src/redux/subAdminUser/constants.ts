@@ -1,4 +1,6 @@
 export enum SubAdminUserActionTypes {
+    SET_ADMIN_USER_ID = '@@subAdminUsers/SET_ADMIN_USER_ID',
+
     ADMIN_USERS_LIST = '@@subAdminUsers/ADMIN_USERS_LIST',
     ADMIN_USERS_LIST_SUCCESS = '@@subAdminUsers/ADMIN_USERS_LIST_SUCCESS',
     ADMIN_USERS_LIST_ERROR = '@@subAdminUsers/ADMIN_USERS_LIST_ERROR',

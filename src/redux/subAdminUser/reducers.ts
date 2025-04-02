@@ -1,4 +1,5 @@
 import { SubAdminUserActionTypes } from './constants';
+import { SetAdminUserIdAction } from './actions';
 
 interface AdminUser {
     admin_user_id: string;
@@ -6,6 +7,11 @@ interface AdminUser {
     last_name: string;
     // user_name: string;
     is_active: boolean;
+}
+
+interface SubAdminUserState {
+    admin_user_id: string;
+    // Other state properties...
 }
 
 interface AdminUserAdd {
@@ -17,8 +23,17 @@ interface AdminUserAdd {
 
 interface AdminUserSuccessPayload {
     message: string;
-    data: AdminUser[];
+    data: {
+        pagination: {
+            totalRecords: number;
+            currentPage: number;
+            totalPages: number;
+            pageSize: number;
+        };
+        users: AdminUser[]; // ✅ Corrected, now matches API response
+    };
 }
+
 
 interface AdminUserAddSuccessPayload {
     first_name: string;
@@ -46,10 +61,15 @@ const initialState: AdminUserState = {
     loading: false,
     error: null,
     message: null,
-    admin_user_id: null,
+    // admin_user_id: null,
+    admin_user_id: localStorage.getItem('adminUserId') || '',
 };
 
 type SubAdminUserActionType =
+    | {
+        type: typeof SubAdminUserActionTypes.SET_ADMIN_USER_ID;
+        payload: string;
+    }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_LIST }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_LIST_SUCCESS; payload: AdminUserSuccessPayload }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_LIST_ERROR; payload: AdminUserErrorPayload }
@@ -57,31 +77,37 @@ type SubAdminUserActionType =
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_ADD_SUCCESS; payload: AdminUserAddSuccessPayload }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_ADD_ERROR; payload: AdminUserErrorPayload }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE; payload: { admin_user_id: string } }
-    | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE_SUCCESS; payload: { message: string } }
+    | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE_SUCCESS; payload: { message: string, admin_user_id: string } }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_DELETE_ERROR; payload: AdminUserErrorPayload }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_EDIT; payload: AdminUser }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_EDIT_SUCCESS; payload: AdminUserSuccessPayload }
     | { type: typeof SubAdminUserActionTypes.ADMIN_USERS_EDIT_ERROR; payload: AdminUserErrorPayload }
     | {
-          type: typeof SubAdminUserActionTypes.UPDATE_ADMIN_STATUS;
-          payload: { admin_user_id: string; is_active: boolean };
-      }
+        type: typeof SubAdminUserActionTypes.UPDATE_ADMIN_STATUS;
+        payload: { admin_user_id: string; is_active: boolean };
+    }
     | { type: typeof SubAdminUserActionTypes.UPDATE_ADMIN_STATUS_SUCCESS; payload: AdminUserSuccessPayload }
     | { type: typeof SubAdminUserActionTypes.UPDATE_ADMIN_STATUS_ERROR; payload: AdminUserErrorPayload };
 
 const adminUserReducer = (state: AdminUserState = initialState, action: SubAdminUserActionType): AdminUserState => {
     switch (action.type) {
+
+        case SubAdminUserActionTypes.SET_ADMIN_USER_ID:
+            return { ...state, admin_user_id: action.payload };
+
         case SubAdminUserActionTypes.ADMIN_USERS_LIST:
             return { ...state, loading: true, error: null, message: null };
 
         case SubAdminUserActionTypes.ADMIN_USERS_LIST_SUCCESS:
+            console.log("API Response Data:", action.payload.data);
             return {
                 ...state,
                 loading: false,
                 error: null,
                 message: action.payload.message,
-                adminUsers: action.payload.data,
+                adminUsers: Array.isArray(action.payload.data.users) ? action.payload.data.users : [], // ✅ Fixes type error
             };
+
 
         case SubAdminUserActionTypes.ADMIN_USERS_LIST_ERROR:
             return { ...state, loading: false, error: action.payload.error, message: null };
@@ -127,9 +153,11 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
             return {
                 ...state,
                 loading: false,
-                message: action.payload.message,
-                adminUsers: state.adminUsers.filter((user) => user.admin_user_id !== action.payload.message),
+                adminUsers: state.adminUsers.filter(user => user.admin_user_id !== action.payload.admin_user_id),
             };
+
+
+
 
         case SubAdminUserActionTypes.ADMIN_USERS_DELETE_ERROR:
             return { ...state, loading: false, error: action.payload.error };
@@ -143,9 +171,10 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
                 loading: false,
                 message: action.payload.message,
                 adminUsers: state.adminUsers.map((user) =>
-                    user.admin_user_id === action.payload.data[0].admin_user_id ? action.payload.data[0] : user
+                    user.admin_user_id === action.payload.data.users[0].admin_user_id ? action.payload.data.users[0] : user
                 ),
             };
+
 
         case SubAdminUserActionTypes.ADMIN_USERS_EDIT_ERROR:
             return { ...state, loading: false, error: action.payload.error };
@@ -159,11 +188,12 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
                 loading: false,
                 message: action.payload.message,
                 adminUsers: state.adminUsers.map((user) =>
-                    user.admin_user_id === action.payload.data[0].admin_user_id
-                        ? { ...user, is_active: action.payload.data[0].is_active }
+                    user.admin_user_id === action.payload.data.users[0].admin_user_id
+                        ? { ...user, is_active: action.payload.data.users[0].is_active }
                         : user
                 ),
             };
+
 
         case SubAdminUserActionTypes.UPDATE_ADMIN_STATUS_ERROR:
             return { ...state, loading: false, error: action.payload.error };

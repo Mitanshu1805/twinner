@@ -39,14 +39,14 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
 
     const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
     const adminUserId = useSelector((state: RootState) => state.adminUser.admin_user_id);
-    console.log('ADMIN USER ID', adminUserId);
+    console.log('ADMIN USER ID from Redux:', adminUserId);
 
     // Effect to monitor changes to adminUserId
-    useEffect(() => {
-        if (adminUserId) {
-            console.log('New admin user added with ID:', adminUserId);
-        }
-    }, [adminUserId]); // Will trigger when adminUserId changes
+    // useEffect(() => {
+    //     if (adminUserId) {
+    //         console.log('New admin user added with ID:', adminUserId);
+    //     }
+    // }, [adminUserId]); // Will trigger when adminUserId changes
 
     useEffect(() => {
         if (adminUserToEdit) {
@@ -73,6 +73,7 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
         );
     };
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -81,20 +82,20 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
             last_name: lastName,
             phone_number: phoneNumber,
         };
-        console.log('HELLOO');
 
         try {
             let userId = adminUserToEdit?.admin_user_id;
             console.log('userId: ', userId);
 
-            const id = localStorage.getItem('adminUserId');
-            console.log('id >> ', id);
+            const id = adminUserId || localStorage.getItem('adminUserId');
+            console.log('Stored userId (from Redux or localStorage): ', id);
+
             if (userId) {
                 // Update existing admin user
                 await dispatch(adminUserUpdate({ ...adminUserData }) as any);
             } else {
                 // Register new admin user
-                const action = await dispatch(adminUserAdd(adminUserData) as any);
+                await dispatch(adminUserAdd(adminUserData) as any);
             }
 
             if (id && selectedPermissions.length > 0) {
@@ -115,6 +116,9 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
             console.error('Error in form submission: ', error);
         }
     };
+
+
+
 
     return (
         <Modal show={show} onHide={onClose}>

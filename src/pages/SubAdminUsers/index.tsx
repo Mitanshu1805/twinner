@@ -34,17 +34,17 @@ const AdminUser = () => {
     const { adminUsers = [], loading, error } = appSelector((state: RootState) => state.adminUser);
     console.log('adminUsers: ', adminUsers);
     const pagination = useSelector((state: RootState) => state.adminUser?.adminUsers?.data?.pagination);
-    console.log('pagination: ', pagination);
+    // console.log('pagination: ', pagination);
 
-    const adminUsersData = adminUsers?.data?.users || [];
-    console.log('adminUsersData: ', adminUsersData);
+    // const adminUsersData = adminUsers?.data?.users || [];
+    // console.log('adminUsersData: ', adminUsersData);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
     const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUser | null>(null);
     const [showAdminUserRegModal, setShowAdminUserRegModal] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<AdminUser | null>(null);
 
-    console.log('Admin Users: ', adminUsers);
+    // console.log('Admin Users: ', adminUsers);
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 20;
@@ -56,16 +56,16 @@ const AdminUser = () => {
         : [];
 
     useEffect(() => {
-        if (adminUsersData.length > 0) {
+        if (adminUsers.length > 0) {
             const initialToggleStates: { [key: string]: boolean } = {};
 
-            adminUsersData.forEach((adminUser: AdminUser) => {
+            adminUsers.forEach((adminUser: AdminUser) => {
                 initialToggleStates[adminUser.admin_user_id] = adminUser.is_active;
             });
 
             setToggleStates(initialToggleStates);
         }
-    }, [adminUsersData]);
+    }, [adminUsers]);
 
     useEffect(() => {
         // Dispatch to fetch admin users whenever currentPage changes
@@ -82,7 +82,7 @@ const AdminUser = () => {
     };
 
     const handlePermissionClick = (user: AdminUser) => {
-        console.log('Opening modal for user:', user);
+        // console.log('Opening modal for user:', user);
         setSelectedUserForPermissions(user);
         setShowPermissionsModal(true);
     };
@@ -128,9 +128,11 @@ const AdminUser = () => {
 
     const handleDeleteAdminUser = (admin_user_id: string) => {
         if (window.confirm('Are you sure you want to delete this interest?')) {
+            // Dispatch the delete action
             dispatch(adminUserDelete(admin_user_id));
         }
     };
+
 
     return userPermissionsArray.includes('read') ? (
         <div>
@@ -166,8 +168,8 @@ const AdminUser = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {adminUsersData.length > 0 ? (
-                                adminUsersData.map((user: AdminUser, index: number) => (
+                            {adminUsers.length > 0 ? (
+                                adminUsers.map((user: AdminUser, index: number) => (
                                     <tr key={user.admin_user_id}>
                                         <td>{index + 1}</td>
                                         <td>
@@ -208,15 +210,15 @@ const AdminUser = () => {
                                                     user={
                                                         selectedUserForPermissions
                                                             ? {
-                                                                  ...selectedUserForPermissions,
-                                                                  permissions:
-                                                                      selectedUserForPermissions.permissions.map(
-                                                                          (perm, index) => ({
-                                                                              permission_id: index + 1, // Assign a unique permission_id or map it based on your data
-                                                                              permission_type: perm.permissions, // Use the permission string directly
-                                                                          })
-                                                                      ),
-                                                              }
+                                                                ...selectedUserForPermissions,
+                                                                permissions:
+                                                                    selectedUserForPermissions.permissions.map(
+                                                                        (perm, index) => ({
+                                                                            permission_id: index + 1, // Assign a unique permission_id or map it based on your data
+                                                                            permission_type: perm.permissions, // Use the permission string directly
+                                                                        })
+                                                                    ),
+                                                            }
                                                             : undefined
                                                     }
                                                 />
