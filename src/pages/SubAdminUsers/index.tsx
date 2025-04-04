@@ -14,7 +14,7 @@ import RegAdminMod from './RegAdminMod';
 import PermissionsModal from './PermissionsModal';
 import { Book } from 'react-feather';
 
-interface AdminUser {
+interface AdminUserProps {
     admin_user_id: string;
     first_name: string;
     last_name: string;
@@ -39,10 +39,10 @@ const AdminUser = () => {
     // const adminUsersData = adminUsers?.data?.users || [];
     // console.log('adminUsersData: ', adminUsersData);
     const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
-    const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUser | null>(null);
+    const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUserProps | null>(null);
     const [showAdminUserRegModal, setShowAdminUserRegModal] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
-    const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<AdminUser | null>(null);
+    const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any | null>(null);
 
     // console.log('Admin Users: ', adminUsers);
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
@@ -50,6 +50,15 @@ const AdminUser = () => {
     const itemsPerPage = 10;
 
     const userPermission = permissions.find((perm) => perm.module_name === 'Admin');
+    const userPermissionOnly = permissions.find((perm) => perm.module_name === 'Permissions');
+
+    const userPermissionsArrayOnly: string[] = userPermissionOnly
+        ? Array.isArray(userPermissionOnly.permissions)
+            ? userPermissionOnly.permissions // Already an array, use as is
+            : typeof userPermissionOnly.permissions === 'string'
+            ? userPermissionOnly.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
+            : []
+        : [];
 
     const userPermissionsArray: string[] = userPermission
         ? Array.isArray(userPermission.permissions)
@@ -63,7 +72,7 @@ const AdminUser = () => {
         if (adminUsers.length > 0) {
             const initialToggleStates: { [key: string]: boolean } = {};
 
-            adminUsers.forEach((adminUser: AdminUser) => {
+            adminUsers.forEach((adminUser: AdminUserProps) => {
                 initialToggleStates[adminUser.admin_user_id] = adminUser.is_active;
             });
 
@@ -85,20 +94,24 @@ const AdminUser = () => {
         setShowAdminUserRegModal(true);
     };
 
-    const handlePermissionClick = (user: AdminUser) => {
+    const handlePermissionClick = (user: AdminUserProps) => {
         // console.log('Opening modal for user:', user);
-        setSelectedUserForPermissions(user);
+        setSelectedUserForPermissions({ ...user });
         setShowPermissionsModal(true);
     };
 
-    const handleEditAdminUser = (adminUser: AdminUser) => {
+    useEffect(() => {
+        console.log('Updated selectedUserForPermissions:', selectedUserForPermissions);
+    }, [selectedUserForPermissions]);
+
+    const handleEditAdminUser = (adminUser: AdminUserProps) => {
         setSelectedAdminUser(adminUser);
         setShowAdminUserRegModal(true);
     };
 
     const handleCloseRegModal = () => {
         setShowAdminUserRegModal(false);
-        dispatch(adminUserList);
+        dispatch(adminUserList(currentPage, itemsPerPage));
     };
 
     const handleClosePermissionsModal = () => {
@@ -115,7 +128,7 @@ const AdminUser = () => {
         dispatch(updateAdminStatus(admin_user_id, is_active));
 
         setTimeout(() => {
-            dispatch(adminUserList);
+            dispatch(adminUserList(currentPage, itemsPerPage));
         }, 100);
     };
 
@@ -153,18 +166,18 @@ const AdminUser = () => {
                                 <th> Name</th>
                                 {/* <th>Last Name</th> */}
                                 <th>Contact</th>
-                                <th>Status</th>
+                                {userPermissionsArray?.includes('update') && <th>Status</th>}
                                 {/* <th>Actions</th> */}
                                 {/* <th>Permissions</th> */}
                                 {(userPermissionsArray?.includes('update') ||
                                     userPermissionsArray?.includes('delete')) && <th>Actions</th>}
 
-                                <th>Permissions</th>
+                                {userPermissionsArrayOnly?.includes('write') && <th>Permissions</th>}
                             </tr>
                         </thead>
                         <tbody>
                             {adminUsers.length > 0 ? (
-                                adminUsers.map((user: AdminUser, index: number) => (
+                                adminUsers.map((user: AdminUserProps, index: number) => (
                                     <tr key={user.admin_user_id}>
                                         <td>{index + 1}</td>
                                         <td>
@@ -173,12 +186,16 @@ const AdminUser = () => {
                                         {/* <td>{user.last_name}</td> */}
                                         <td>{user.phone_number}</td>
                                         {/* <td>{user.is_active ? 'Active' : 'Inactive'}</td> */}
-                                        <td>
-                                            <ToggleSwitch
-                                                checked={toggleStates[user.admin_user_id] || false}
-                                                onChange={(checked) => handleUserToggle(user.admin_user_id, checked)}
-                                            />
-                                        </td>
+                                        {userPermissionsArray?.includes('update') && (
+                                            <td>
+                                                <ToggleSwitch
+                                                    checked={toggleStates[user.admin_user_id] || false}
+                                                    onChange={(checked) =>
+                                                        handleUserToggle(user.admin_user_id, checked)
+                                                    }
+                                                />
+                                            </td>
+                                        )}
                                         {/* <td>
                                             <Book size={20} style={{ cursor: 'pointer' }} />
                                         </td> */}
@@ -199,32 +216,21 @@ const AdminUser = () => {
                                             )}
                                         </td>
 
-                                        <td>
-                                            <Book
-                                                size={20}
-                                                style={{ cursor: 'pointer' }}
-                                                onClick={() => handlePermissionClick(user)}
-                                            />
-                                            <PermissionsModal
-                                                show={showPermissionsModal}
-                                                onClose={handleClosePermissionsModal}
-                                                user={
-                                                    selectedUserForPermissions
-                                                        ? {
-                                                              ...selectedUserForPermissions,
-                                                              permissions: selectedUserForPermissions.permissions.map(
-                                                                  (perm) => ({
-                                                                      module: perm.module_name, // Ensure this matches your API response
-                                                                      permission: Array.isArray(perm.permissions)
-                                                                          ? perm.permissions
-                                                                          : [perm.permissions], // Convert string to array if needed
-                                                                  })
-                                                              ),
-                                                          }
-                                                        : undefined
-                                                }
-                                            />
-                                        </td>
+                                        {userPermissionsArrayOnly?.includes('write') && (
+                                            <td>
+                                                <Book
+                                                    size={20}
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => handlePermissionClick(user)}
+                                                />
+
+                                                <PermissionsModal
+                                                    show={showPermissionsModal}
+                                                    onClose={handleClosePermissionsModal}
+                                                    user={selectedUserForPermissions}
+                                                />
+                                            </td>
+                                        )}
                                     </tr>
                                 ))
                             ) : (

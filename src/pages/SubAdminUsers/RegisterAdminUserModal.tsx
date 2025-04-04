@@ -5,6 +5,8 @@ import { adminUserAdd, adminUserUpdate, adminUserList } from '../../redux/subAdm
 import { useRedux } from '../../hooks';
 import { RootState } from '../../redux/store';
 import { permissionAssign, permissionList } from '../../redux/actions';
+import 'react-phone-input-2/lib/bootstrap.css';
+import PhoneInput from 'react-phone-input-2';
 
 interface AdminUser {
     admin_user_id?: string;
@@ -157,11 +159,16 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({ show, o
 
                     <Form.Group className="mb-3">
                         <Form.Label>Phone Number</Form.Label>
-                        <Form.Control
-                            type="text" // Changed from number to text input
+                        <PhoneInput
+                            country={'in'}
                             value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            required
+                            onChange={(value) => setPhoneNumber('+' + value.replace(/\D/g, ''))}
+                            inputStyle={{ width: '100%' }}
+                            inputProps={{
+                                name: 'phone_number',
+                                required: true,
+                                autoComplete: 'tel',
+                            }}
                         />
                     </Form.Group>
                     {/* Show permissions only if we're in register mode (no adminUserToEdit) */}

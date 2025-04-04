@@ -237,7 +237,8 @@ const UserManagement = () => {
                                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td>{user.name}</td>
                                         <td>{user.age}</td>
-                                        <td>{user.birthdate}</td>
+                                        <td>{new Date(user.birthdate).toLocaleDateString()}</td>
+
                                         <td>{user.city}</td>
                                         <td>{user.country}</td>
                                         <td>{user.education}</td>

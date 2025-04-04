@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { useRedux } from '../../hooks';
 import { RootState } from '../../redux/store';
 import { Row, Col } from 'react-bootstrap';
-
+import { adminUserList } from '../../redux/actions';
 import { permissionAssign, permissionList } from '../../redux/actions';
 
 interface PermissionList {
@@ -18,7 +18,7 @@ interface Permission {
 
 interface UserPermission {
     module: string;
-    permission: string[];
+    permission: any[];
 }
 
 interface User {
@@ -37,7 +37,10 @@ interface PermissionsModalProps {
 const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user }) => {
     const { dispatch, appSelector } = useRedux();
     const { permissions = [], loading } = appSelector((state: RootState) => state.roles);
+    // console.log('Permissions:>>>>>>> ', permissions);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const isFetched = useRef(false);
 
     useEffect(() => {
@@ -46,25 +49,26 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
             isFetched.current = true;
         }
     }, [show, dispatch]);
+    // console.log('user has permissions>>>>', user);
 
     useEffect(() => {
         if (!user || !user.permissions || permissions.length === 0) {
-            console.warn('User or user.permissions is missing. Skipping.');
+            // console.warn('User or user.permissions is missing. Skipping.');
             setSelectedPermissions([]);
             return;
         }
 
-        console.log('User Permissions from API:', JSON.stringify(user.permissions, null, 2));
+        // console.log('User Permissions from API:', JSON.stringify(user.permissions, null, 2));
 
         const userPermissions: string[] = user.permissions
             .flatMap((module) => {
                 if (!module || !module.module || !module.permission) {
-                    console.warn('Invalid user permission structure:', module);
+                    // console.warn('Invalid user permission structure:', module);
                     return [];
                 }
 
                 return module.permission.map((perm: string) => {
-                    console.log(`Checking module: ${module.module}, permission: ${perm}`);
+                    // console.log(`Checking module: ${module.module}, permission: ${perm}`);
 
                     const matchingModule = permissions.find((p: PermissionList) => p.module_name === module.module);
 
@@ -82,13 +86,14 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
                         return null;
                     }
 
-                    return `${module.module}-${matchingPermission.permission_id}`;
+                    // return `${module.module}-${matchingPermission.permission_id}`;
+                    return `${matchingPermission.permission_id}`;
                 });
             })
             .flat()
             .filter((perm): perm is string => perm !== null);
 
-        console.log('Final Selected Permissions:', userPermissions);
+        // console.log('Final Selected Permissions:', userPermissions);
         setSelectedPermissions(userPermissions);
     }, [user, permissions]);
 
@@ -97,6 +102,7 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
             prev.includes(permissionKey) ? prev.filter((id) => id !== permissionKey) : [...prev, permissionKey]
         );
     };
+    console.log('Selection Permissions', selectedPermissions);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -108,13 +114,18 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
 
         const payload = {
             admin_user_id: user.admin_user_id,
-            permission_ids: selectedPermissions.map((perm) => perm.split('-')[1]),
+
+            permission_ids: selectedPermissions,
         };
 
         dispatch(permissionAssign(payload));
         console.log('Assigning permissions:', payload);
 
         onClose();
+
+        setTimeout(() => {
+            dispatch(adminUserList(currentPage, itemsPerPage));
+        });
     };
 
     return (
@@ -122,7 +133,7 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
             show={show}
             onHide={() => {
                 onClose();
-                isFetched.current = false;
+                // isFetched.current = false;
             }}
             size="lg"
             centered>
@@ -131,71 +142,61 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
             </Modal.Header>
 
             <Modal.Body>
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold" style={{ fontSize: '1.1rem', color: '#495057' }}>
-                            Select Permissions
-                        </Form.Label>
-                        {loading ? (
-                            <p className="text-muted">Loading permissions...</p>
-                        ) : (
-                            <div className="p-2">
-                                {permissions.map((module: PermissionList, index: number) => (
-                                    <div key={index} className="mb-3">
-                                        <h5
-                                            className="mb-2 fw-semibold"
-                                            style={{
-                                                fontSize: '1.2rem',
-                                                color: '#343a40',
-                                                borderBottom: '1px solid #dee2e6',
-                                                paddingBottom: '4px',
-                                            }}>
-                                            {module.module_name}
-                                        </h5>
-                                        <Row className="g-2">
-                                            {module.permissions.map((perm: Permission) => (
-                                                <Col md={3} sm={6} xs={12} key={perm.permission_id}>
-                                                    <div
-                                                        className="p-2 rounded"
-                                                        style={{
-                                                            background: selectedPermissions.includes(
-                                                                perm.permission_id.toString()
-                                                            )
-                                                                ? '#e9f5ff'
-                                                                : '#f8f9fa',
-                                                            border: '1px solid #dee2e6',
-                                                        }}>
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            label={perm.permission_type}
-                                                            checked={selectedPermissions.includes(
-                                                                `${module.module_name}-${perm.permission_id}`
-                                                            )}
-                                                            onChange={() =>
-                                                                handlePermissionChange(
-                                                                    `${module.module_name}-${perm.permission_id}`
-                                                                )
-                                                            }
-                                                            style={{ fontSize: '1rem' }}
-                                                        />
-                                                    </div>
-                                                </Col>
-                                            ))}
-                                        </Row>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </Form.Group>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={onClose}>
-                            Cancel
-                        </Button>
-                        <Button variant="primary" type="submit">
-                            Save Changes
-                        </Button>
-                    </Modal.Footer>
-                </Form>
+                {/* <Form onSubmit={handleSubmit}> */}
+                <Form.Group className="mb-3">
+                    <Form.Label className="fw-bold" style={{ fontSize: '1.1rem', color: '#495057' }}>
+                        Select Permissions
+                    </Form.Label>
+                    {loading ? (
+                        <p className="text-muted">Loading permissions...</p>
+                    ) : (
+                        <div className="p-2">
+                            {permissions.map((module: PermissionList, index: number) => (
+                                <div key={index} className="mb-3">
+                                    <h5
+                                        className="mb-2 fw-semibold"
+                                        style={{
+                                            fontSize: '1.2rem',
+                                            color: '#343a40',
+                                            borderBottom: '1px solid #dee2e6',
+                                            paddingBottom: '4px',
+                                        }}>
+                                        {module.module_name}
+                                    </h5>
+                                    <Row className="g-2">
+                                        {module.permissions.map((perm: Permission) => (
+                                            <Col md={3} sm={6} xs={12} key={perm.permission_id}>
+                                                <div
+                                                    className="p-2 rounded"
+                                                    onClick={() => handlePermissionChange(`${perm.permission_id}`)}
+                                                    style={{
+                                                        background: '#f8f9fa',
+                                                        border: '1px solid #dee2e6',
+                                                    }}>
+                                                    <Form.Check
+                                                        type="checkbox"
+                                                        label={perm.permission_type}
+                                                        checked={selectedPermissions.includes(`${perm.permission_id}`)}
+                                                        style={{ fontSize: '1rem' }}
+                                                    />
+                                                </div>
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Form.Group>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={onClose}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" type="submit" onClick={handleSubmit}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+                {/* </Form> */}
             </Modal.Body>
         </Modal>
     );

@@ -11,6 +11,7 @@ import { logoutUser, resetAuth } from '../../redux/actions';
 
 // components
 import AuthLayout from './AuthLayout';
+import { useNavigate } from 'react-router-dom';
 
 // images
 import LogoDark from '../../assets/images/logo-dark.png';
@@ -62,14 +63,18 @@ const BottomLink = () => {
 const Logout = () => {
     const { t } = useTranslation();
     const { dispatch } = useRedux();
-
-    useEffect(() => {
-        dispatch(resetAuth());
-    }, [dispatch]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         dispatch(logoutUser());
-    }, [dispatch]);
+        dispatch(resetAuth());
+
+        const timer = setTimeout(() => {
+            navigate('/auth/login', { replace: true });
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, [dispatch, navigate]);
 
     return (
         <AuthLayout hasLogo={false} bottomLinks={<BottomLink />}>
@@ -90,8 +95,7 @@ const Logout = () => {
                 </div>
 
                 <h3>{t('See you again !')}</h3>
-
-                <p className="text-muted"> {t('You are now successfully sign out.')} </p>
+                <p className="text-muted">{t('You are now successfully sign out.')}</p>
             </div>
         </AuthLayout>
     );

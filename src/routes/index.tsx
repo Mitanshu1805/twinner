@@ -19,6 +19,8 @@ import { useRedux } from '../hooks';
 // lazy load all the views
 // auth
 const Login = React.lazy(() => import('../pages/auth/Login'));
+// const LoginOtp = React.lazy(() => import('../pages/auth/Login/Otp'));
+const LoginVerify = React.lazy(() => import('../pages/auth/LoginVerify'));
 const Register = React.lazy(() => import('../pages/auth/Register'));
 const Confirm = React.lazy(() => import('../pages/auth/Confirm'));
 const ForgetPassword = React.lazy(() => import('../pages/auth/ForgetPassword'));
@@ -160,6 +162,7 @@ const AllRoutes = () => {
                     path: 'auth',
                     children: [
                         { path: 'login', element: <LoadComponent component={Login} /> },
+                        { path: 'login/verify', element: <LoadComponent component={LoginVerify} /> },
                         { path: 'register', element: <LoadComponent component={Register} /> },
                         { path: 'confirm', element: <LoadComponent component={Confirm} /> },
                         { path: 'forget-password', element: <LoadComponent component={ForgetPassword} /> },

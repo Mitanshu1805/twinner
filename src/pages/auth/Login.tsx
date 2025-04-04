@@ -4,6 +4,7 @@ import { Alert, Button, Col, Row } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import * as yup from 'yup';
+import { useForm, Controller } from 'react-hook-form';
 
 // hooks
 import { useRedux } from '../../hooks/';
@@ -12,10 +13,11 @@ import { useRedux } from '../../hooks/';
 import { resetAuth, sendOTP, verifyOTP } from '../../redux/actions';
 
 // components
-import { FormInput, VerticalForm } from '../../components/form/';
 import Loader from '../../components/Loader';
-
 import AuthLayout from './AuthLayout';
+
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/bootstrap.css'; // import the style
 
 type LocationState = {
     from?: Location;
@@ -53,7 +55,6 @@ const Login = () => {
     const { t } = useTranslation();
     const { dispatch, appSelector } = useRedux();
     const [local_otp, setOtp] = useState('');
-    const [phone_number, setPhoneNumber] = useState('');
 
     const { user, userLoggedIn, otp, loading, error } = appSelector((state) => ({
         otp: state.Auth.otp,
@@ -67,27 +68,42 @@ const Login = () => {
         dispatch(resetAuth());
     }, [dispatch]);
 
-    /*
-    form validation schema
-    */
+    // const schemaResolver = yupResolver(
+    //     yup.object().shape({
+    //         phone_number: yup
+    //             .string()
+    //             .required(t('Please enter Phone Number'))
+    //             .test('is-valid-phone', t('Invalid phone number format'), (value) => {
+    //                 if (!value) return false;
+    //                 const cleaned = value.replace(/[^\d]/g, ''); // remove spaces, dashes, etc.
+    //                 return /^\d{10,15}$/.test(cleaned); // must be 10-15 digits
+    //             }),
+    //     })
+    // );
+
     const schemaResolver = yupResolver(
         yup.object().shape({
-            phone_number: yup.string().required(t('Please enter Phone Number')),
+            phone_number: yup
+                .string()
+                .required(t('Please enter Phone Number'))
+                .matches(/^\+\d{10,15}$/, t('Invalid phone number format')), // includes +
         })
     );
 
-    /*
-    handle form submission
-    */
-    const onSubmit = (formData: UserData) => {
-        console.log('Entered OTP: ', local_otp);
-        console.log('Redux OTP: ', otp);
+    const {
+        handleSubmit,
+        control,
+        formState: { errors },
+    } = useForm<UserData>({
+        resolver: schemaResolver,
+    });
 
+    const onSubmit = (formData: UserData) => {
+        console.log('otp>>>>>', otp);
         if (otp) {
-            // Use the OTP entered by the user instead of the one in Redux
-            dispatch(verifyOTP(phone_number, local_otp));
+            dispatch(verifyOTP(formData.phone_number, local_otp));
         } else {
-            dispatch(sendOTP(formData['phone_number']));
+            dispatch(sendOTP(formData.phone_number));
         }
     };
 
@@ -114,25 +130,66 @@ const Login = () => {
                     </Alert>
                 )}
 
-                <VerticalForm<UserData> onSubmit={onSubmit} resolver={schemaResolver}>
-                    <FormInput
-                        type={otp ? 'number' : 'phone'}
-                        name="phone_number"
-                        label={t(otp ? 'Enter OTP' : 'Phone Number')}
-                        containerClass={'mb-3'}
-                        value={otp ? local_otp : phone_number}
-                        maxLength={otp ? 6 : 15}
-                        onChange={(e) => {
-                            otp ? setOtp(e.target.value) : setPhoneNumber(e.target.value);
-                        }}
-                    />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    {!otp ? (
+                        <div className="mb-3">
+                            <label className="form-label">{t('Phone Number')}</label>
+                            <Controller
+                                name="phone_number"
+                                control={control}
+                                render={({ field }) => (
+                                    <PhoneInput
+                                        country={'in'}
+                                        {...field}
+                                        value={field.value}
+                                        onChange={(value) => field.onChange('+' + value.replace(/\D/g, ''))}
+                                        onKeyDown={(e) => {
+                                            const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight'];
+                                            if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                        inputStyle={{ width: '100%' }}
+                                        inputProps={{
+                                            name: 'phone_number',
+                                            required: true,
+                                            autoComplete: 'tel',
+                                        }}
+                                    />
+                                )}
+                            />
+
+                            {errors.phone_number && (
+                                <small className="text-danger">{errors.phone_number.message}</small>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="mb-3">
+                            <label className="form-label">{t('Enter OTP')}</label>
+                            <input
+                                type="number"
+                                name="otp"
+                                value={local_otp}
+                                maxLength={6}
+                                onChange={(e) => setOtp(e.target.value)}
+                                className="form-control"
+                                placeholder="Enter OTP"
+                                required
+                            />
+                        </div>
+                    )}
 
                     <div className="text-center d-grid mb-3">
                         <Button variant="primary" type="submit" disabled={loading}>
                             {loading ? <div className="spinner spinner-small" /> : t(otp ? 'Login' : 'Send OTP')}
                         </Button>
                     </div>
-                </VerticalForm>
+                </form>
+                {otp && (
+                    <div className="text-center mt-3">
+                        <span className="fw-bold fs-5 text-primary">OTP eceived : {otp}</span>
+                    </div>
+                )}
             </AuthLayout>
         </>
     );

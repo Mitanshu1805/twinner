@@ -14,6 +14,7 @@ interface Help {
     description: string;
     user: User | null;
     created_at: string;
+    response: string;
 }
 
 interface User {
@@ -49,7 +50,7 @@ const HelpAndSupport = () => {
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
     // Find the user's permission object for the "User" module
-    const userPermission = permissions.find((perm) => perm.module_name === 'Support');
+    const userPermission = permissions.find((perm) => perm.module_name === 'Help');
 
     // Ensure the permission string is cleaned and parsed correctly
     const userPermissionsArray: string[] = userPermission
@@ -117,6 +118,7 @@ const HelpAndSupport = () => {
                                 <th>Description</th>
                                 <th>Email</th>
                                 <th>Created At</th>
+                                <th>Response</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -144,6 +146,7 @@ const HelpAndSupport = () => {
                                         <td>{help.description}</td>
                                         <td>{help.email}</td>
                                         <td>{help.created_at}</td>
+                                        <td>{help.response}</td>
                                     </tr>
                                 ))
                             ) : (
