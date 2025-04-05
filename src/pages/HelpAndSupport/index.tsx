@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Modal, Button } from 'react-bootstrap';
+import { Table, Modal, Button, Pagination } from 'react-bootstrap';
 import { useRedux } from '../../hooks';
 import { supportHelpList } from '../../redux/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import SoftButton from '../uikit/Buttons/SoftButton';
 import { useSelector } from 'react-redux';
+import { Clipboard } from 'react-feather';
+import HelpReviewModal from './HelpReviewModal';
 
 interface Help {
     help_center_id: string;
@@ -45,8 +47,11 @@ const HelpAndSupport = () => {
     // const paginatedUsers = helpAndSupports.slice(startIndex, startIndex + itemsPerPage);
 
     const paginatedUsers = helpAndSupports;
+
     console.log('paginated users', paginatedUsers);
-    const pagination = useSelector((state: RootState) => state.userManagement.pagination);
+    const [showHelpReportReviewModal, setShowHelpReportReviewModal] = useState(false);
+    const pagination = useSelector((state: RootState) => state.report.pagination);
+    console.log('pagination>>>>>>: ', pagination);
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
     // Find the user's permission object for the "User" module
@@ -103,6 +108,16 @@ const HelpAndSupport = () => {
         }
     };
 
+    const handleReviewHelpReport = () => {
+        if (!showHelpReportReviewModal) {
+            setShowHelpReportReviewModal(true);
+        }
+    };
+
+    const handleCloseHelpReviewModal = () => {
+        setShowHelpReportReviewModal(false);
+    };
+
     return userPermissionsArray.includes('read') ? (
         <div>
             {loading && <p>Loading...</p>}
@@ -118,6 +133,7 @@ const HelpAndSupport = () => {
                                 <th>Description</th>
                                 <th>Email</th>
                                 <th>Created At</th>
+                                <th>Add Response</th>
                                 <th>Response</th>
                             </tr>
                         </thead>
@@ -145,7 +161,21 @@ const HelpAndSupport = () => {
 
                                         <td>{help.description}</td>
                                         <td>{help.email}</td>
-                                        <td>{help.created_at}</td>
+                                        {/* <td>{help.created_at}</td> */}
+                                        <td>{new Date(help.created_at).toLocaleString()}</td>
+
+                                        <td>
+                                            <Clipboard
+                                                size={20}
+                                                onClick={handleReviewHelpReport}
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                            <HelpReviewModal
+                                                show={showHelpReportReviewModal}
+                                                onClose={handleCloseHelpReviewModal}
+                                                helpId={help.help_center_id}
+                                            />
+                                        </td>
                                         <td>{help.response}</td>
                                     </tr>
                                 ))
@@ -189,23 +219,30 @@ const HelpAndSupport = () => {
             </div> */}
 
             {/* Pagination Controls */}
-            <div
-                className="pagination-controls"
-                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
-                    Previous
-                </SoftButton>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
 
-                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {pagination?.total_pages || 1}
-                </span>
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
 
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage >= (pagination?.total_pages || 1)}>
-                    Next
-                </SoftButton>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
             </div>
 
             {/* User Details Modal */}

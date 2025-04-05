@@ -44,7 +44,7 @@ const ChatUsers = ({ onUserSelect }: ChatUsersProps) => {
                 <Card.Body>
                     <Dropdown className="float-end" align="end">
                         <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                            <i className="mdi mdi-dots-vertical"></i>
+                            {/* <i className="mdi mdi-dots-vertical"></i> */}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item>Action</Dropdown.Item>
@@ -91,14 +91,12 @@ const ChatUsers = ({ onUserSelect }: ChatUsersProps) => {
                                         className={classnames({
                                             active: user.id === selectedUser.id,
                                             unread: user.lastMessageSeen === false,
-                                        })}
-                                    >
+                                        })}>
                                         <Link
                                             to="#"
                                             onClick={(e: any) => {
                                                 activateUser(user);
-                                            }}
-                                        >
+                                            }}>
                                             <div className="d-flex">
                                                 {user.avatar ? (
                                                     <div
@@ -108,8 +106,7 @@ const ChatUsers = ({ onUserSelect }: ChatUsersProps) => {
                                                             'align-self-center',
                                                             'me-2',
                                                             user.userStatus === 'online' && 'active'
-                                                        )}
-                                                    >
+                                                        )}>
                                                         <img
                                                             src={user.avatar}
                                                             className="rounded-circle avatar-sm"
@@ -125,16 +122,14 @@ const ChatUsers = ({ onUserSelect }: ChatUsersProps) => {
                                                             'align-self-center',
                                                             'me-2',
                                                             user.userStatus === 'online' && 'active'
-                                                        )}
-                                                    >
+                                                        )}>
                                                         <span
                                                             className={classnames(
                                                                 'avatar-title',
                                                                 'rounded-circle',
                                                                 'bg-soft-' + user.variant,
                                                                 'text-' + user.variant
-                                                            )}
-                                                        >
+                                                            )}>
                                                             <i className={classNames(user.icon)}></i>
                                                         </span>
                                                     </div>

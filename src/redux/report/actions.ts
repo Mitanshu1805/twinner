@@ -1,3 +1,5 @@
+import { resetAuth } from './../auth/actions';
+import { Message } from './../../pages/dashboards/DashBoard1/types';
 import { ReportActionTypes } from './constants';
 
 type Report = {
@@ -32,6 +34,10 @@ type ReportReview = {
     report_id: string;
 };
 
+type SupportHelpReview = {
+    help_center_id: string;
+    response: string;
+};
 type helpAndSupport = {
     help_center_id: string;
     name: string;
@@ -75,6 +81,18 @@ export type ReportActionType =
       }
     | {
           type: ReportActionTypes.SUPPORT_HELP_LIST_ERROR;
+          payload: { error: string };
+      }
+    | {
+          type: ReportActionTypes.SUPPORT_HELP_REVIEW;
+          payload: SupportHelpReview;
+      }
+    | {
+          type: ReportActionTypes.SUPPORT_HELP_REVIEW_SUCCESS;
+          payload: { message: string };
+      }
+    | {
+          type: ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR;
           payload: { error: string };
       };
 
@@ -126,5 +144,20 @@ export const supportHelpListSuccess = (data: helpAndSupport): ReportActionType =
 
 export const supportHelpListError = (error: string): ReportActionType => ({
     type: ReportActionTypes.SUPPORT_HELP_LIST_ERROR,
+    payload: { error },
+});
+
+export const supportHelpReview = (data: SupportHelpReview): ReportActionType => ({
+    type: ReportActionTypes.SUPPORT_HELP_REVIEW,
+    payload: data,
+});
+
+export const supportHelpReviewSuccess = (message: string): ReportActionType => ({
+    type: ReportActionTypes.SUPPORT_HELP_REVIEW_SUCCESS,
+    payload: { message },
+});
+
+export const supportHelpReviewError = (error: string): ReportActionType => ({
+    type: ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR,
     payload: { error },
 });

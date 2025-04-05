@@ -202,7 +202,7 @@ const Kanban = () => {
                                     <Card.Body>
                                         <Dropdown className="float-end" align="end">
                                             <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                                                <i className="mdi mdi-dots-vertical"></i>
+                                                {/* <i className="mdi mdi-dots-vertical"></i> */}
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu>
                                                 <Dropdown.Item>Action</Dropdown.Item>
@@ -224,8 +224,7 @@ const Kanban = () => {
                                                         <li
                                                             ref={provided.innerRef}
                                                             {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                        >
+                                                            {...provided.dragHandleProps}>
                                                             <TaskItem task={item} />
                                                         </li>
                                                     )}
@@ -237,8 +236,7 @@ const Kanban = () => {
                                             <Link
                                                 to="#"
                                                 className="btn btn-primary waves-effect waves-light"
-                                                onClick={() => newTask('Pending', 'upcomingTasks')}
-                                            >
+                                                onClick={() => newTask('Pending', 'upcomingTasks')}>
                                                 <i className="mdi mdi-plus"></i> Add New
                                             </Link>
                                         </div>
@@ -256,7 +254,7 @@ const Kanban = () => {
                                     <Card.Body>
                                         <Dropdown className="float-end" align="end">
                                             <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                                                <i className="mdi mdi-dots-vertical"></i>
+                                                {/* <i className="mdi mdi-dots-vertical"></i> */}
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu>
                                                 <Dropdown.Item>Action</Dropdown.Item>
@@ -279,8 +277,7 @@ const Kanban = () => {
                                                         <li
                                                             ref={provided.innerRef}
                                                             {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                        >
+                                                            {...provided.dragHandleProps}>
                                                             <TaskItem task={item} />
                                                         </li>
                                                     )}
@@ -292,8 +289,7 @@ const Kanban = () => {
                                             <Link
                                                 to="#"
                                                 className="btn btn-primary waves-effect waves-light"
-                                                onClick={() => newTask('Inprogress', 'inprogressTasks')}
-                                            >
+                                                onClick={() => newTask('Inprogress', 'inprogressTasks')}>
                                                 <i className="mdi mdi-plus"></i> Add New
                                             </Link>
                                         </div>
@@ -311,7 +307,7 @@ const Kanban = () => {
                                     <Card.Body>
                                         <Dropdown className="float-end" align="end">
                                             <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                                                <i className="mdi mdi-dots-vertical"></i>
+                                                {/* <i className="mdi mdi-dots-vertical"></i> */}
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu>
                                                 <Dropdown.Item>Action</Dropdown.Item>
@@ -333,8 +329,7 @@ const Kanban = () => {
                                                         <li
                                                             ref={provided.innerRef}
                                                             {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                        >
+                                                            {...provided.dragHandleProps}>
                                                             <TaskItem task={item} />
                                                         </li>
                                                     )}
@@ -346,8 +341,7 @@ const Kanban = () => {
                                             <Link
                                                 to="#"
                                                 className="btn btn-primary waves-effect waves-light"
-                                                onClick={() => newTask('Done', 'completedTasks')}
-                                            >
+                                                onClick={() => newTask('Done', 'completedTasks')}>
                                                 <i className="mdi mdi-plus"></i> Add New
                                             </Link>
                                         </div>
@@ -406,8 +400,7 @@ const Kanban = () => {
                                         register={register}
                                         key="priority"
                                         errors={errors}
-                                        control={control}
-                                    >
+                                        control={control}>
                                         <option value="">Select</option>
                                         <option value="Urgent">Urgent</option>
                                         <option value="High">High</option>

@@ -2,7 +2,7 @@
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
 import { SagaIterator } from '@redux-saga/core';
 
-import { reportList, reportReview, supportHelpList } from '../../helpers/api/auth';
+import { reportList, reportReview, supportHelpList, supportHelpReview } from '../../helpers/api/auth';
 
 import {
     reportListSuccess,
@@ -11,6 +11,9 @@ import {
     reportReviewError,
     supportHelpListSuccess,
     supportHelpListError,
+    supportHelpReviewSuccess,
+    supportHelpReviewError,
+    // ReportActionType,
 } from './actions';
 
 import { ReportActionTypes } from './constants';
@@ -46,6 +49,15 @@ function* supportHelpListSaga(action: any): SagaIterator {
     }
 }
 
+function* supportHelpReviewSaga(action: any): SagaIterator {
+    try {
+        const response = yield call(supportHelpReview, action.payload);
+        yield put(supportHelpReviewSuccess(response.data.message));
+    } catch (error: any) {
+        yield put(supportHelpReviewError(error.message || 'Error Occurred'));
+    }
+}
+
 function* watchReportList() {
     yield takeEvery(ReportActionTypes.REPORT_LIST, reportListSaga);
 }
@@ -58,6 +70,15 @@ function* watchSupportHelpList() {
     yield takeEvery(ReportActionTypes.SUPPORT_HELP_LIST, supportHelpListSaga);
 }
 
+function* watchSupportHelpReview() {
+    yield takeEvery(ReportActionTypes.SUPPORT_HELP_REVIEW, supportHelpReviewSaga);
+}
+
 export default function* reportSaga() {
-    yield all([fork(watchReportList), fork(watchReportReview), fork(watchSupportHelpList)]);
+    yield all([
+        fork(watchReportList),
+        fork(watchReportReview),
+        fork(watchSupportHelpList),
+        fork(watchSupportHelpReview),
+    ]);
 }

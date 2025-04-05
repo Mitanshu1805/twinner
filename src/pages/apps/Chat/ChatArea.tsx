@@ -38,8 +38,7 @@ const UserMessage = ({ message, toUser }: { message: ChatMessage; toUser: ChatUs
                                 'rounded-circle',
                                 'bg-soft-' + message.from.variant,
                                 'text-' + message.from.variant
-                            )}
-                        >
+                            )}>
                             <i className={classnames(message.from.icon)}></i>
                         </span>
                     </div>
@@ -129,7 +128,7 @@ const ChatArea = ({ selectedUser }: ChatAreaProps) => {
             <Card.Body>
                 <Dropdown className="float-end" align="end">
                     <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                        <i className="mdi mdi-dots-vertical"></i>
+                        {/* <i className="mdi mdi-dots-vertical"></i> */}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item>Action</Dropdown.Item>
@@ -183,8 +182,7 @@ const ChatArea = ({ selectedUser }: ChatAreaProps) => {
                         <Col xs="auto">
                             <button
                                 type="submit"
-                                className="btn btn-primary chat-send width-md waves-effect waves-light"
-                            >
+                                className="btn btn-primary chat-send width-md waves-effect waves-light">
                                 <span className="d-none d-sm-inline-block me-2">Send</span>
                                 <i className="mdi mdi-send"></i>
                             </button>

@@ -40,7 +40,7 @@ const TaskDetail = () => {
                     <Card.Body>
                         <Dropdown className="float-end" align="end">
                             <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                                <i className="mdi mdi-dots-vertical"></i>
+                                {/* <i className="mdi mdi-dots-vertical"></i> */}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
                                 <Dropdown.Item>Action</Dropdown.Item>
@@ -97,8 +97,7 @@ const TaskDetail = () => {
                                 ]}
                                 defaultValue={{ value: 'amsterdam', label: 'Amsterdam' }}
                                 className="react-select react-select-container"
-                                classNamePrefix="react-select"
-                            ></Select>
+                                classNamePrefix="react-select"></Select>
                         </div>
 
                         <div className="assign-team mt-3">
@@ -197,7 +196,7 @@ const TaskDetail = () => {
                     <Card.Body>
                         <Dropdown className="float-end" align="end">
                             <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                                <i className="mdi mdi-dots-vertical"></i>
+                                {/* <i className="mdi mdi-dots-vertical"></i> */}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
                                 <Dropdown.Item>Action</Dropdown.Item>

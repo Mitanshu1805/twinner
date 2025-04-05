@@ -104,6 +104,13 @@ const Auth = (state: State = INIT_STATE, action: AuthActionType): any => {
 
         case AuthActionTypes.API_RESPONSE_ERROR:
             switch (action.payload.actionType) {
+                case AuthActionTypes.SEND_OTP: {
+                    return {
+                        ...state,
+                        error: action.payload.error,
+                        loading: false,
+                    };
+                }
                 case AuthActionTypes.LOGIN_USER: {
                     return {
                         ...state,
@@ -145,6 +152,8 @@ const Auth = (state: State = INIT_STATE, action: AuthActionType): any => {
         case AuthActionTypes.RESET:
             return {
                 ...state,
+                otp: null,
+                value: false,
                 loading: false,
                 error: false,
                 userSignUp: false,

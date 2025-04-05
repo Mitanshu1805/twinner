@@ -227,12 +227,14 @@ type Permission = {
 const InterestHobbies = () => {
     const { dispatch, appSelector } = useRedux();
     const { interests = [], loading, error } = appSelector((state: RootState) => state.interest);
-    const interestListData = interests?.data || [];
+    const interestListData = interests?.data?.interests || [];
     console.log('interestListData>>>>>>>>>', interestListData);
     const buttonVariant: Variant[] = ['primary'];
     const [message, setMessage] = useState<string>('');
     const [showInterestRegModal, setShowInterestRegModal] = useState(false);
     const [selectedInterest, setSelectedInterest] = useState<Interest | null>(null);
+    const pagination = useSelector((state: RootState) => state.interest?.interests?.data?.pagination);
+    console.log('Pagination>>>>>>>>>', pagination);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
@@ -310,13 +312,13 @@ const InterestHobbies = () => {
                                         <td>{index + 1}</td>
                                         <td>{interest.interest_name}</td>
                                         <td>
-                                            <img
+                                            {/* <img
                                                 src={interest.interest_image}
                                                 alt={interest.interest_name}
                                                 width="50"
                                                 height="50"
                                                 style={{ borderRadius: '8px' }}
-                                            />
+                                            /> */}
                                         </td>
                                         <td>
                                             {userPermissionsArray?.includes('update') && (
@@ -346,23 +348,30 @@ const InterestHobbies = () => {
                         </tbody>
                     </Table>
                     {/* Pagination Controls */}
-                    <div
-                        className="pagination-controls"
-                        style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                        <SoftButton
-                            variant="secondary"
-                            onClick={() => setCurrentPage((prev) => prev - 1)}
-                            className={currentPage === 1 ? 'disabled-button' : ''}>
-                            Previous
-                        </SoftButton>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <SoftButton
+                                variant="secondary"
+                                onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                                disabled={currentPage <= 1}
+                                className="px-4 py-2">
+                                Previous
+                            </SoftButton>
 
-                        <SoftButton
-                            variant="secondary"
-                            onClick={() => setCurrentPage((prev) => prev + 1)}
-                            // disabled={interestListData.length < itemsPerPage}
-                            className={interestListData.length < itemsPerPage ? 'disabled-button' : ''}>
-                            Next
-                        </SoftButton>
+                            <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                                Page {currentPage} of {pagination?.total_pages ?? 1}
+                            </span>
+
+                            <SoftButton
+                                variant="secondary"
+                                onClick={() =>
+                                    currentPage < (pagination?.total_pages ?? 1) && setCurrentPage((prev) => prev + 1)
+                                }
+                                disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                                className="px-4 py-2">
+                                Next
+                            </SoftButton>
+                        </div>
                     </div>
                 </BorderedTable>
             )}

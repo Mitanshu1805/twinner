@@ -8,6 +8,7 @@ type UserFilterPayload = {
     city: string | null;
     birthdate: string | null;
     interested_in: string | null;
+    search: string | null;
 
     // pagination?: { page: number; limit: number };
 };
@@ -98,6 +99,7 @@ export const userListFilter = (
         city: null,
         birthdate: null,
         interested_in: null,
+        search: null, // Added search functionality
     }, // ✅ Default values to match UserFilterPayload type
     currentPage: number,
     itemsPerPage: number

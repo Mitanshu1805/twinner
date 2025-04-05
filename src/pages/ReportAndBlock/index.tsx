@@ -148,6 +148,7 @@ const ReportAndBlock = () => {
     // Extract reports array
     const reportListData = reports?.data?.reports || [];
     const pagination = useSelector((state: RootState) => state.report.pagination);
+
     const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
     const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
@@ -243,12 +244,24 @@ const ReportAndBlock = () => {
                                         </td>
                                         <td>{report.response}</td>
                                         <td>
-                                            <Clipboard size={20} onClick={handleRegisterNewReport} />
-                                            <ReportReviewModal
-                                                show={showReportReviewModal}
-                                                onClose={handleCloseRegRepModal}
-                                                reportId={report.report_id}
-                                            />
+                                            {report.response ? (
+                                                <span style={{ color: '#aaa', cursor: 'not-allowed' }}>
+                                                    <Clipboard size={20} />
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    <Clipboard
+                                                        size={20}
+                                                        onClick={handleRegisterNewReport}
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                    <ReportReviewModal
+                                                        show={showReportReviewModal}
+                                                        onClose={handleCloseRegRepModal}
+                                                        reportId={report.report_id}
+                                                    />
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -265,23 +278,30 @@ const ReportAndBlock = () => {
             )}
 
             {/* Pagination Controls */}
-            <div
-                className="pagination-controls"
-                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
-                    Previous
-                </SoftButton>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
 
-                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {pagination?.total_pages || 1}
-                </span>
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
 
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage >= (pagination?.total_pages || 1)}>
-                    Next
-                </SoftButton>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
             </div>
 
             {/* Modal for showing reporter details */}

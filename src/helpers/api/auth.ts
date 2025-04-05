@@ -193,6 +193,10 @@ function supportHelpList(currentPage: number = 1, itemsPerPage: number = 2) {
     return api.get(fullUrl, undefined);
 }
 
+function supportHelpReview(data: any) {
+    const baseUrl = '/support/help/review';
+    return api.update(`${baseUrl}`, data);
+}
 // function userListFilter(data: any, currentPage: number = 1, itemsPerPage: number = 10) {
 //     const baseUrl = "/user/list/filter";
 //     const params = new URLSearchParams({
@@ -262,4 +266,5 @@ export {
     permissionAssign,
     permissionDelete,
     permissionList,
+    supportHelpReview,
 };

@@ -54,19 +54,55 @@ function* login({ payload: { email, password }, type }: UserData): SagaIterator 
         setAuthorization(null);
     }
 }
+// function* sendOTP({ payload: { phone_number }, type }: UserData): SagaIterator {
+//     try {
+//         console.log('🚀 => function*sendOTP => phone_number:', phone_number);
+//         const response = yield call(sendOTPApi, { phone_number });
+//         console.log('🚀 => function*sendOTP => user:', response);
+//         const otp = response.data.data.otp;
+//         console.log('🚀 => function*sendOTP => otp:', otp);
+//         // NOTE - You can change this according to response format from your api
+//         // setAuthorization(user['token']);
+//         yield put(authApiResponseSuccess(AuthActionTypes.SEND_OTP, otp));
+//     } catch (error: any) {
+//         console.log('🚀 => function*sendOTP => error:', error);
+//         yield put(authApiResponseError(AuthActionTypes.SEND_OTP, error));
+//         api.setLoggedInUser(null);
+//         setAuthorization(null);
+//     }
+// }
 function* sendOTP({ payload: { phone_number }, type }: UserData): SagaIterator {
     try {
         console.log('🚀 => function*sendOTP => phone_number:', phone_number);
         const response = yield call(sendOTPApi, { phone_number });
-        console.log('🚀 => function*sendOTP => user:', response);
-        const otp = response.data.data.otp;
-        console.log('🚀 => function*sendOTP => otp:', otp);
-        // NOTE - You can change this according to response format from your api
-        // setAuthorization(user['token']);
+
+        console.log('🚀 Full API response:', response);
+
+        // Make sure response and nested fields exist
+        const otp = response?.data?.data?.otp;
+
+        if (!otp) throw new Error('User with this phone number not found');
+
+        console.log('🚀 Extracted OTP:', otp);
+
         yield put(authApiResponseSuccess(AuthActionTypes.SEND_OTP, otp));
     } catch (error: any) {
-        console.log('🚀 => function*sendOTP => error:', error);
-        yield put(authApiResponseError(AuthActionTypes.SEND_OTP, error));
+        console.log('🚀 Full Error object:', error);
+
+        let errorMessage = 'Something went wrong';
+
+        if (error?.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error?.message) {
+            errorMessage = error.message;
+        } else if (typeof error === 'string') {
+            errorMessage = error;
+        }
+
+        console.log('🚀 => function*sendOTP => errorMessage:', errorMessage);
+
+        yield put(authApiResponseError(AuthActionTypes.SEND_OTP, errorMessage));
+
         api.setLoggedInUser(null);
         setAuthorization(null);
     }

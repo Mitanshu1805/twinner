@@ -32,9 +32,19 @@ interface ReportReview {
     report_id: string;
 }
 
+interface SupportHelpReview {
+    help_center_id: string;
+    response: string;
+}
+
 interface ReportListSuccessPayload {
     message: string;
     data: Report[];
+}
+
+interface PaginationData {
+    current_page: number;
+    total_pages: number;
 }
 
 interface ReportState {
@@ -43,9 +53,11 @@ interface ReportState {
     error: string | null;
     message: string | null;
     helpAndSupports: helpAndSupport[];
+    pagination: PaginationData | null;
 }
 
 const initialState: ReportState = {
+    pagination: null,
     reports: [],
     loading: false,
     error: null,
@@ -81,7 +93,10 @@ type ReportActionType =
           type: typeof ReportActionTypes.SUPPORT_HELP_LIST_SUCCESS;
           payload: { data: HelpSupportResponse; message: string }; // ✅ Fixed from `HelpSupportResponse[]` to `HelpSupportResponse`
       }
-    | { type: typeof ReportActionTypes.SUPPORT_HELP_LIST_ERROR; payload: { error: string } };
+    | { type: typeof ReportActionTypes.SUPPORT_HELP_LIST_ERROR; payload: { error: string } }
+    | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW; payload: SupportHelpReview }
+    | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW_SUCCESS; payload: { message: string } }
+    | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR; payload: { error: string } };
 
 const reportReducer = (state: ReportState = initialState, action: ReportActionType): ReportState => {
     switch (action.type) {
@@ -111,6 +126,7 @@ const reportReducer = (state: ReportState = initialState, action: ReportActionTy
             };
 
         case ReportActionTypes.REPORT_REVIEW:
+        case ReportActionTypes.SUPPORT_HELP_REVIEW: // ✅ Added
             return {
                 ...state,
                 loading: true,
@@ -118,6 +134,7 @@ const reportReducer = (state: ReportState = initialState, action: ReportActionTy
             };
 
         case ReportActionTypes.REPORT_REVIEW_SUCCESS:
+        case ReportActionTypes.SUPPORT_HELP_REVIEW_SUCCESS: // ✅ Added
             return {
                 ...state,
                 loading: false,
@@ -125,6 +142,7 @@ const reportReducer = (state: ReportState = initialState, action: ReportActionTy
             };
 
         case ReportActionTypes.REPORT_REVIEW_ERROR:
+        case ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR: // ✅ Added
             return {
                 ...state,
                 loading: false,
@@ -146,7 +164,12 @@ const reportReducer = (state: ReportState = initialState, action: ReportActionTy
                 loading: false,
                 error: null,
                 message: action.payload.message,
-                helpAndSupports: action.payload.data.help_requests, // ✅ Now correctly accessing `help_requests`
+                helpAndSupports: action.payload.data.help_requests,
+                pagination: {
+                    total_pages: action.payload.data.total_pages,
+                    current_page: action.payload.data.current_page,
+                    // limit: action.payload.data.limit,
+                },
             };
 
         case ReportActionTypes.SUPPORT_HELP_LIST_ERROR:

@@ -5,7 +5,7 @@ import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
 import { Table, Button, Form, Modal } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-
+import { Eye } from 'react-feather';
 import SoftButton from '../uikit/Buttons/SoftButton';
 import { FaTrash, FaFilter } from 'react-icons/fa';
 import ToggleSwitch from '../../components/ToggleSwitch/index';
@@ -48,9 +48,9 @@ const UserManagement = () => {
         : [];
 
     // Debugging logs
-    console.log('Raw Permissions:', userPermission?.permissions);
-    console.log('Parsed Permissions:', userPermissionsArray);
-    console.log("Includes 'read':", userPermissionsArray.includes('read'));
+    // console.log('Raw Permissions:', userPermission?.permissions);
+    // console.log('Parsed Permissions:', userPermissionsArray);
+    // console.log("Includes 'read':", userPermissionsArray.includes('read'));
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -60,6 +60,7 @@ const UserManagement = () => {
     console.log('paginatedUsers', paginatedUsers);
     const users = useSelector((state: RootState) => state.userManagement.users);
     const pagination = useSelector((state: RootState) => state.userManagement.pagination);
+    console.log('Pagination in twinner users: ', pagination);
 
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filtersApplied, setFiltersApplied] = useState(false);
@@ -73,6 +74,7 @@ const UserManagement = () => {
         birthdate: '',
         interested_in: '',
         progress_status: '',
+        search: null,
     });
 
     // Fetch Data Once
@@ -85,15 +87,28 @@ const UserManagement = () => {
             city: null,
             birthdate: null,
             interested_in: null,
+            search: null,
         };
-        console.log('Dispatching filterPayload:', filterPayload);
-        console.log('📌 Users in Component:', paginatedUsers);
+        // console.log('Dispatching filterPayload:', filterPayload);
+        // console.log('📌 Users in Component:', paginatedUsers);
 
         dispatch(userListFilter(filterPayload, currentPage, itemsPerPage));
     }, [dispatch, currentPage]);
 
+    useEffect(() => {
+        if (paginatedUsers.length > 0) {
+            const initialToggleStates: { [key: string]: boolean } = {};
+
+            paginatedUsers.forEach((user: User) => {
+                initialToggleStates[user.user_id] = user.is_active;
+            });
+
+            setToggleStates(initialToggleStates);
+        }
+    }, [paginatedUsers]);
+
     const handleDeleteUser = (user_id: string) => {
-        console.log('Deleting User ID:', user_id); // Debug log
+        // console.log('Deleting User ID:', user_id); // Debug log
         if (window.confirm('Are you sure you want to delete this User?')) {
             dispatch(userDelete({ user_id }));
         }
@@ -111,6 +126,7 @@ const UserManagement = () => {
             birthdate: '',
             interested_in: '',
             progress_status: '',
+            search: null,
         });
 
         setShowFilterModal(false); // Assuming you're using a state variable for modal visibility
@@ -171,7 +187,7 @@ const UserManagement = () => {
 
             await Promise.resolve(dispatch(userListFilter(updatedFilters, currentPage, itemsPerPage)));
 
-            console.log('Filter applied, waiting for usersData update...');
+            // console.log('Filter applied, waiting for usersData update...');
             handleCloseModal();
         } catch (error) {
             console.error('Error applying filters:', error);
@@ -194,7 +210,7 @@ const UserManagement = () => {
     // Check for no data AFTER Redux state updates
     useEffect(() => {
         if (filtersApplied && !loading) {
-            console.log('Checking usersData:', usersData); // Debugging
+            // console.log('Checking usersData:', usersData); // Debugging
             if (usersData.length === 0) {
                 alert('No data found for the applied filters.');
             }
@@ -208,6 +224,7 @@ const UserManagement = () => {
             <Button variant="primary" onClick={handleShowModal} style={{ marginBottom: '10px' }}>
                 <FaFilter /> Filter Users
             </Button>
+            <Eye />
 
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -274,26 +291,30 @@ const UserManagement = () => {
             )}
 
             {/* Pagination Controls */}
-            <div
-                className="pagination-controls"
-                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev - 1)}
-                    disabled={currentPage === 1}>
-                    Previous
-                </SoftButton>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
 
-                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {pagination?.totalPages ?? 1}
-                </span>
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
 
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage >= (pagination?.totalPages ?? 1)}>
-                    Next
-                </SoftButton>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
             </div>
 
             <Modal show={showFilterModal} onHide={handleCloseModal} centered>

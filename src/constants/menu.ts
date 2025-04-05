@@ -45,7 +45,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
     },
 
     {
-        key: 'analytics',
+        key: 'help-and-support',
         label: 'Help & Support',
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',

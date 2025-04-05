@@ -33,8 +33,8 @@ const AdminUser = () => {
     const { dispatch, appSelector } = useRedux();
     const { adminUsers = [], loading, error } = appSelector((state: RootState) => state.adminUser);
     // console.log('adminUsers: ', adminUsers);
-    const pagination = useSelector((state: RootState) => state.adminUser?.adminUsers);
-    // console.log('pagination: ', pagination);
+    const pagination = useSelector((state: RootState) => state.adminUser.pagination);
+    console.log('pagination: ', pagination?.totalPages);
 
     // const adminUsersData = adminUsers?.data?.users || [];
     // console.log('adminUsersData: ', adminUsersData);
@@ -137,7 +137,17 @@ const AdminUser = () => {
             // Dispatch the delete action
             dispatch(adminUserDelete(admin_user_id));
         }
+        setTimeout(() => {
+            dispatch(adminUserList(currentPage, itemsPerPage));
+        }, 500);
     };
+    //     const handleDeleteAdminUser = (admin_user_id: string) => {
+    //     if (window.confirm('Are you sure you want to delete this user?')) {
+    //         dispatch(adminUserDelete(admin_user_id)).then(() => {
+    //             dispatch(adminUserList(currentPage, itemsPerPage)); // ✅ Refresh the list after delete
+    //         });
+    //     }
+    // };
 
     return userPermissionsArray.includes('read') ? (
         <div>
@@ -149,9 +159,11 @@ const AdminUser = () => {
                     title="Admin Users"
                     actionButton={
                         userPermissionsArray.includes('write') && (
-                            <SoftButton variant="primary" onClick={handleAddAdminUser}>
-                                Add Admin User
-                            </SoftButton>
+                            <div style={{ marginBottom: '8px' }}>
+                                <SoftButton variant="primary" onClick={handleAddAdminUser}>
+                                    Add Admin User
+                                </SoftButton>
+                            </div>
                         )
                     }>
                     <RegisterAdminUserModal
@@ -200,20 +212,22 @@ const AdminUser = () => {
                                             <Book size={20} style={{ cursor: 'pointer' }} />
                                         </td> */}
                                         <td>
-                                            {userPermissionsArray?.includes('update') && (
-                                                <FaRegEdit
-                                                    size={20}
-                                                    style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                    onClick={() => handleEditAdminUser(user)}
-                                                />
-                                            )}
-                                            {userPermissionsArray?.includes('delete') && (
-                                                <FaTrash
-                                                    size={20}
-                                                    style={{ cursor: 'pointer', color: 'red' }}
-                                                    onClick={() => handleDeleteAdminUser(user.admin_user_id)}
-                                                />
-                                            )}
+                                            <td>
+                                                {userPermissionsArray?.includes('update') && (
+                                                    <FaRegEdit
+                                                        size={20}
+                                                        style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                        onClick={() => handleEditAdminUser(user)}
+                                                    />
+                                                )}
+                                                {userPermissionsArray?.includes('delete') && (
+                                                    <FaTrash
+                                                        size={20}
+                                                        style={{ cursor: 'pointer', color: 'red' }}
+                                                        onClick={() => handleDeleteAdminUser(user.admin_user_id)}
+                                                    />
+                                                )}
+                                            </td>
                                         </td>
 
                                         {userPermissionsArrayOnly?.includes('write') && (
@@ -245,35 +259,30 @@ const AdminUser = () => {
                 </BorderedTable>
             )}
             {/* Pagination Controls */}
-            <div
-                className="pagination-controls"
-                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                {/* <SoftButton variant="secondary" onClick={handlePrevPage} disabled={currentPage === 1}>
-                    Previous
-                </SoftButton> */}
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev - 1)}
-                    className={currentPage === 1 ? 'disabled-button' : ''}>
-                    Previous
-                </SoftButton>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
 
-                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {pagination?.totalPages ?? 1}
-                </span>
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
 
-                {/* <SoftButton
-                    variant="secondary"
-                    onClick={handleNextPage}
-                    disabled={currentPage >= (pagination?.totalPages ?? 1)}>
-                    Next
-                </SoftButton> */}
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    className={currentPage >= (pagination?.totalPages ?? 1) ? 'disabled-button' : ''}>
-                    Next
-                </SoftButton>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
             </div>
         </div>
     ) : (

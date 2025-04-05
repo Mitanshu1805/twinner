@@ -44,6 +44,8 @@ const Topbar = ({ openLeftMenuCallBack, containerClass }: TopbarProps) => {
         pageTitle: state.PageTitle.pageTitle,
     }));
 
+    console.log('pageTitle: ', pageTitle);
+
     /**
      * Toggle the leftmenu when having mobile screen
      */

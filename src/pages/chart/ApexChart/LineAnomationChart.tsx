@@ -153,7 +153,7 @@ const LineAnnotationChart = () => {
             <Card.Body>
                 <Dropdown className="float-end" align="end">
                     <Dropdown.Toggle as="a" className="cursor-pointer card-drop">
-                        <i className="mdi mdi-dots-vertical"></i>
+                        {/* <i className="mdi mdi-dots-vertical"></i> */}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item>Action</Dropdown.Item>

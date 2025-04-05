@@ -12,7 +12,7 @@ interface PermissionList {
 }
 
 interface Permission {
-    permission_id: number;
+    permission_id: string;
     permission_type: string;
 }
 
@@ -97,12 +97,43 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
         setSelectedPermissions(userPermissions);
     }, [user, permissions]);
 
-    const handlePermissionChange = (permissionKey: string) => {
-        setSelectedPermissions((prev) =>
-            prev.includes(permissionKey) ? prev.filter((id) => id !== permissionKey) : [...prev, permissionKey]
-        );
+    // const handlePermissionChange = (permissionKey: string) => {
+    //     setSelectedPermissions((prev) =>
+    //         prev.includes(permissionKey) ? prev.filter((id) => id !== permissionKey) : [...prev, permissionKey]
+    //     );
+    // };
+    const handlePermissionChange = (permissionId: string, module: PermissionList, permType: string) => {
+        const updated = new Set(selectedPermissions);
+
+        const isChecked = updated.has(permissionId);
+
+        const readPermission = module.permissions.find((p) => p.permission_type.toLowerCase() === 'read');
+
+        if (isChecked) {
+            // Uncheck the clicked permission
+            updated.delete(permissionId);
+
+            // If "read" is unchecked, uncheck all other permissions of the module
+            if (permType.toLowerCase() === 'read') {
+                module.permissions.forEach((p) => updated.delete(p.permission_id));
+            }
+        } else {
+            // Check the clicked permission
+            updated.add(permissionId);
+
+            // If not "read", auto-check "read"
+            if (
+                ['update', 'delete', 'write'].includes(permType.toLowerCase()) &&
+                readPermission &&
+                !updated.has(readPermission.permission_id)
+            ) {
+                updated.add(readPermission.permission_id);
+            }
+        }
+
+        setSelectedPermissions(Array.from(updated));
     };
-    console.log('Selection Permissions', selectedPermissions);
+    // console.log('Selection Permissions', selectedPermissions);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -168,7 +199,14 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
                                             <Col md={3} sm={6} xs={12} key={perm.permission_id}>
                                                 <div
                                                     className="p-2 rounded"
-                                                    onClick={() => handlePermissionChange(`${perm.permission_id}`)}
+                                                    // onClick={() => handlePermissionChange(`${perm.permission_id}`)}
+                                                    onClick={() =>
+                                                        handlePermissionChange(
+                                                            perm.permission_id,
+                                                            module,
+                                                            perm.permission_type
+                                                        )
+                                                    }
                                                     style={{
                                                         background: '#f8f9fa',
                                                         border: '1px solid #dee2e6',

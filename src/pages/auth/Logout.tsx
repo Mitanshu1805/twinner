@@ -66,7 +66,8 @@ const Logout = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        dispatch(logoutUser());
+        console.log('Logging out without calling logoutUser API');
+        // dispatch(logoutUser());
         dispatch(resetAuth());
 
         const timer = setTimeout(() => {

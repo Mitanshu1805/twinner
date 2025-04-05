@@ -28,7 +28,15 @@ type UserState = {
     users: UserType[];
     loading: boolean;
     error: string | null;
+    pagination: PaginationData | null;
 };
+
+interface PaginationData {
+    totalRecords: number;
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+}
 
 type Interest = {
     interest_id: string | null;
@@ -60,10 +68,17 @@ type UserManagementSuccessPayload = {
     message: string;
     data: {
         users: User[];
+        pagination: {
+            totalRecords: number;
+            currentPage: number;
+            totalPages: number;
+            pageSize: number;
+        };
     };
 };
 
 const initialState: UserState = {
+    pagination: null,
     users: [],
     loading: false,
     error: null,
@@ -75,9 +90,9 @@ type UserManagementActionType =
     | { type: typeof UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR; payload: string }
     | { type: typeof UserManagementActionTypes.USER_UPDATE_STATUS; payload: { user_id: string; is_active: boolean } }
     | {
-        type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_SUCCESS;
-        payload: { user_id: string; message: string };
-    } // Include `user_id`
+          type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_SUCCESS;
+          payload: { user_id: string; message: string };
+      } // Include `user_id`
     | { type: typeof UserManagementActionTypes.USER_UPDATE_STATUS_ERROR; payload: string }
     | { type: typeof UserManagementActionTypes.USER_DELETE; payload: { user_id: string } }
     | { type: typeof UserManagementActionTypes.USER_DELETE_SUCCESS; payload: { message: string; user_id: string } }
@@ -122,20 +137,24 @@ const userReducer = (state = initialState, action: UserManagementActionType): Us
             return {
                 ...state,
                 loading: false,
-                users: [...state.users, ...usersArray.map((user) => ({
-                    user_id: user.user_id,
-                    name: `${user.first_name} ${user.last_name}`,
-                    email: user.user_name,
-                    age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
-                    education: user.education,
-                    country: user.country,
-                    city: user.city,
-                    birthdate: user.dob,
-                    interested_in: user.interests?.map((i) => i.interest_name).join(', ') || '',
-                    is_active: user.is_active,
-                }))],
-            };
+                pagination: action.payload.data.pagination,
+                users: [
+                    ...state.users,
 
+                    ...usersArray.map((user) => ({
+                        user_id: user.user_id,
+                        name: `${user.first_name} ${user.last_name}`,
+                        email: user.user_name,
+                        age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
+                        education: user.education,
+                        country: user.country,
+                        city: user.city,
+                        birthdate: user.dob,
+                        interested_in: user.interests?.map((i) => i.interest_name).join(', ') || '',
+                        is_active: user.is_active,
+                    })),
+                ],
+            };
 
         case UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR:
             return { ...state, loading: false, error: action.payload };

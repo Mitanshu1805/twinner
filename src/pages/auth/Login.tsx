@@ -36,14 +36,14 @@ const BottomLink = () => {
             <Col xs={12} className="text-center">
                 <p className="text-muted">
                     <Link to="/auth/forget-password" className="text-muted ms-1">
-                        <i className="fa fa-lock me-1"></i>
-                        {t('Forgot your password?')}
+                        {/* <i className="fa fa-lock me-1"></i> */}
+                        {/* {t('Forgot your password?')} */}
                     </Link>
                 </p>
                 <p className="text-muted">
-                    {t("Don't have an account?")}{' '}
+                    {/* {t("Don't have an account?")}{' '} */}
                     <Link to={'/auth/register'} className="text-dark ms-1">
-                        <b>{t('Sign Up')}</b>
+                        {/* <b>{t('Sign Up')}</b> */}
                     </Link>
                 </p>
             </Col>
@@ -167,27 +167,35 @@ const Login = () => {
                         <div className="mb-3">
                             <label className="form-label">{t('Enter OTP')}</label>
                             <input
-                                type="number"
+                                type="text"
                                 name="otp"
                                 value={local_otp}
-                                maxLength={6}
-                                onChange={(e) => setOtp(e.target.value)}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    // Allow only digits and max 6 characters
+                                    if (/^\d*$/.test(value) && value.length <= 6) {
+                                        setOtp(value);
+                                    }
+                                }}
                                 className="form-control"
-                                placeholder="Enter OTP"
+                                placeholder="Enter 6-digit OTP"
                                 required
                             />
+                            {local_otp.length > 0 && local_otp.length < 6 && (
+                                <small className="text-danger">OTP must be 6 digits</small>
+                            )}
                         </div>
                     )}
 
                     <div className="text-center d-grid mb-3">
-                        <Button variant="primary" type="submit" disabled={loading}>
+                        <Button variant="primary" type="submit" disabled={loading || (otp && local_otp.length !== 6)}>
                             {loading ? <div className="spinner spinner-small" /> : t(otp ? 'Login' : 'Send OTP')}
                         </Button>
                     </div>
                 </form>
                 {otp && (
                     <div className="text-center mt-3">
-                        <span className="fw-bold fs-5 text-primary">OTP eceived : {otp}</span>
+                        <span className="fw-bold fs-5 text-primary">OTP Received : {otp}</span>
                     </div>
                 )}
             </AuthLayout>
