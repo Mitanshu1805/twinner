@@ -61,6 +61,7 @@ type User = {
     progress_status: string;
     is_active: boolean;
     interests: Interest[];
+    phone_number: string;
 };
 
 type UserManagementSuccessPayload = {
@@ -138,22 +139,19 @@ const userReducer = (state = initialState, action: UserManagementActionType): Us
                 ...state,
                 loading: false,
                 pagination: action.payload.data.pagination,
-                users: [
-                    ...state.users,
-
-                    ...usersArray.map((user) => ({
-                        user_id: user.user_id,
-                        name: `${user.first_name} ${user.last_name}`,
-                        email: user.user_name,
-                        age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
-                        education: user.education,
-                        country: user.country,
-                        city: user.city,
-                        birthdate: user.dob,
-                        interested_in: user.interests?.map((i) => i.interest_name).join(', ') || '',
-                        is_active: user.is_active,
-                    })),
-                ],
+                users: usersArray.map((user) => ({
+                    user_id: user.user_id,
+                    name: `${user.first_name} ${user.last_name}`,
+                    email: user.user_name,
+                    age: user.dob ? new Date().getFullYear() - new Date(user.dob).getFullYear() : 0,
+                    education: user.education,
+                    country: user.country,
+                    city: user.city,
+                    phone_number: user.phone_number,
+                    birthdate: user.dob,
+                    interested_in: user.interests?.map((i) => i.interest_name).join(', ') || '',
+                    is_active: user.is_active,
+                })),
             };
 
         case UserManagementActionTypes.USER_LIST_WITH_FILTER_ERROR:

@@ -11,6 +11,7 @@ export type MenuItemTypes = {
     parentKey?: string;
     target?: string;
     children?: MenuItemTypes[];
+    moduleName?: string;
 };
 
 const MENU_ITEMS: MenuItemTypes[] = [
@@ -28,6 +29,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/sub-admin-users',
+        moduleName: 'Admin',
     },
     {
         key: 'twinner-users',
@@ -35,6 +37,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/twinner-users',
+        moduleName: 'User',
     },
     {
         key: 'interests-and-hobbies',
@@ -42,12 +45,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/interests-and-hobbies',
+        moduleName: 'Interest',
     },
 
     {
         key: 'help-and-support',
         label: 'Help & Support',
         isTitle: false,
+        moduleName: 'Help',
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/help-and-support',
     },
@@ -57,6 +62,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/reported-and-blocked',
+        moduleName: 'Report',
     },
     {
         key: 'permissions',
@@ -64,6 +70,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/permissions',
+        moduleName: 'Permissions',
     },
 ];
 

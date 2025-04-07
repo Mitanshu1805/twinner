@@ -55,6 +55,8 @@ const Login = () => {
     const { t } = useTranslation();
     const { dispatch, appSelector } = useRedux();
     const [local_otp, setOtp] = useState('');
+    const [resendCount, setResendCount] = useState(0); // Counts resend clicks
+    const [cooldown, setCooldown] = useState(0); // Timer in seconds
 
     const { user, userLoggedIn, otp, loading, error } = appSelector((state) => ({
         otp: state.Auth.otp,
@@ -67,6 +69,33 @@ const Login = () => {
     useEffect(() => {
         dispatch(resetAuth());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (cooldown > 0) {
+            const timer = setInterval(() => {
+                setCooldown((prev) => prev - 1);
+            }, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [cooldown]);
+
+    const handleResendOTP = () => {
+        const phone = watch('phone_number');
+
+        // Block resend if in cooldown or if max resend attempts are reached
+        if (!phone || cooldown > 0 || resendCount >= 3) return;
+
+        dispatch(sendOTP(phone));
+
+        // Set cooldown based on resend attempt
+        if (resendCount === 0) {
+            setCooldown(10); // 10 sec after first resend
+        } else if (resendCount === 1) {
+            setCooldown(30); // 30 sec after second resend
+        }
+
+        setResendCount((prev) => prev + 1);
+    };
 
     // const schemaResolver = yupResolver(
     //     yup.object().shape({
@@ -93,6 +122,7 @@ const Login = () => {
     const {
         handleSubmit,
         control,
+        watch,
         formState: { errors },
     } = useForm<UserData>({
         resolver: schemaResolver,
@@ -192,6 +222,22 @@ const Login = () => {
                             {loading ? <div className="spinner spinner-small" /> : t(otp ? 'Login' : 'Send OTP')}
                         </Button>
                     </div>
+                    {otp && (
+                        <div className="text-center mt-2">
+                            <Button
+                                variant="link"
+                                type="button"
+                                onClick={handleResendOTP}
+                                disabled={cooldown > 0 || resendCount >= 3 || loading}
+                                className="text-decoration-none">
+                                {cooldown > 0
+                                    ? `Resend OTP in ${cooldown}s`
+                                    : resendCount >= 3
+                                    ? 'Resend Disabled'
+                                    : 'Resend OTP'}
+                            </Button>
+                        </div>
+                    )}
                 </form>
                 {otp && (
                     <div className="text-center mt-3">

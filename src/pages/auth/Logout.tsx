@@ -69,11 +69,11 @@ const Logout = () => {
         console.log('Logging out without calling logoutUser API');
         // dispatch(logoutUser());
         dispatch(resetAuth());
+        sessionStorage.clear();
 
         const timer = setTimeout(() => {
             navigate('/auth/login', { replace: true });
         }, 2000);
-
         return () => clearTimeout(timer);
     }, [dispatch, navigate]);
 

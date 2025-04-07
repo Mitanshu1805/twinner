@@ -38,16 +38,50 @@ const api = new APICore();
  * Login the user
  * @param {*} payload - username and password
  */
+// function* login({ payload: { email, password }, type }: UserData): SagaIterator {
+//     try {
+//         const response = yield call(loginApi, { email, password });
+//         const user = response.data || [];
+//         const token = user.token || null;
+//         const permissions = user.permissions || [];
+//         // NOTE - You can change this according to response format from your api
+//         api.setLoggedInUser(user);
+//         setAuthorization(token);
+//         yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, { ...user, token, permissions }));
+//     } catch (error: any) {
+//         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, error));
+//         api.setLoggedInUser(null);
+//         setAuthorization(null);
+//     }
+// }
+
 function* login({ payload: { email, password }, type }: UserData): SagaIterator {
     try {
         const response = yield call(loginApi, { email, password });
         const user = response.data || [];
         const token = user.token || null;
-        const permissions = user.permissions || [];
+        const rawPermissions = user.permissions || [];
+
+        const parsedPermissions: Record<string, string[]> = {};
+        rawPermissions.forEach((item: any) => {
+            const perms = item.permissions
+                .replace(/[{}]/g, '')
+                .split(',')
+                .map((perm: string) => perm.trim());
+
+            parsedPermissions[item.module_name] = perms;
+        });
+
         // NOTE - You can change this according to response format from your api
         api.setLoggedInUser(user);
         setAuthorization(token);
-        yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, { ...user, token, permissions }));
+        yield put(
+            authApiResponseSuccess(AuthActionTypes.LOGIN_USER, {
+                ...user,
+                token,
+                permissions: parsedPermissions,
+            })
+        );
     } catch (error: any) {
         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, error));
         api.setLoggedInUser(null);
@@ -108,18 +142,40 @@ function* sendOTP({ payload: { phone_number }, type }: UserData): SagaIterator {
     }
 }
 
-function* verifyOTP({ payload: { phone_number, otp }, type }: UserData): SagaIterator {
+function* verifyOTP({ payload: { phone_number, otp } }: UserData): SagaIterator {
     try {
         const response = yield call(verifyOTPApi, { phone_number, otp });
 
-        const user = response.data?.data || {}; // Ensure user is always an object
-        const token = user.token || null;
-        const permissions = user.permissions || [];
+        const rawUser = response.data?.data || {};
+        console.log('��� => function*verifyOTP => rawUser:', rawUser);
+        const token = rawUser.token || null;
+        const rawPermissions = rawUser.permissions || [];
+        console.log('rawPermissions>>>>', rawPermissions);
 
-        console.log('🚀 => function*verifyOTP => response:', response);
-        api.setLoggedInUser(user);
+        const parsedPermissions: Record<string, string[]> = {};
+        rawPermissions.forEach((item: any) => {
+            const perms = item.permissions
+                .replace(/[{}]/g, '')
+                .split(',')
+                .map((perm: string) => perm.trim());
+            parsedPermissions[item.module_name] = perms;
+        });
+
+        // ✅ Create a new user object with parsed permissions
+        const user = {
+            ...rawUser,
+            permissions: parsedPermissions,
+        };
+
+        yield put(
+            authApiResponseSuccess(AuthActionTypes.LOGIN_USER, {
+                data: user, // ✅ store full user under 'data'
+                token: token, // ✅ token outside
+            })
+        );
+
+        api.setLoggedInUser(user); // optional: for localStorage if you're using it
         setAuthorization(token);
-        yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, { ...user, token, permissions }));
     } catch (error: any) {
         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, error));
         api.setLoggedInUser(null);

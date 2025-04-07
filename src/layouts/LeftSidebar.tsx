@@ -101,15 +101,41 @@ const UserBox = () => {
 };
 
 /* sidebar content */
+// const SideBarContent = () => {
+//     return (
+//         <>
+//             <UserBox />
+
+//             <div id="sidebar-menu">
+//                 <AppMenu menuItems={getMenuItems()} />
+//             </div>
+
+//             <div className="clearfix" />
+//         </>
+//     );
+// };
+
 const SideBarContent = () => {
+    const permissionsObj = useSelector((state: RootState) => state.Auth?.user?.data?.permissions || {});
+    console.log('permissionsObj>>>>', permissionsObj); // ✅ Should log { Interest: ["read", ...] }
+
+    const moduleNames = Object.keys(permissionsObj);
+    const isPermissionsLoaded = moduleNames.length > 0;
+
+    const allMenuItems = getMenuItems();
+    const filteredMenuItems = allMenuItems.filter((item) => {
+        if (!item.moduleName) return true;
+        return moduleNames.includes(item.moduleName);
+    });
+
+    if (!isPermissionsLoaded) return null;
+
     return (
         <>
             <UserBox />
-
             <div id="sidebar-menu">
-                <AppMenu menuItems={getMenuItems()} />
+                <AppMenu menuItems={filteredMenuItems} />
             </div>
-
             <div className="clearfix" />
         </>
     );

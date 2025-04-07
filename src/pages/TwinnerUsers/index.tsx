@@ -11,6 +11,7 @@ import { FaTrash, FaFilter } from 'react-icons/fa';
 import ToggleSwitch from '../../components/ToggleSwitch/index';
 import { Filter } from 'react-feather';
 import { number } from 'yup';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 
 interface User {
     age: string;
@@ -24,43 +25,40 @@ interface User {
     is_active: boolean;
     name: string;
     page: number;
+    phone_number: string;
     limit: number;
 }
-
-type Permission = {
-    module_name: string;
-    permissions: string; // Stored as a string (e.g., '{read}')
-};
-
 const UserManagement = () => {
     const { dispatch, appSelector } = useRedux();
     const usersData = appSelector((state: RootState) => state.userManagement.users || []);
-    const justTry = appSelector((state: RootState) => state);
-    console.log('justTry', justTry);
-
+    console.log('Users Data', usersData);
+    const check = appSelector((state: RootState) => state.userManagement.users || []);
+    console.log('Check', usersData);
     const loading = appSelector((state: RootState) => state.userManagement.loading);
     const error = appSelector((state: RootState) => state.userManagement.error);
-    const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
-    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
-    const userPermission = permissions.find((perm) => perm.module_name === 'User');
-    const userPermissionsArray: string[] = userPermission
-        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
-        : [];
-
-    // Debugging logs
-    // console.log('Raw Permissions:', userPermission?.permissions);
-    // console.log('Parsed Permissions:', userPermissionsArray);
-    // console.log("Includes 'read':", userPermissionsArray.includes('read'));
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [twinnerUserToDelete, setTwinnerUserToDelete] = useState<string | null>(null);
+    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+    // const userPermission = permissions.find((perm) => perm.module_name === 'User');
+    // const userPermissionsArray: string[] = userPermission
+    //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+    //     : [];
+    const permissionsObj = useSelector((state: RootState) => state.Auth.user.data?.permissions);
+    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    // const itemsPerPage = 10;
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     // const paginatedUsers = usersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
+    console.log('startIndex: ', startIndex);
+    console.log('itemsPerPage: ', itemsPerPage);
+    console.log('usersData>>>>: ', usersData);
     const paginatedUsers = usersData.slice(startIndex, startIndex + itemsPerPage);
     console.log('paginatedUsers', paginatedUsers);
     const users = useSelector((state: RootState) => state.userManagement.users);
     const pagination = useSelector((state: RootState) => state.userManagement.pagination);
-    console.log('Pagination in twinner users: ', pagination);
+    // console.log('Pagination in twinner users: ', pagination);
 
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filtersApplied, setFiltersApplied] = useState(false);
@@ -91,21 +89,20 @@ const UserManagement = () => {
         };
         // console.log('Dispatching filterPayload:', filterPayload);
         // console.log('📌 Users in Component:', paginatedUsers);
-
         dispatch(userListFilter(filterPayload, currentPage, itemsPerPage));
-    }, [dispatch, currentPage]);
+    }, [dispatch, currentPage, itemsPerPage]);
 
-    useEffect(() => {
-        if (paginatedUsers.length > 0) {
-            const initialToggleStates: { [key: string]: boolean } = {};
+    // useEffect(() => {
+    //     if (paginatedUsers.length > 0) {
+    //         const initialToggleStates: { [key: string]: boolean } = {};
 
-            paginatedUsers.forEach((user: User) => {
-                initialToggleStates[user.user_id] = user.is_active;
-            });
+    //         paginatedUsers.forEach((user: User) => {
+    //             initialToggleStates[user.user_id] = user.is_active;
+    //         });
 
-            setToggleStates(initialToggleStates);
-        }
-    }, [paginatedUsers]);
+    //         setToggleStates(initialToggleStates);
+    //     }
+    // }, [paginatedUsers]);
 
     const handleDeleteUser = (user_id: string) => {
         // console.log('Deleting User ID:', user_id); // Debug log
@@ -114,19 +111,31 @@ const UserManagement = () => {
         }
     };
 
+    const handleDeleteClick = (user_id: string) => {
+        setTwinnerUserToDelete(user_id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        if (twinnerUserToDelete) {
+            dispatch(userDelete({ user_id: twinnerUserToDelete })); // ✅ wrap it in an object
+        }
+        setShowDeleteModal(false);
+    };
+
     const handleShowModal = () => setShowFilterModal(true);
     // const handleCloseModal = () => setShowFilterModal(false);
     const handleCloseModal = () => {
         setFilters({
-            min_age: null,
-            max_age: null,
-            education: '',
-            country: '',
-            city: '',
-            birthdate: '',
-            interested_in: '',
-            progress_status: '',
-            search: null,
+            min_age: filters?.min_age,
+            max_age: filters?.max_age,
+            education: filters?.education,
+            country: filters?.country,
+            city: filters?.city,
+            birthdate: filters?.birthdate,
+            interested_in: filters?.interested_in,
+            progress_status: filters?.progress_status,
+            search: filters?.search,
         });
 
         setShowFilterModal(false); // Assuming you're using a state variable for modal visibility
@@ -167,6 +176,11 @@ const UserManagement = () => {
             if (name === 'min_age' && !value) {
                 updatedFilters.max_age = 0;
             }
+            if (name === 'search') {
+                if (value.length >= 3 || value.length === 0) {
+                    dispatch(userListFilter({ ...updatedFilters }, 1, itemsPerPage));
+                }
+            }
 
             return updatedFilters;
         });
@@ -195,15 +209,15 @@ const UserManagement = () => {
     };
 
     const handleUserToggle = (user_id: string, is_active: boolean) => {
-        setToggleStates((prev) => ({
-            ...prev,
-            [user_id]: is_active,
-        }));
+        // setToggleStates((prev) => ({
+        //     ...prev,
+        //     [user_id]: is_active,
+        // }));
 
         dispatch(userUpdateStatus(user_id, is_active));
 
         setTimeout(() => {
-            dispatch(userListFilter);
+            dispatch(userListFilter(filters, currentPage, itemsPerPage));
         }, 100);
     };
 
@@ -221,10 +235,29 @@ const UserManagement = () => {
     return userPermissionsArray.includes('read') ? (
         <div>
             {/* Filter Button */}
-            <Button variant="primary" onClick={handleShowModal} style={{ marginBottom: '10px' }}>
-                <FaFilter /> Filter Users
-            </Button>
-            <Eye />
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '10px',
+                    gap: '12px',
+                    flexWrap: 'wrap',
+                }}>
+                <Button variant="primary" onClick={handleShowModal}>
+                    <FaFilter /> Filter Users
+                </Button>
+
+                <Form.Control
+                    type="text"
+                    placeholder="Search by Name or Contact"
+                    name="search"
+                    value={filters.search ?? ''}
+                    onChange={handleFilterChange}
+                    style={{ maxWidth: '250px' }}
+                />
+            </div>
+
+            {/* <Eye /> */}
 
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -239,17 +272,19 @@ const UserManagement = () => {
                                 <th>Age</th>
                                 <th>Birthday</th>
                                 <th>City</th>
+                                <th>Phone Number</th>
                                 <th>Country</th>
                                 <th>Education</th>
                                 <th>Email</th>
                                 <th>Interested In</th>
                                 <th>Status</th>
+
                                 {userPermissionsArray?.includes('delete') && <th>Actions</th>}
                             </tr>
                         </thead>
                         <tbody>
-                            {paginatedUsers?.length > 0 ? (
-                                paginatedUsers.map((user: User, index: number) => (
+                            {usersData?.length > 0 ? (
+                                usersData.map((user: User, index: number) => (
                                     <tr key={user.user_id}>
                                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td>{user.name}</td>
@@ -257,13 +292,14 @@ const UserManagement = () => {
                                         <td>{new Date(user.birthdate).toLocaleDateString()}</td>
 
                                         <td>{user.city}</td>
+                                        <td>{user.phone_number}</td>
                                         <td>{user.country}</td>
                                         <td>{user.education}</td>
                                         <td>{user.email}</td>
                                         <td>{user.interested_in}</td>
                                         <td>
                                             <ToggleSwitch
-                                                checked={toggleStates[user.user_id] || false}
+                                                checked={user.is_active}
                                                 onChange={(checked) => handleUserToggle(user.user_id, checked)}
                                             />
                                         </td>
@@ -272,7 +308,14 @@ const UserManagement = () => {
                                                 <FaTrash
                                                     size={20}
                                                     style={{ cursor: 'pointer', color: 'red' }}
-                                                    onClick={() => handleDeleteUser(user.user_id)}
+                                                    onClick={() => handleDeleteClick(user.user_id)}
+                                                />
+                                                <ConfirmDeleteModal
+                                                    show={showDeleteModal}
+                                                    onClose={() => setShowDeleteModal(false)}
+                                                    onConfirm={confirmDelete}
+                                                    title="Delete Twinner User"
+                                                    message="Are you sure you want to delete this twinner user? This action cannot be undone."
                                                 />
                                             </td>
                                         )}
@@ -291,7 +334,7 @@ const UserManagement = () => {
             )}
 
             {/* Pagination Controls */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+            {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <SoftButton
                         variant="secondary"
@@ -314,6 +357,75 @@ const UserManagement = () => {
                         className="px-4 py-2">
                         Next
                     </SoftButton>
+                </div>
+            </div> */}
+            <div
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '24px',
+                    flexWrap: 'wrap',
+                    gap: '24px',
+                }}>
+                {/* Pagination Controls */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
+
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
+
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
+
+                {/* Items Per Page */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label
+                        style={{
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            color: '#374151',
+                        }}>
+                        Items per page:
+                    </label>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setCurrentPage(1);
+                            setItemsPerPage(Number(e.target.value));
+                        }}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid #D1D5DB',
+                            fontSize: '14px',
+                            color: '#374151',
+                            backgroundColor: '#FFFFFF',
+                            cursor: 'pointer',
+                            minWidth: '100px',
+                        }}>
+                        {[5, 10, 25, 50].map((size) => (
+                            <option key={size} value={size}>
+                                {size}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
@@ -406,6 +518,19 @@ const UserManagement = () => {
                                     />
                                 </Form.Group>
                             </div>
+
+                            {/* <div className="col-md-6 mb-3">
+                                <Form.Group controlId="search">
+                                    <Form.Label>Search</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="search"
+                                        value={filters?.search ?? ''}
+                                        onChange={handleFilterChange}
+                                        placeholder="Search"
+                                    />
+                                </Form.Group>
+                            </div> */}
                         </div>
                     </Form>
                 </Modal.Body>

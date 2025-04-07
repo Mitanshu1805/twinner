@@ -144,18 +144,21 @@ const ReportAndBlock = () => {
     const { reports = {}, loading, error } = appSelector((state: RootState) => state.report);
     const [showReportReviewModal, setShowReportReviewModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    // const itemsPerPage = 10;
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     // Extract reports array
     const reportListData = reports?.data?.reports || [];
     const pagination = useSelector((state: RootState) => state.report.pagination);
 
-    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
-    const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
+    // const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
 
-    const userPermissionsArray: string[] = userPermission
-        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
-        : [];
+    // const userPermissionsArray: string[] = userPermission
+    //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+    //     : [];
+    const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
+    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
 
     // State for storing selected reporter details
     const [selectedReporter, setSelectedReporter] = useState<User | null>(null);
@@ -197,18 +200,44 @@ const ReportAndBlock = () => {
                     <Table bordered>
                         <thead>
                             <tr>
-                                <th>Profile Image</th>
-                                <th>Name</th>
-                                <th>User Name</th>
-                                <th>Description</th>
-                                <th>Phone Number</th>
-                                <th>City</th>
-                                <th>Country</th>
-                                <th>Age</th>
-                                <th>Time</th>
-                                <th>Reporter User</th>
-                                <th>Response</th>
-                                <th>Report Review</th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Profile Image
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Name
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    User Name
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Description
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Phone Number
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    City
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Country
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Age
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Time
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Reporter User
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Response
+                                </th>
+                                {userPermissionsArray?.includes('update') && (
+                                    <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                        Report Review
+                                    </th>
+                                )}
                             </tr>
                         </thead>
                         <tbody>
@@ -244,17 +273,14 @@ const ReportAndBlock = () => {
                                         </td>
                                         <td>{report.response}</td>
                                         <td>
-                                            {report.response ? (
-                                                <span style={{ color: '#aaa', cursor: 'not-allowed' }}>
-                                                    <Clipboard size={20} />
-                                                </span>
-                                            ) : (
+                                            {userPermissionsArray?.includes('update') && (
                                                 <>
                                                     <Clipboard
                                                         size={20}
                                                         onClick={handleRegisterNewReport}
                                                         style={{ cursor: 'pointer' }}
                                                     />
+
                                                     <ReportReviewModal
                                                         show={showReportReviewModal}
                                                         onClose={handleCloseRegRepModal}
@@ -278,6 +304,77 @@ const ReportAndBlock = () => {
             )}
 
             {/* Pagination Controls */}
+            <div
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '24px',
+                    flexWrap: 'wrap',
+                    gap: '24px',
+                }}>
+                {/* Pagination Controls */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
+
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
+
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
+
+                {/* Items Per Page */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label
+                        style={{
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            color: '#374151',
+                        }}>
+                        Items per page:
+                    </label>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setCurrentPage(1);
+                            setItemsPerPage(Number(e.target.value));
+                        }}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid #D1D5DB',
+                            fontSize: '14px',
+                            color: '#374151',
+                            backgroundColor: '#FFFFFF',
+                            cursor: 'pointer',
+                            minWidth: '100px',
+                        }}>
+                        {[5, 10, 25, 50].map((size) => (
+                            <option key={size} value={size}>
+                                {size}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            {/* Pagination Controls
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <SoftButton
@@ -302,7 +399,7 @@ const ReportAndBlock = () => {
                         Next
                     </SoftButton>
                 </div>
-            </div>
+            </div> */}
 
             {/* Modal for showing reporter details */}
             <Modal show={!!selectedReporter} onHide={closeModal}>

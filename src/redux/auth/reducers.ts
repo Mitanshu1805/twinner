@@ -63,16 +63,20 @@ const Auth = (state: State = INIT_STATE, action: AuthActionType): any => {
                     };
                 }
                 case AuthActionTypes.LOGIN_USER: {
+                    console.log('🔥 LOGIN_USER payload', action.payload);
+
                     const userData = action.payload.data as UserData;
+
                     return {
                         ...state,
-                        user: action.payload.data,
+                        user: userData,
                         userLoggedIn: true,
                         token: userData.token || null,
-                        permissions: userData.permissions || [], // Store permissions
+                        permissions: userData.permissions || {},
                         loading: false,
                     };
                 }
+
                 case AuthActionTypes.SIGNUP_USER: {
                     return {
                         ...state,

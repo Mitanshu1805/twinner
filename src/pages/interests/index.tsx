@@ -212,6 +212,7 @@ import './interestFile.css';
 import { FaRegEdit, FaTrash } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import RegisterInterestModal from './RegisterInterestModal';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 
 interface Interest {
     interest_id: string;
@@ -223,6 +224,47 @@ type Permission = {
     module_name: string;
     permissions: string; // Stored as a string (e.g., '{read}')
 };
+
+const columns = [
+    {
+        Header: '#',
+        accessor: 'id',
+        sort: true,
+    },
+    {
+        Header: 'Interest Name',
+        accessor: 'interestName',
+        sort: true,
+    },
+    {
+        Header: 'Image',
+        accessor: 'image',
+        sort: false,
+    },
+    {
+        Header: 'Actions',
+        accessor: 'actions',
+        sort: true,
+    },
+];
+const sizePerPageList = [
+    {
+        text: '5',
+        value: 5,
+    },
+    {
+        text: '10',
+        value: 10,
+    },
+    {
+        text: '25',
+        value: 25,
+    },
+    {
+        text: 'All',
+        // value: data.length,
+    },
+];
 
 const InterestHobbies = () => {
     const { dispatch, appSelector } = useRedux();
@@ -236,18 +278,25 @@ const InterestHobbies = () => {
     const pagination = useSelector((state: RootState) => state.interest?.interests?.data?.pagination);
     console.log('Pagination>>>>>>>>>', pagination);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+    // const itemsPerPage = 10;
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
+    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
-    const userPermissionsArray: string[] = userPermission
-        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
-        : [];
+    // const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
+
+    // const userPermissionsArray: string[] = userPermission
+    //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+    //     : [];
+
+    const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
+    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
+    const [interestToDelete, setInterestToDelete] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         dispatch(interestList(currentPage, itemsPerPage));
-    }, [dispatch, currentPage]);
+    }, [dispatch, currentPage, itemsPerPage]);
 
     const handleAddInterest = () => {
         setSelectedInterest(null);
@@ -262,7 +311,7 @@ const InterestHobbies = () => {
     const handleCloseRegModal = () => {
         setShowInterestRegModal(false);
         // dispatch(interestList(currentPage, itemsPerPage)); // Refresh list after adding/editing
-        dispatch(interestList());
+        dispatch(interestList(currentPage, itemsPerPage));
     };
 
     const handleDeleteInterest = (interest_id: string) => {
@@ -273,6 +322,20 @@ const InterestHobbies = () => {
         setTimeout(() => {
             dispatch(interestList(currentPage, itemsPerPage));
         }, 500);
+    };
+    const handleDeleteClick = (interest_id: string) => {
+        setInterestToDelete(interest_id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        if (interestToDelete) {
+            dispatch(interestDelete(interestToDelete));
+            setTimeout(() => {
+                dispatch(interestList(currentPage, itemsPerPage));
+            }, 500);
+        }
+        setShowDeleteModal(false);
     };
 
     return userPermissionsArray.includes('read') ? (
@@ -298,9 +361,13 @@ const InterestHobbies = () => {
                     <Table bordered>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Interest Name</th>
-                                <th>Image</th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>#</th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Interest Name
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Image
+                                </th>
                                 {(userPermissionsArray?.includes('update') ||
                                     userPermissionsArray?.includes('delete')) && <th>Actions</th>}
                             </tr>
@@ -309,16 +376,16 @@ const InterestHobbies = () => {
                             {interestListData.length > 0 ? (
                                 interestListData.map((interest: Interest, index: number) => (
                                     <tr key={interest.interest_id}>
-                                        <td>{index + 1}</td>
+                                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td>{interest.interest_name}</td>
                                         <td>
-                                            {/* <img
+                                            <img
                                                 src={interest.interest_image}
                                                 alt={interest.interest_name}
                                                 width="50"
                                                 height="50"
                                                 style={{ borderRadius: '8px' }}
-                                            /> */}
+                                            />
                                         </td>
                                         <td>
                                             {userPermissionsArray?.includes('update') && (
@@ -332,9 +399,16 @@ const InterestHobbies = () => {
                                                 <FaTrash
                                                     size={20}
                                                     style={{ cursor: 'pointer', color: 'red' }}
-                                                    onClick={() => handleDeleteInterest(interest.interest_id)}
+                                                    onClick={() => handleDeleteClick(interest.interest_id)}
                                                 />
                                             )}
+                                            <ConfirmDeleteModal
+                                                show={showDeleteModal}
+                                                onClose={() => setShowDeleteModal(false)}
+                                                onConfirm={confirmDelete}
+                                                title="Delete this Interest"
+                                                message="Are you sure you want to delete this interest? This action cannot be undone."
+                                            />
                                         </td>
                                     </tr>
                                 ))
@@ -348,7 +422,77 @@ const InterestHobbies = () => {
                         </tbody>
                     </Table>
                     {/* Pagination Controls */}
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                    <div
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginTop: '24px',
+                            flexWrap: 'wrap',
+                            gap: '24px',
+                        }}>
+                        {/* Pagination Controls */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <SoftButton
+                                variant="secondary"
+                                onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                                disabled={currentPage <= 1}
+                                className="px-4 py-2">
+                                Previous
+                            </SoftButton>
+
+                            <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                                Page {currentPage} of {pagination?.total_pages ?? 1}
+                            </span>
+
+                            <SoftButton
+                                variant="secondary"
+                                onClick={() =>
+                                    currentPage < (pagination?.total_pages ?? 1) && setCurrentPage((prev) => prev + 1)
+                                }
+                                disabled={currentPage >= (pagination?.total_pages ?? 1)}
+                                className="px-4 py-2">
+                                Next
+                            </SoftButton>
+                        </div>
+
+                        {/* Items Per Page */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <label
+                                style={{
+                                    fontWeight: '600',
+                                    fontSize: '14px',
+                                    color: '#374151',
+                                }}>
+                                Items per page:
+                            </label>
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => {
+                                    setCurrentPage(1);
+                                    setItemsPerPage(Number(e.target.value));
+                                }}
+                                style={{
+                                    padding: '8px 12px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #D1D5DB',
+                                    fontSize: '14px',
+                                    color: '#374151',
+                                    backgroundColor: '#FFFFFF',
+                                    cursor: 'pointer',
+                                    minWidth: '100px',
+                                }}>
+                                {[5, 10, 25, 50].map((size) => (
+                                    <option key={size} value={size}>
+                                        {size}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <SoftButton
                                 variant="secondary"
@@ -372,7 +516,19 @@ const InterestHobbies = () => {
                                 Next
                             </SoftButton>
                         </div>
-                    </div>
+                        <select
+                            value={itemsPerPage}
+                            onChange={(e) => {
+                                setCurrentPage(1);
+                                setItemsPerPage(Number(e.target.value));
+                            }}>
+                            {[5, 10, 25, 50].map((size) => (
+                                <option key={size} value={size}>
+                                    {size} per page
+                                </option>
+                            ))}
+                        </select>
+                    </div> */}
                 </BorderedTable>
             )}
         </div>

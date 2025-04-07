@@ -40,7 +40,8 @@ const HelpAndSupport = () => {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    // const itemsPerPage = 10;
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const itemsPerPageFixed = Number(itemsPerPage).toString(); // Ensure it's a clean number string
 
     // const startIndex = (currentPage - 1) * itemsPerPage;
@@ -52,17 +53,19 @@ const HelpAndSupport = () => {
     const [showHelpReportReviewModal, setShowHelpReportReviewModal] = useState(false);
     const pagination = useSelector((state: RootState) => state.report.pagination);
     console.log('pagination>>>>>>: ', pagination);
-    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
-    // Find the user's permission object for the "User" module
-    const userPermission = permissions.find((perm) => perm.module_name === 'Help');
+    // // Find the user's permission object for the "User" module
+    // const userPermission = permissions.find((perm) => perm.module_name === 'Help');
 
-    // Ensure the permission string is cleaned and parsed correctly
-    const userPermissionsArray: string[] = userPermission
-        ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
-        : [];
+    // // Ensure the permission string is cleaned and parsed correctly
+    // const userPermissionsArray: string[] = userPermission
+    //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
+    //     : [];
+    const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
+    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
 
-    console.log('Raw Permissions:', userPermission?.permissions);
+    // console.log('Raw Permissions:', userPermission?.permissions);
     console.log('Parsed Permissions Array:', userPermissionsArray);
     console.log("Includes 'read'?", userPermissionsArray.includes('read'));
 
@@ -128,13 +131,29 @@ const HelpAndSupport = () => {
                     <Table bordered>
                         <thead>
                             <tr>
-                                <th>Profile Image</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Email</th>
-                                <th>Created At</th>
-                                <th>Add Response</th>
-                                <th>Response</th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Profile Image
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Name
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Description
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Email
+                                </th>
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Created At
+                                </th>
+                                {userPermissionsArray?.includes('update') && (
+                                    <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                        Add Response
+                                    </th>
+                                )}
+                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
+                                    Response
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -165,16 +184,23 @@ const HelpAndSupport = () => {
                                         <td>{new Date(help.created_at).toLocaleString()}</td>
 
                                         <td>
-                                            <Clipboard
-                                                size={20}
-                                                onClick={handleReviewHelpReport}
-                                                style={{ cursor: 'pointer' }}
-                                            />
-                                            <HelpReviewModal
-                                                show={showHelpReportReviewModal}
-                                                onClose={handleCloseHelpReviewModal}
-                                                helpId={help.help_center_id}
-                                            />
+                                            {userPermissionsArray?.includes('update') && (
+                                                // <input
+                                                //     type="text"
+                                                //     value={help.response}
+                                                <>
+                                                    <Clipboard
+                                                        size={20}
+                                                        onClick={handleReviewHelpReport}
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
+                                                    <HelpReviewModal
+                                                        show={showHelpReportReviewModal}
+                                                        onClose={handleCloseHelpReviewModal}
+                                                        helpId={help.help_center_id}
+                                                    />
+                                                </>
+                                            )}
                                         </td>
                                         <td>{help.response}</td>
                                     </tr>
@@ -191,35 +217,17 @@ const HelpAndSupport = () => {
                 </BorderedTable>
             )}
 
-            {/* Pagination Controls
             <div
-                className="pagination-controls"
-                style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev - 1)}
-                    disabled={currentPage === 1} // Correct check
-                >
-                    Previous
-                </SoftButton>
-
-                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
-                    Page {currentPage} of {pagination?.totalPages || 1}
-                </span>
-
-                <SoftButton
-                    variant="secondary"
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage >= (pagination?.totalPages || 1)}
-                >
-                    Next
-                </SoftButton>
-
-            </div> */}
-
-            {/* Pagination Controls */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '24px',
+                    flexWrap: 'wrap',
+                    gap: '24px',
+                }}>
+                {/* Pagination Controls */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <SoftButton
                         variant="secondary"
@@ -243,7 +251,68 @@ const HelpAndSupport = () => {
                         Next
                     </SoftButton>
                 </div>
+
+                {/* Items Per Page */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label
+                        style={{
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            color: '#374151',
+                        }}>
+                        Items per page:
+                    </label>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setCurrentPage(1);
+                            setItemsPerPage(Number(e.target.value));
+                        }}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid #D1D5DB',
+                            fontSize: '14px',
+                            color: '#374151',
+                            backgroundColor: '#FFFFFF',
+                            cursor: 'pointer',
+                            minWidth: '100px',
+                        }}>
+                        {[5, 10, 25, 50].map((size) => (
+                            <option key={size} value={size}>
+                                {size}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
+
+            {/* Pagination Controls */}
+            {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
+
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
+
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
+            </div> */}
 
             {/* User Details Modal */}
             <Modal show={selectedUser !== null} onHide={() => setSelectedUser(null)} centered>

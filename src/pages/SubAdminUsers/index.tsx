@@ -4,6 +4,7 @@ import { useRedux } from '../../hooks';
 import { adminUserList, adminUserDelete, updateAdminStatus } from '../../redux/actions';
 import { RootState } from '../../redux/store';
 import BorderedTable from '../tables/BasicTable/BorderedTable';
+import AdvancedTable from '../tables/AdvancedTable';
 import SoftButton from '../uikit/Buttons/SoftButton';
 import { FaRegEdit, FaTrash } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
@@ -13,6 +14,7 @@ import RegisterAdminUserModal from './RegisterAdminUserModal';
 import RegAdminMod from './RegAdminMod';
 import PermissionsModal from './PermissionsModal';
 import { Book } from 'react-feather';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
 
 interface AdminUserProps {
     admin_user_id: string;
@@ -38,47 +40,57 @@ const AdminUser = () => {
 
     // const adminUsersData = adminUsers?.data?.users || [];
     // console.log('adminUsersData: ', adminUsersData);
-    const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
+    // const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
     const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUserProps | null>(null);
     const [showAdminUserRegModal, setShowAdminUserRegModal] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [adminUserToDelete, setAdminUserToDelete] = useState<string | null>(null);
 
     // console.log('Admin Users: ', adminUsers);
-    const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
+    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    // const itemsPerPage = 10;
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    const userPermission = permissions.find((perm) => perm.module_name === 'Admin');
-    const userPermissionOnly = permissions.find((perm) => perm.module_name === 'Permissions');
+    // const userPermission = permissions.find((perm) => perm.module_name === 'Admin');
+    // const userPermissionOnly = permissions.find((perm) => perm.module_name === 'Permissions');
 
-    const userPermissionsArrayOnly: string[] = userPermissionOnly
-        ? Array.isArray(userPermissionOnly.permissions)
-            ? userPermissionOnly.permissions // Already an array, use as is
-            : typeof userPermissionOnly.permissions === 'string'
-            ? userPermissionOnly.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
-            : []
-        : [];
+    // const userPermissionsArrayOnly: string[] = userPermissionOnly
+    //     ? Array.isArray(userPermissionOnly.permissions)
+    //         ? userPermissionOnly.permissions // Already an array, use as is
+    //         : typeof userPermissionOnly.permissions === 'string'
+    //         ? userPermissionOnly.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
+    //         : []
+    //     : [];
 
-    const userPermissionsArray: string[] = userPermission
-        ? Array.isArray(userPermission.permissions)
-            ? userPermission.permissions // Already an array, use as is
-            : typeof userPermission.permissions === 'string'
-            ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
-            : []
-        : [];
+    // const userPermissionsArray: string[] = userPermission
+    //     ? Array.isArray(userPermission.permissions)
+    //         ? userPermission.permissions // Already an array, use as is
+    //         : typeof userPermission.permissions === 'string'
+    //         ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
+    //         : []
+    //     : [];
+    const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
+    console.log('permissionsObj:', permissionsObj);
 
-    useEffect(() => {
-        if (adminUsers.length > 0) {
-            const initialToggleStates: { [key: string]: boolean } = {};
+    const userPermissionsArray: string[] = permissionsObj?.Admin || [];
+    console.log('userPermissionsArray:', userPermissionsArray);
 
-            adminUsers.forEach((adminUser: AdminUserProps) => {
-                initialToggleStates[adminUser.admin_user_id] = adminUser.is_active;
-            });
+    const userPermissionsArrayOnly: string[] = permissionsObj?.Permissions || [];
 
-            setToggleStates(initialToggleStates);
-        }
-    }, [adminUsers]);
+    // useEffect(() => {
+    //     if (adminUsers.length > 0) {
+    //         const initialToggleStates: { [key: string]: boolean } = {};
+
+    //         adminUsers.forEach((adminUser: AdminUserProps) => {
+    //             initialToggleStates[adminUser.admin_user_id] = adminUser.is_active;
+    //         });
+
+    //         setToggleStates(initialToggleStates);
+    //     }
+    // }, [adminUsers]);
 
     useEffect(() => {
         // Dispatch to fetch admin users whenever currentPage changes
@@ -120,10 +132,10 @@ const AdminUser = () => {
     };
 
     const handleUserToggle = (admin_user_id: string, is_active: boolean) => {
-        setToggleStates((prev) => ({
-            ...prev,
-            [admin_user_id]: is_active,
-        }));
+        // setToggleStates((prev) => ({
+        //     ...prev,
+        //     [admin_user_id]: is_active,
+        // }));
 
         dispatch(updateAdminStatus(admin_user_id, is_active));
 
@@ -132,15 +144,30 @@ const AdminUser = () => {
         }, 100);
     };
 
-    const handleDeleteAdminUser = (admin_user_id: string) => {
-        if (window.confirm('Are you sure you want to delete this interest?')) {
-            // Dispatch the delete action
-            dispatch(adminUserDelete(admin_user_id));
-        }
-        setTimeout(() => {
-            dispatch(adminUserList(currentPage, itemsPerPage));
-        }, 500);
+    // const handleDeleteAdminUser = (admin_user_id: string) => {
+    //     if (window.confirm('Are you sure you want to delete this interest?')) {
+    //         // Dispatch the delete action
+    //         dispatch(adminUserDelete(admin_user_id));
+    //     }
+    //     setTimeout(() => {
+    //         dispatch(adminUserList(currentPage, itemsPerPage));
+    //     }, 500);
+    // };
+    const handleDeleteClick = (admin_user_id: string) => {
+        setAdminUserToDelete(admin_user_id);
+        setShowDeleteModal(true);
     };
+
+    const confirmDelete = () => {
+        if (adminUserToDelete) {
+            dispatch(adminUserDelete(adminUserToDelete));
+            setTimeout(() => {
+                dispatch(adminUserList(currentPage, itemsPerPage));
+            }, 500);
+        }
+        setShowDeleteModal(false);
+    };
+
     //     const handleDeleteAdminUser = (admin_user_id: string) => {
     //     if (window.confirm('Are you sure you want to delete this user?')) {
     //         dispatch(adminUserDelete(admin_user_id)).then(() => {
@@ -201,7 +228,7 @@ const AdminUser = () => {
                                         {userPermissionsArray?.includes('update') && (
                                             <td>
                                                 <ToggleSwitch
-                                                    checked={toggleStates[user.admin_user_id] || false}
+                                                    checked={user.is_active}
                                                     onChange={(checked) =>
                                                         handleUserToggle(user.admin_user_id, checked)
                                                     }
@@ -224,9 +251,16 @@ const AdminUser = () => {
                                                     <FaTrash
                                                         size={20}
                                                         style={{ cursor: 'pointer', color: 'red' }}
-                                                        onClick={() => handleDeleteAdminUser(user.admin_user_id)}
+                                                        onClick={() => handleDeleteClick(user.admin_user_id)}
                                                     />
                                                 )}
+                                                <ConfirmDeleteModal
+                                                    show={showDeleteModal}
+                                                    onClose={() => setShowDeleteModal(false)}
+                                                    onConfirm={confirmDelete}
+                                                    title="Delete Admin User"
+                                                    message="Are you sure you want to delete this admin user? This action cannot be undone."
+                                                />
                                             </td>
                                         </td>
 
@@ -259,7 +293,17 @@ const AdminUser = () => {
                 </BorderedTable>
             )}
             {/* Pagination Controls */}
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+            <div
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '24px',
+                    flexWrap: 'wrap',
+                    gap: '24px',
+                }}>
+                {/* Pagination Controls */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <SoftButton
                         variant="secondary"
@@ -283,7 +327,66 @@ const AdminUser = () => {
                         Next
                     </SoftButton>
                 </div>
+
+                {/* Items Per Page */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <label
+                        style={{
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            color: '#374151',
+                        }}>
+                        Items per page:
+                    </label>
+                    <select
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                            setCurrentPage(1);
+                            setItemsPerPage(Number(e.target.value));
+                        }}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            border: '1px solid #D1D5DB',
+                            fontSize: '14px',
+                            color: '#374151',
+                            backgroundColor: '#FFFFFF',
+                            cursor: 'pointer',
+                            minWidth: '100px',
+                        }}>
+                        {[5, 10, 25, 50].map((size) => (
+                            <option key={size} value={size}>
+                                {size}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
+            {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+                        disabled={currentPage <= 1}
+                        className="px-4 py-2">
+                        Previous
+                    </SoftButton>
+
+                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
+                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                    </span>
+
+                    <SoftButton
+                        variant="secondary"
+                        onClick={() =>
+                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                        }
+                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        className="px-4 py-2">
+                        Next
+                    </SoftButton>
+                </div>
+            </div> */}
         </div>
     ) : (
         <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
