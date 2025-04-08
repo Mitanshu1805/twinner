@@ -17,9 +17,10 @@ interface TableWrapperProps {
     title: string;
     children: React.ReactNode;
     actionButton?: React.ReactNode;
+    totalRecords?: string;
 }
 
-const BorderedTable: React.FC<TableWrapperProps> = ({ title, children, actionButton }) => {
+const BorderedTable: React.FC<TableWrapperProps> = ({ title, children, actionButton, totalRecords }) => {
     return (
         <Card>
             <Card.Body>
@@ -36,7 +37,16 @@ const BorderedTable: React.FC<TableWrapperProps> = ({ title, children, actionBut
                 </Dropdown>
 
                 <div className="d-flex justify-content-between align-items-center">
-                    <h4 className="header-title">{title}</h4>
+                    {/* <h4 className="header-title">{title}</h4> */}
+                    <h4 className="header-title">
+                        {title}
+                        {totalRecords && (
+                            <span style={{ fontSize: '14px', marginLeft: '8px', color: '#6c757d', fontWeight: 500 }}>
+                                ({totalRecords})
+                            </span>
+                        )}
+                    </h4>
+
                     {actionButton && <div>{actionButton}</div>}
                 </div>
 

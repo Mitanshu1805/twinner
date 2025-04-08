@@ -2,24 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { supportHelpList, supportHelpReview } from '../../redux/actions';
+import { RootState } from '../../redux/store';
+import { useRedux } from '../../hooks';
 
 interface SupportReviewModalProps {
     show: boolean;
     onClose: () => void;
     helpId: string;
+    onSuccess: () => void;
 }
 
-const SupportReviewModal: React.FC<SupportReviewModalProps> = ({ show, onClose, helpId }) => {
+const SupportReviewModal: React.FC<SupportReviewModalProps> = ({ show, onClose, helpId, onSuccess }) => {
     const [response, setResponse] = useState('');
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
+    const { dispatch, appSelector } = useRedux();
     const [currentPage] = useState(1);
     const itemsPerPage = 10;
+    const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
 
+    // useEffect(() => {
+    //     if (!show) {
+    //         setResponse('');
+    //     }
+    // }, [show]);
     useEffect(() => {
-        if (!show) {
+        if (show) {
+            console.log('helpAndSupports>>>>', helpAndSupports);
+            const help = helpAndSupports.find((h: any) => h.help_center_id === helpId);
+            console.log('help>>>>', help);
+
+            setResponse(help?.response);
+        } else {
             setResponse('');
         }
-    }, [show]);
+    }, [show, helpId, helpAndSupports]);
+    // useEffect(() => {
+    //     if (show && helpId && helpAndSupports.length > 0) {
+    //         const help = helpAndSupports.find((h: any) => h.help_center_id === helpId);
+    //         console.log('matched help:', help);
+    //         setResponse(help?.response || ''); // fallback to empty string if no response
+    //     } else if (!show) {
+    //         setResponse('');
+    //     }
+    // }, [show, helpId, helpAndSupports]);
 
     const handleReport = () => {
         const newReport = {
@@ -32,6 +57,7 @@ const SupportReviewModal: React.FC<SupportReviewModalProps> = ({ show, onClose, 
         setTimeout(() => {
             dispatch(supportHelpList(currentPage, itemsPerPage));
             setResponse('');
+            onSuccess();
             onClose();
         }, 500);
     };
@@ -58,7 +84,7 @@ const SupportReviewModal: React.FC<SupportReviewModalProps> = ({ show, onClose, 
                 <Button variant="secondary" onClick={onClose}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleReport} disabled={!response.trim()}>
+                <Button variant="primary" onClick={handleReport}>
                     Report
                 </Button>
             </Modal.Footer>

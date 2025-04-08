@@ -118,6 +118,8 @@ const UserBox = () => {
 const SideBarContent = () => {
     const permissionsObj = useSelector((state: RootState) => state.Auth?.user?.data?.permissions || {});
     console.log('permissionsObj>>>>', permissionsObj); // ✅ Should log { Interest: ["read", ...] }
+    const permissionsObjValid = useSelector((state: RootState) => state.Auth || {});
+    console.log('permissionsObjValid>>>>>>', permissionsObjValid);
 
     const moduleNames = Object.keys(permissionsObj);
     const isPermissionsLoaded = moduleNames.length > 0;

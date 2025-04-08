@@ -122,9 +122,9 @@ export type RolesAndRightsActionType =
           payload: { error: string };
       };
 
-export const permissionModuleAdd = (module_name: string): RolesAndRightsActionType => ({
+export const permissionModuleAdd = (data: { module_name: string }): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_MODULE_ADD,
-    payload: { module_name },
+    payload: data,
 });
 
 export const permissionModuleAddSuccess = (message: string): RolesAndRightsActionType => ({
@@ -181,9 +181,9 @@ export const permissionAssignError = (error: string): RolesAndRightsActionType =
     payload: { error },
 });
 
-export const permissionAdd = (module_id: string, permission_type: string): RolesAndRightsActionType => ({
+export const permissionAdd = (data: { module_id: string; permission_type: string }): RolesAndRightsActionType => ({
     type: RolesAndRightsActionTypes.PERMISSION_ADD,
-    payload: { module_id, permission_type },
+    payload: data,
 });
 
 export const permissionAddSuccess = (message: string): RolesAndRightsActionType => ({

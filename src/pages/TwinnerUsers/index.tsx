@@ -43,8 +43,10 @@ const UserManagement = () => {
     // const userPermissionsArray: string[] = userPermission
     //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
     //     : [];
-    const permissionsObj = useSelector((state: RootState) => state.Auth.user.data?.permissions);
-    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
+    const permissionsObj = useSelector((state: RootState) => state.Auth.user?.data?.permissions);
+    console.log('permissionsObj>>>>>>', permissionsObj);
+    const userPermissionsArray: string[] = permissionsObj?.User || [];
+    console.log('userPermissionsArray>>>>>>', userPermissionsArray);
 
     const [currentPage, setCurrentPage] = useState(1);
     // const itemsPerPage = 10;
@@ -58,7 +60,7 @@ const UserManagement = () => {
     console.log('paginatedUsers', paginatedUsers);
     const users = useSelector((state: RootState) => state.userManagement.users);
     const pagination = useSelector((state: RootState) => state.userManagement.pagination);
-    // console.log('Pagination in twinner users: ', pagination);
+    console.log('Pagination in twinner users: ', pagination);
 
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filtersApplied, setFiltersApplied] = useState(false);
@@ -234,6 +236,8 @@ const UserManagement = () => {
 
     return userPermissionsArray.includes('read') ? (
         <div>
+            {/* Page Header */}
+            {/* <h2 style={{ marginBottom: '16px', fontWeight: '600', color: '#111827' }}>Twinner Users</h2> */}
             {/* Filter Button */}
             <div
                 style={{
@@ -263,7 +267,7 @@ const UserManagement = () => {
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {!loading && (
-                <BorderedTable title="Twinner Users">
+                <BorderedTable title="Twinner Users" totalRecords={pagination?.totalRecords}>
                     <Table bordered>
                         <thead>
                             <tr>

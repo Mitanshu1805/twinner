@@ -9,7 +9,9 @@ const api = new APICore();
 const INIT_STATE = {
     user: api.getLoggedInUser(),
     token: api.getLoggedInUser()?.token || null,
-    permissions: [],
+    // permissions: [],
+    permissions: api.getLoggedInUser()?.permissions || {},
+
     loading: false,
 };
 

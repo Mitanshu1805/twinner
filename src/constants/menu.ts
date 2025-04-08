@@ -15,14 +15,14 @@ export type MenuItemTypes = {
 };
 
 const MENU_ITEMS: MenuItemTypes[] = [
-    {
-        key: 'dashboard',
-        label: 'Dashboard',
-        isTitle: false,
-        icon: 'mdi mdi-view-dashboard-outline',
-        badge: { variant: 'success', text: '9+' },
-        url: '/dashboard',
-    },
+    // {
+    //     key: 'dashboard',
+    //     label: 'Dashboard',
+    //     isTitle: false,
+    //     icon: 'mdi mdi-view-dashboard-outline',
+    //     badge: { variant: 'success', text: '9+' },
+    //     url: '/dashboard',
+    // },
     {
         key: 'sub-admin-users',
         label: 'Sub-Admin Users',
@@ -58,7 +58,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
     },
     {
         key: 'reported-and-blocked',
-        label: 'Reported and Blocked',
+        label: 'Report',
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/reported-and-blocked',
@@ -75,14 +75,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
 ];
 
 const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
-    {
-        key: 'dashboard',
-        label: 'Dashboard',
-        isTitle: false,
-        icon: 'mdi mdi-view-dashboard-outline',
-        badge: { variant: 'success', text: '9+' },
-        url: '/dashboard',
-    },
+    // {
+    //     key: 'dashboard',
+    //     label: 'Dashboard',
+    //     isTitle: false,
+    //     icon: 'mdi mdi-view-dashboard-outline',
+    //     badge: { variant: 'success', text: '9+' },
+    //     url: '/dashboard',
+    // },
     {
         key: 'sub-admin-users',
         label: 'Sub-Admin Users',
@@ -113,7 +113,7 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
     },
     {
         key: 'reported-and-blocked',
-        label: 'Reported and Blocked',
+        label: 'Report',
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/reported-and-blocked',

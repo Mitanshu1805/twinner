@@ -15,6 +15,7 @@ import RegAdminMod from './RegAdminMod';
 import PermissionsModal from './PermissionsModal';
 import { Book } from 'react-feather';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
+import SuccessModal from '../../components/SuccessModal';
 
 interface AdminUserProps {
     admin_user_id: string;
@@ -46,6 +47,9 @@ const AdminUser = () => {
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<any | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showAddSuccessModal, setShowAddSuccessModal] = useState(false);
+    const [showUpdateSuccessModal, setShowUpdateSuccessModal] = useState(false);
+
     const [adminUserToDelete, setAdminUserToDelete] = useState<string | null>(null);
 
     // console.log('Admin Users: ', adminUsers);
@@ -121,10 +125,11 @@ const AdminUser = () => {
         setShowAdminUserRegModal(true);
     };
 
-    const handleCloseRegModal = () => {
-        setShowAdminUserRegModal(false);
-        dispatch(adminUserList(currentPage, itemsPerPage));
-    };
+    // const handleCloseRegModal = () => {
+    //     setShowAdminUserRegModal(false);
+    //     dispatch(adminUserList(currentPage, itemsPerPage));
+    //     setShowSuccessModal(true);
+    // };
 
     const handleClosePermissionsModal = () => {
         setShowPermissionsModal(false);
@@ -195,8 +200,24 @@ const AdminUser = () => {
                     }>
                     <RegisterAdminUserModal
                         show={showAdminUserRegModal}
-                        onClose={handleCloseRegModal}
+                        onClose={() => setShowAdminUserRegModal(false)}
+                        onSuccess={(isUpdate: boolean) => {
+                            dispatch(adminUserList(currentPage, itemsPerPage));
+                            setShowAdminUserRegModal(false);
+
+                            if (isUpdate) {
+                                setShowUpdateSuccessModal(true);
+                            } else {
+                                setShowAddSuccessModal(true);
+                            }
+                        }}
                         adminUserToEdit={selectedAdminUser}
+                    />
+
+                    <SuccessModal
+                        show={showAddSuccessModal}
+                        onClose={() => setShowAddSuccessModal(false)}
+                        message="Admin user has been Added successfully!"
                     />
                     <Table bordered>
                         <thead>
@@ -247,6 +268,12 @@ const AdminUser = () => {
                                                         onClick={() => handleEditAdminUser(user)}
                                                     />
                                                 )}
+                                                <SuccessModal
+                                                    show={showUpdateSuccessModal}
+                                                    onClose={() => setShowUpdateSuccessModal(false)}
+                                                    message="Admin user has been Updated successfully!"
+                                                />
+
                                                 {userPermissionsArray?.includes('delete') && (
                                                     <FaTrash
                                                         size={20}

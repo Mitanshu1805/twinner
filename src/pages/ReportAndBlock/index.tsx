@@ -1,106 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { Card, Table } from 'react-bootstrap';
-// import { useRedux } from '../../hooks';
-// import { reportList } from '../../redux/actions';
-// import { RootState } from '../../redux/store';
-// import BorderedTable from '../tables/BasicTable/BorderedTable';
-// import SoftButton from '../uikit/Buttons/SoftButton';
-// import ToggleSwitch from '../../components/ToggleSwitch/index';
-
-// interface User {
-//     user_id: string;
-//     first_name: string;
-//     last_name: string;
-//     user_name: string;
-//     phone_number: string;
-//     country: string;
-//     city: string;
-//     profile_image: string; // Updated from File to string (URL)
-//     dob: string;
-// }
-
-// interface Report {
-//     report_id: string;
-//     reported_user: User;
-//     reporter_user: User;
-//     description: string;
-//     created_at: string;
-// }
-
-// const ReportAndBlock = () => {
-//     const { dispatch, appSelector } = useRedux();
-//     const { reports = {}, loading, error } = appSelector((state: RootState) => state.report);
-
-//     // Extract reports array
-//     const reportListData = reports?.data.reports || [];
-
-//     console.log('ReportListData:', reportListData);
-
-//     useEffect(() => {
-//         dispatch(reportList());
-//     }, [dispatch]);
-
-//     return (
-//         <div>
-//             {loading && <p>Loading...</p>}
-//             {error && <p style={{ color: 'red' }}>{error}</p>}
-
-//             {!loading && (
-//                 <BorderedTable
-//                     // title={`Reported Users (Total: ${reports.total_reports || 0})`}
-//                     title={`Reported Users:`}
-//                     // actionButton={
-//                     //     <SoftButton variant="primary" onClick={() => console.log('Clicked')}>
-//                     //         Add Report
-//                     //     </SoftButton>
-//                     // }
-//                 >
-//                     <Table bordered>
-//                         <thead>
-//                             <tr>
-//                                 <th>#</th>
-//                                 <th>Name</th>
-//                                 <th>User Name</th>
-//                                 <th>Description</th>
-//                                 <th>Phone Number</th>
-//                                 <th>City</th>
-//                                 <th>Country</th>
-//                                 <th>D.O.B</th>
-//                             </tr>
-//                         </thead>
-//                         <tbody>
-//                             {reportListData.length > 0 ? (
-//                                 reportListData.map((report: Report, index: number) => (
-//                                     <tr key={report.report_id}>
-//                                         <td>{index + 1}</td>
-//                                         <td>
-//                                             {report.reported_user.first_name} {report.reported_user.last_name}
-//                                         </td>
-//                                         <td>{report.reported_user.user_name}</td>
-//                                         <td>{report.description}</td>
-//                                         <td>{report.reported_user.phone_number}</td>
-//                                         <td>{report.reported_user.city}</td>
-//                                         <td>{report.reported_user.country}</td>
-//                                         <td>{report.reported_user.dob}</td>
-//                                     </tr>
-//                                 ))
-//                             ) : (
-//                                 <tr>
-//                                     <td colSpan={5} className="text-center">
-//                                         No reports found.
-//                                     </td>
-//                                 </tr>
-//                             )}
-//                         </tbody>
-//                     </Table>
-//                 </BorderedTable>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default ReportAndBlock;
-
 import React, { useEffect, useState } from 'react';
 import { Card, Table, Modal, Button } from 'react-bootstrap';
 import { useRedux } from '../../hooks';
@@ -112,6 +9,7 @@ import { Clipboard } from 'react-feather';
 import SoftButton from '../uikit/Buttons/SoftButton';
 import ReportReviewModal from './ReviewReportModal';
 import { useSelector } from 'react-redux';
+import SuccessModal from '../../components/SuccessModal';
 
 interface User {
     user_id: string;
@@ -149,6 +47,7 @@ const ReportAndBlock = () => {
     // Extract reports array
     const reportListData = reports?.data?.reports || [];
     const pagination = useSelector((state: RootState) => state.report.pagination);
+    const [showReportSuccessModal, setShowReportSuccessModal] = useState(false);
 
     // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
 
@@ -158,7 +57,7 @@ const ReportAndBlock = () => {
     //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
     //     : [];
     const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
-    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
+    const userPermissionsArray: string[] = permissionsObj?.Report || [];
 
     // State for storing selected reporter details
     const [selectedReporter, setSelectedReporter] = useState<User | null>(null);
@@ -285,6 +184,15 @@ const ReportAndBlock = () => {
                                                         show={showReportReviewModal}
                                                         onClose={handleCloseRegRepModal}
                                                         reportId={report.report_id}
+                                                        onSuccess={() => {
+                                                            dispatch(reportList(currentPage, itemsPerPage));
+                                                            setShowReportSuccessModal(true);
+                                                        }}
+                                                    />
+                                                    <SuccessModal
+                                                        show={showReportSuccessModal}
+                                                        onClose={() => setShowReportSuccessModal(false)}
+                                                        message="Your report has been submitted"
                                                     />
                                                 </>
                                             )}

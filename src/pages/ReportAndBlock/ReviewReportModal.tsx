@@ -2,24 +2,42 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { reportList, reportReview } from '../../redux/actions';
+import { RootState } from '../../redux/store';
+import { useRedux } from '../../hooks';
 
 interface ReportReviewModalProps {
     show: boolean;
     onClose: () => void;
     reportId: string;
+    onSuccess: () => void;
 }
 
-const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, reportId }) => {
+const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, reportId, onSuccess }) => {
+    const { dispatch, appSelector } = useRedux();
+    const { reports = {}, loading, error } = appSelector((state: RootState) => state.report);
+    const reportListData = reports?.data?.reports || [];
+    console.log(reportListData);
+
     const [response, setResponse] = useState('');
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    // useEffect(() => {
+    //     if (!show) {
+    //         setResponse('');
+    //     }
+    // }, [show]);
     useEffect(() => {
-        if (!show) {
+        if (show) {
+            console.log('reportListData:', reportListData); // 🐞 Debug
+            const report = reportListData.find((r: any) => r.report_id === reportId);
+            console.log('matched report:', report); // 🐞 Debug
+            setResponse(report?.response || '');
+        } else {
             setResponse('');
         }
-    }, [show]);
+    }, [show, reportId, reportListData]);
 
     const handleReport = () => {
         if (response.trim() === '') {
@@ -36,6 +54,7 @@ const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, re
 
         setTimeout(() => {
             dispatch(reportList(currentPage, itemsPerPage));
+            onSuccess();
             onClose();
         }, 500);
 

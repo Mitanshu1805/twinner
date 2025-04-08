@@ -1,6 +1,7 @@
 // import { interestList } from './actions';
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
 import { SagaIterator } from '@redux-saga/core';
+import { AxiosError } from 'axios';
 
 import { APICore, setAuthorization } from '../../helpers/api/apiCore';
 
@@ -29,12 +30,25 @@ function* interestListSaga(action: any): SagaIterator {
     }
 }
 
+// function* interestAddSaga(action: any): SagaIterator {
+//     try {
+//         const response = yield call(interestAdd, action.payload);
+//         yield put(interestAddSuccess(response.data.message));
+//     } catch (error: any) {
+//         yield put(interestAddError(error.message || 'Error Occured'));
+//     }
+// }
+
 function* interestAddSaga(action: any): SagaIterator {
     try {
         const response = yield call(interestAdd, action.payload);
         yield put(interestAddSuccess(response.data.message));
-    } catch (error: any) {
-        yield put(interestAddError(error.message || 'Error Occured'));
+    } catch (err: unknown) {
+        const error = err as AxiosError<{ message?: string }>;
+
+        const errorMessage = error.response?.data?.message || error.message || 'Error occurred';
+
+        yield put(interestAddError(errorMessage));
     }
 }
 

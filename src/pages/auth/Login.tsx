@@ -138,7 +138,7 @@ const Login = () => {
     };
 
     const location = useLocation();
-    let redirectUrl = '/';
+    let redirectUrl = '/sub-admin-users';
 
     if (location.state) {
         const { from } = location.state as LocationState;

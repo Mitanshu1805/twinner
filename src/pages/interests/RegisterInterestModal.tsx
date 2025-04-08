@@ -1,100 +1,3 @@
-// import React, { useState, useEffect } from 'react';
-// import { Modal, Button, Form } from 'react-bootstrap';
-// import { useDispatch } from 'react-redux';
-// import { interestAdd } from '../../redux/actions';
-
-// interface RegisterInterestModalProps {
-//     show: boolean;
-//     onClose: () => void;
-// }
-
-// const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onClose }) => {
-//     const [interestName, setInterestName] = useState('');
-//     const [interestImage, setInterestImage] = useState<File | null>(null); // File instead of string]
-//     const [previewImage, setPreviewImage] = useState<string | null>(null);
-
-//     const dispatch = useDispatch();
-
-//     useEffect(() => {
-//         if (!show) {
-//             setInterestName('');
-//             setInterestImage(null);
-//             setPreviewImage(null);
-//         }
-//     }, [show]);
-
-//     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         const file = e.target.files?.[0] || null;
-//         setInterestImage(file);
-
-//         if (file) {
-//             const imageUrl = URL.createObjectURL(file);
-//             setPreviewImage(imageUrl);
-//         } else {
-//             setPreviewImage(null);
-//         }
-//     };
-
-//     const handleSubmit = () => {
-//         if (!interestName || !interestImage) {
-//             alert('Please provide both an interest name and an image.');
-//             return;
-//         }
-
-//         // Creating FormData
-//         const formData = new FormData();
-//         formData.append('interest_name', interestName);
-//         formData.append('interest_image', interestImage);
-
-//         dispatch(interestAdd(formData)); // Dispatch action with FormData
-//         onClose(); // Close the modal
-//     };
-
-//     return (
-//         <Modal show={show} onHide={onClose}>
-//             <Modal.Header closeButton>
-//                 <Modal.Title>Register Interest</Modal.Title>
-//             </Modal.Header>
-//             <Modal.Body>
-//                 <Form>
-//                     <Form.Group className="mb-3">
-//                         <Form.Label>Interest Name</Form.Label>
-//                         <Form.Control
-//                             type="text"
-//                             value={interestName}
-//                             onChange={(e) => setInterestName(e.target.value)}
-//                             placeholder="Enter interest name"
-//                         />
-//                     </Form.Group>
-//                     <Form.Group className="mb-3">
-//                         <Form.Label>Interest Image</Form.Label>
-//                         <Form.Control type="file" onChange={handleFileChange} accept="image/*" />
-//                     </Form.Group>
-//                     {previewImage && (
-//                         <div className="text-center">
-//                             <img
-//                                 src={previewImage}
-//                                 alt="Preview"
-//                                 style={{ width: '100px', height: '100px', borderRadius: '8px', objectFit: 'cover' }}
-//                             />
-//                         </div>
-//                     )}
-//                 </Form>
-//             </Modal.Body>
-//             <Modal.Footer>
-//                 <Button variant="secondary" onClick={onClose}>
-//                     Close
-//                 </Button>
-//                 <Button variant="primary" onClick={handleSubmit}>
-//                     Submit
-//                 </Button>
-//             </Modal.Footer>
-//         </Modal>
-//     );
-// };
-
-// export default RegisterInterestModal;
-
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
@@ -110,14 +13,26 @@ interface RegisterInterestModalProps {
     show: boolean;
     onClose: () => void;
     interestToEdit?: Interest | null;
+    onSuccess: (isUpdate: boolean) => void;
 }
 
-const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onClose, interestToEdit }) => {
+// Convert URL to File object
+const urlToFile = async (url: string, filename: string): Promise<File> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
+};
+
+const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onClose, interestToEdit, onSuccess }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const [interestName, setInterestName] = useState('');
-    const [interestImage, setInterestImage] = useState<File | null>(null);
+    const [interestImage, setInterestImage] = useState<string | File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+    // Validation states
+    const [nameError, setNameError] = useState('');
+    const [imageError, setImageError] = useState('');
 
     const dispatch = useDispatch();
 
@@ -125,16 +40,22 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
         if (interestToEdit) {
             setInterestName(interestToEdit.interest_name);
             setPreviewImage(interestToEdit.interest_image);
+            setInterestImage(interestToEdit.interest_image);
         } else {
             setInterestName('');
             setInterestImage(null);
             setPreviewImage(null);
         }
+
+        // Clear validation on modal open
+        setNameError('');
+        setImageError('');
     }, [show, interestToEdit]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
         setInterestImage(file);
+        setImageError('');
 
         if (file) {
             const imageUrl = URL.createObjectURL(file);
@@ -142,34 +63,51 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
         }
     };
 
-    const handleSubmit = () => {
-        if (!interestName || (!interestImage && !interestToEdit)) {
-            alert('Please provide both an interest name and an image.');
-            return;
+    const handleSubmit = async () => {
+        let valid = true;
+
+        if (!interestName.trim()) {
+            setNameError('Interest name is required.');
+            valid = false;
+        } else {
+            setNameError('');
         }
+
+        if (!interestImage && !interestToEdit) {
+            setImageError('Interest image is required.');
+            valid = false;
+        } else {
+            setImageError('');
+        }
+
+        if (!valid) return;
 
         const formData = new FormData();
         formData.append('interest_name', interestName);
 
         if (interestImage instanceof File) {
-            // Append image if a new one is selected
             formData.append('interest_image', interestImage);
-        } else if (interestToEdit?.interest_image && typeof interestToEdit.interest_image === 'string') {
-            // Preserve existing image URL if no new image is uploaded
-            formData.append('interest_image', interestToEdit.interest_image);
+        } else if (typeof interestImage === 'string') {
+            const filename = interestImage.split('/').pop() || 'existing-image.jpg';
+            try {
+                const fileFromUrl = await urlToFile(interestImage, filename);
+                formData.append('interest_image', fileFromUrl);
+            } catch (error) {
+                setImageError('Failed to load image from URL. Please try uploading a new one.');
+                return;
+            }
         }
 
         if (interestToEdit?.interest_id) {
-            // If editing, send update API
             formData.append('interest_id', interestToEdit.interest_id);
             dispatch(interestUpdate(formData));
         } else {
-            // If adding, send add API
             dispatch(interestAdd(formData));
         }
 
         setTimeout(() => {
             dispatch(interestList(currentPage, itemsPerPage));
+            onSuccess(!!interestToEdit);
             onClose();
         }, 500);
     };
@@ -188,18 +126,33 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
                             value={interestName}
                             onChange={(e) => setInterestName(e.target.value)}
                             placeholder="Enter interest name"
+                            isInvalid={!!nameError}
                         />
+                        <Form.Control.Feedback type="invalid">{nameError}</Form.Control.Feedback>
                     </Form.Group>
+
                     <Form.Group className="mb-3">
                         <Form.Label>Interest Image</Form.Label>
-                        <Form.Control type="file" onChange={handleFileChange} accept="image/*" />
+                        <Form.Control
+                            type="file"
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            isInvalid={!!imageError}
+                        />
+                        <Form.Control.Feedback type="invalid">{imageError}</Form.Control.Feedback>
                     </Form.Group>
+
                     {previewImage && (
                         <div className="text-center">
                             <img
                                 src={previewImage}
                                 alt="Preview"
-                                style={{ width: '100px', height: '100px', borderRadius: '8px', objectFit: 'cover' }}
+                                style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    borderRadius: '8px',
+                                    objectFit: 'cover',
+                                }}
                             />
                         </div>
                     )}

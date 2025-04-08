@@ -8,6 +8,7 @@ import SoftButton from '../uikit/Buttons/SoftButton';
 import { useSelector } from 'react-redux';
 import { Clipboard } from 'react-feather';
 import HelpReviewModal from './HelpReviewModal';
+import SuccessModal from '../../components/SuccessModal';
 
 interface Help {
     help_center_id: string;
@@ -39,6 +40,7 @@ const HelpAndSupport = () => {
     const { dispatch, appSelector } = useRedux();
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
+    const [showReportSuccessModal, setShowReportSuccessModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     // const itemsPerPage = 10;
     const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -63,7 +65,7 @@ const HelpAndSupport = () => {
     //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
     //     : [];
     const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
-    const userPermissionsArray: string[] = permissionsObj?.Interest || [];
+    const userPermissionsArray: string[] = permissionsObj?.Help || [];
 
     // console.log('Raw Permissions:', userPermission?.permissions);
     console.log('Parsed Permissions Array:', userPermissionsArray);
@@ -194,13 +196,22 @@ const HelpAndSupport = () => {
                                                         onClick={handleReviewHelpReport}
                                                         style={{ cursor: 'pointer' }}
                                                     />
-                                                    <HelpReviewModal
-                                                        show={showHelpReportReviewModal}
-                                                        onClose={handleCloseHelpReviewModal}
-                                                        helpId={help.help_center_id}
-                                                    />
                                                 </>
                                             )}
+                                            <HelpReviewModal
+                                                show={showHelpReportReviewModal}
+                                                onClose={handleCloseHelpReviewModal}
+                                                helpId={help.help_center_id}
+                                                onSuccess={() => {
+                                                    dispatch(supportHelpList(currentPage, itemsPerPage));
+                                                    setShowReportSuccessModal(true);
+                                                }}
+                                            />
+                                            <SuccessModal
+                                                show={showReportSuccessModal}
+                                                onClose={() => setShowReportSuccessModal(false)}
+                                                message="Your response has been submitted"
+                                            />
                                         </td>
                                         <td>{help.response}</td>
                                     </tr>

@@ -167,6 +167,8 @@ function* verifyOTP({ payload: { phone_number, otp } }: UserData): SagaIterator 
             permissions: parsedPermissions,
         };
 
+        console.log('user>>>', user);
+
         yield put(
             authApiResponseSuccess(AuthActionTypes.LOGIN_USER, {
                 data: user, // ✅ store full user under 'data'
@@ -174,7 +176,8 @@ function* verifyOTP({ payload: { phone_number, otp } }: UserData): SagaIterator 
             })
         );
 
-        api.setLoggedInUser(user); // optional: for localStorage if you're using it
+        api.setLoggedInUser({ data: user, token }); // ✅ include 'data' wrapper when saving
+        // optional: for localStorage if you're using it
         setAuthorization(token);
     } catch (error: any) {
         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, error));
