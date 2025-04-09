@@ -8,6 +8,7 @@ import adminUserReducer from './subAdminUser/reducers';
 import reportReducer from './report/reducers';
 import userReducer from './userManagement/reducers';
 import rolesAndRightsReducer from './roles/reducers';
+import { versionReducer } from './version/reducers';
 
 const rootReducer = combineReducers({
     Auth,
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
     report: reportReducer,
     userManagement: userReducer,
     roles: rolesAndRightsReducer,
+    appUpdates: versionReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

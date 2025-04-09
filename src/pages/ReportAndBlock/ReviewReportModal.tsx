@@ -23,26 +23,20 @@ const ReportReviewModal: React.FC<ReportReviewModalProps> = ({ show, onClose, re
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // useEffect(() => {
-    //     if (!show) {
-    //         setResponse('');
-    //     }
-    // }, [show]);
     useEffect(() => {
-        if (show) {
-            console.log('reportListData:', reportListData); // 🐞 Debug
-            const report = reportListData.find((r: any) => r.report_id === reportId);
-            console.log('matched report:', report); // 🐞 Debug
-            setResponse(report?.response || '');
-        } else {
+        if (!show) {
             setResponse('');
         }
-    }, [show, reportId, reportListData]);
+
+        const report = reportListData.find((r: any) => r.report_id === reportId);
+        console.log('report>>>>', report);
+        setResponse(report?.response || '');
+    }, [show, reportId]);
 
     const handleReport = () => {
         if (response.trim() === '') {
             alert('Please enter a response before reporting.');
-            return; // Prevent further execution if response is empty
+            return;
         }
 
         const newReport = {

@@ -1,0 +1,9 @@
+export enum VersionActionTypes {
+    VERSION_LIST = '@@version/VERSION_LIST',
+    VERSION_LIST_SUCCESS = '@@version/VERSION_LIST_SUCCESS',
+    VERSION_LIST_ERROR = '@@version/VERSION_LIST_ERROR',
+
+    VERSION_UPDATE = '@@version/VERSION_UPDATE',
+    VERSION_UPDATE_SUCCESS = '@@version/VERSION_UPDATE_SUCCESS',
+    VERSION_UPDATE_ERROR = '@@version/VERSION_UPDATE_ERROR',
+}

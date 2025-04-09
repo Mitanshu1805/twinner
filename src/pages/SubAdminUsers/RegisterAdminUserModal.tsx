@@ -46,28 +46,17 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
     const { dispatch, appSelector } = useRedux();
     const { permissions = [], loading, error } = appSelector((state: RootState) => state.roles);
     const [allSelected, setAllSelected] = useState(false);
+    // const userAddError = useSelector((state: RootState) => state.adminUser?.error);
+
+    const { error: userAddError, success } = useSelector((state: RootState) => state.adminUser);
+    console.log('userAddError>>>>>>>', userAddError);
+    const [apiError, setApiError] = useState('');
     // Add these new states
     const [firstNameError, setFirstNameError] = useState('');
     const [lastNameError, setLastNameError] = useState('');
     const [phoneError, setPhoneError] = useState('');
 
     const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
-    // const latestUserId = useSelector((state: RootState) => state.adminUser.admin_user_id);
-    // console.log('AdminUser: ', adminUser);
-
-    // console.log('ADMIN USER ID from Redux:', latestUserId);
-
-    // useEffect(() => {
-    //     if (latestUserId) {
-    //         console.log('Redux State Updated: New Admin User ID:', latestUserId);
-
-    //         // Ensure localStorage has the latest value before reading
-    //         setTimeout(() => {
-    //             const storedId = localStorage.getItem('adminUserId');
-    //             console.log('Stored userId (from localStorage): ', storedId);
-    //         }, 100);
-    //     }
-    // }, [latestUserId]);
 
     useEffect(() => {
         if (adminUserToEdit) {
@@ -84,15 +73,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
             dispatch(permissionList());
         }
     }, [dispatch, show, adminUserToEdit]);
-
-    // const handlePermissionChange = (permissionId: number) => {
-    //     setSelectedPermissions(
-    //         (prev) =>
-    //             prev.includes(permissionId)
-    //                 ? prev.filter((id) => id !== permissionId) // Remove if already selected
-    //                 : [...prev, permissionId] // Add if not selected
-    //     );
-    // };
 
     const handleToggleAllPermissions = () => {
         if (allSelected) {
@@ -137,58 +117,6 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
 
         setSelectedPermissions(Array.from(updated));
     };
-
-    // const handleSubmit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-
-    //     const adminUserData = {
-    //         first_name: firstName,
-    //         last_name: lastName,
-    //         phone_number: phoneNumber,
-    //         admin_user_id: adminUserToEdit?.admin_user_id,
-    //     };
-
-    //     try {
-    //         let userId = adminUserToEdit?.admin_user_id;
-    //         console.log('userId before API call: ', userId);
-
-    //         if (userId) {
-    //             // Update existing admin user
-    //             await dispatch(adminUserUpdate({ ...adminUserData }) as any);
-    //         } else {
-    //             // Register new admin user
-    //             await dispatch(adminUserAdd(adminUserData) as any);
-    //         }
-
-    //         // ✅ Wait for localStorage to update before reading
-    //         setTimeout(() => {
-    //             const storedAdminUserId = localStorage.getItem('adminUserId');
-    //             console.log('Stored userId (from localStorage): ', storedAdminUserId);
-
-    //             if (storedAdminUserId && selectedPermissions.length > 0) {
-    //                 dispatch(
-    //                     permissionAssign({
-    //                         admin_user_id: storedAdminUserId,
-    //                         permission_ids: selectedPermissions.map(String),
-    //                     }) as any
-    //                 );
-    //             }
-
-    //             // Refresh permission list
-    //             dispatch(permissionList());
-    //             const removedId = localStorage.removeItem('adminUserId');
-    //             console.log('Removed localStorage adminUserId: ', removedId);
-
-    //             onSuccess(!!adminUserToEdit);
-
-    //             // Close the modal
-    //             onClose();
-    //         }, 1000); // Small delay to ensure localStorage is updated
-    //     } catch (error) {
-    //         console.error('Error in form submission: ', error);
-    //     }
-    // };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -208,10 +136,10 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
             setLastNameError('Last name is required');
             hasError = true;
         }
-        if (!/^\+91\d{10}$/.test(phoneNumber)) {
-            setPhoneError('Enter a valid 10-digit Indian phone number');
-            hasError = true;
-        }
+        // if (!/^\+91\d{10}$/.test(phoneNumber)) {
+        //     setPhoneError('Enter a valid 10-digit Indian phone number');
+        //     hasError = true;
+        // }
 
         if (hasError) return;
 
@@ -246,13 +174,33 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
                 dispatch(permissionList());
                 localStorage.removeItem('adminUserId');
 
-                onSuccess(!!adminUserToEdit);
-                onClose();
+                // onSuccess(!!adminUserToEdit);
+                // onClose();
             }, 1000);
         } catch (error) {
             console.error('Error in form submission: ', error);
         }
     };
+
+    useEffect(() => {
+        if (userAddError) {
+            setApiError(userAddError);
+        }
+
+        if (success && show) {
+            onSuccess(!!adminUserToEdit);
+            onClose();
+        }
+    }, [userAddError, success]);
+
+    // useEffect(() => {
+    //     if (userAddError) {
+    //         setApiError(userAddError);
+    //     } else if (userAddError === null && show) {
+    //         onSuccess(!!adminUserToEdit);
+    //         onClose();
+    //     }
+    // }, [userAddError]);
 
     return (
         <Modal show={show} onHide={onClose} size="lg" centered>
@@ -262,6 +210,11 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                {userAddError && (
+                    <div className="alert alert-danger text-center" role="alert">
+                        {apiError}
+                    </div>
+                )}
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3">
                         <Form.Label>First Name</Form.Label>
@@ -290,7 +243,7 @@ const RegisterAdminUserModal: React.FC<RegisterAdminUserModalProps> = ({
                     <Form.Group className="mb-3">
                         <Form.Label>Phone Number</Form.Label>
                         <PhoneInput
-                            country={'in'}
+                            country={'ae'}
                             value={phoneNumber}
                             onChange={(value) => setPhoneNumber('+' + value.replace(/\D/g, ''))}
                             inputStyle={{ width: '100%' }}

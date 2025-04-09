@@ -19,7 +19,7 @@ interface User {
     phone_number: string;
     country: string;
     city: string;
-    profile_image: string; // Updated from File to string (URL)
+    profile_image: string;
     dob: string;
 }
 
@@ -34,7 +34,7 @@ interface Report {
 
 type Permission = {
     module_name: string;
-    permissions: string; // Stored as a string (e.g., '{read}')
+    permissions: string;
 };
 
 const ReportAndBlock = () => {
@@ -48,28 +48,20 @@ const ReportAndBlock = () => {
     const reportListData = reports?.data?.reports || [];
     const pagination = useSelector((state: RootState) => state.report.pagination);
     const [showReportSuccessModal, setShowReportSuccessModal] = useState(false);
-
-    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
-
-    // const userPermission = permissions.find((perm) => perm.module_name === 'Interest');
-
-    // const userPermissionsArray: string[] = userPermission
-    //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
-    //     : [];
+    const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
     const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
     const userPermissionsArray: string[] = permissionsObj?.Report || [];
 
-    // State for storing selected reporter details
     const [selectedReporter, setSelectedReporter] = useState<User | null>(null);
 
-    const handleRegisterNewReport = () => {
-        if (!showReportReviewModal) {
-            setShowReportReviewModal(true);
-        }
+    const handleRegisterNewReport = (reportId: string) => {
+        setSelectedReportId(reportId);
+        setShowReportReviewModal(true);
     };
 
     const handleCloseRegRepModal = () => {
         setShowReportReviewModal(false);
+        setSelectedReportId(null);
     };
     const handlePrevPage = () => {
         if (currentPage > 1) {
@@ -81,12 +73,10 @@ const ReportAndBlock = () => {
         dispatch(reportList(currentPage, itemsPerPage));
     }, [dispatch, currentPage]);
 
-    // Function to handle click and set reporter details
     const handleUserClick = (reporter: User) => {
         setSelectedReporter(reporter);
     };
 
-    // Function to close modal
     const closeModal = () => setSelectedReporter(null);
 
     return userPermissionsArray.includes('read') ? (
@@ -99,44 +89,18 @@ const ReportAndBlock = () => {
                     <Table bordered>
                         <thead>
                             <tr>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Profile Image
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Name
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    User Name
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Description
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Phone Number
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    City
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Country
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Age
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Time
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Reporter User
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Response
-                                </th>
-                                {userPermissionsArray?.includes('update') && (
-                                    <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                        Report Review
-                                    </th>
-                                )}
+                                <th>Profile Image</th>
+                                <th>Name</th>
+                                <th>User Name</th>
+                                <th>Description</th>
+                                <th>Phone Number</th>
+                                <th>City</th>
+                                <th>Country</th>
+                                <th>Age</th>
+                                <th>Time</th>
+                                <th>Reporter User</th>
+                                <th>Response</th>
+                                {userPermissionsArray?.includes('update') && <th>Report Review</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -176,23 +140,8 @@ const ReportAndBlock = () => {
                                                 <>
                                                     <Clipboard
                                                         size={20}
-                                                        onClick={handleRegisterNewReport}
+                                                        onClick={() => handleRegisterNewReport(report.report_id)}
                                                         style={{ cursor: 'pointer' }}
-                                                    />
-
-                                                    <ReportReviewModal
-                                                        show={showReportReviewModal}
-                                                        onClose={handleCloseRegRepModal}
-                                                        reportId={report.report_id}
-                                                        onSuccess={() => {
-                                                            dispatch(reportList(currentPage, itemsPerPage));
-                                                            setShowReportSuccessModal(true);
-                                                        }}
-                                                    />
-                                                    <SuccessModal
-                                                        show={showReportSuccessModal}
-                                                        onClose={() => setShowReportSuccessModal(false)}
-                                                        message="Your report has been submitted"
                                                     />
                                                 </>
                                             )}
@@ -211,7 +160,6 @@ const ReportAndBlock = () => {
                 </BorderedTable>
             )}
 
-            {/* Pagination Controls */}
             <div
                 style={{
                     width: '100%',
@@ -222,7 +170,6 @@ const ReportAndBlock = () => {
                     flexWrap: 'wrap',
                     gap: '24px',
                 }}>
-                {/* Pagination Controls */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <SoftButton
                         variant="secondary"
@@ -282,33 +229,6 @@ const ReportAndBlock = () => {
                 </div>
             </div>
 
-            {/* Pagination Controls
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <SoftButton
-                        variant="secondary"
-                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
-                        disabled={currentPage <= 1}
-                        className="px-4 py-2">
-                        Previous
-                    </SoftButton>
-
-                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
-                        Page {currentPage} of {pagination?.totalPages ?? 1}
-                    </span>
-
-                    <SoftButton
-                        variant="secondary"
-                        onClick={() =>
-                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
-                        }
-                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
-                        className="px-4 py-2">
-                        Next
-                    </SoftButton>
-                </div>
-            </div> */}
-
             {/* Modal for showing reporter details */}
             <Modal show={!!selectedReporter} onHide={closeModal}>
                 <Modal.Header closeButton>
@@ -344,6 +264,20 @@ const ReportAndBlock = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <ReportReviewModal
+                show={showReportReviewModal}
+                onClose={handleCloseRegRepModal}
+                reportId={selectedReportId!}
+                onSuccess={() => {
+                    dispatch(reportList(currentPage, itemsPerPage));
+                    setShowReportSuccessModal(true);
+                }}
+            />
+            <SuccessModal
+                show={showReportSuccessModal}
+                onClose={() => setShowReportSuccessModal(false)}
+                message="Your report has been submitted"
+            />
         </div>
     ) : (
         <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>

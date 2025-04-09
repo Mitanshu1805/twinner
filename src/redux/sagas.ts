@@ -7,7 +7,17 @@ import reportSaga from './report/saga';
 import subAdminUsersSaga from './subAdminUser/saga';
 import userManagementSaga from './userManagement/saga';
 import rolesAndRightsSaga from './roles/saga';
+import versionSaga from './version/saga';
 
 export default function* rootSaga() {
-    yield all([authSaga(), layoutSaga(), IndAndHobSaga(), reportSaga(), subAdminUsersSaga(), userManagementSaga(), rolesAndRightsSaga()]);
+    yield all([
+        authSaga(),
+        layoutSaga(),
+        IndAndHobSaga(),
+        reportSaga(),
+        subAdminUsersSaga(),
+        userManagementSaga(),
+        rolesAndRightsSaga(),
+        versionSaga(),
+    ]);
 }

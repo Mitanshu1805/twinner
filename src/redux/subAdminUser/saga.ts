@@ -73,7 +73,8 @@ function* adminUserAddSaga(action: any): SagaIterator {
         yield put({ type: 'SET_ADMIN_USER_ID', payload: adminUserId }); // You could create a reducer to handle this
     } catch (error: any) {
         // Handle error and dispatch error action
-        yield put(adminUserAddError(error.message || 'Error Occurred'));
+        yield put(adminUserAddError(error));
+        console.log('error from saga>>>>>', error);
     }
 }
 

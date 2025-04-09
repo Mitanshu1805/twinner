@@ -56,7 +56,7 @@ const InterestHobbies = () => {
 
     const handleCloseRegModal = () => {
         setShowInterestRegModal(false);
-        // dispatch(interestList(currentPage, itemsPerPage)); // Refresh list after adding/editing
+
         dispatch(interestList(currentPage, itemsPerPage));
     };
 
@@ -94,9 +94,11 @@ const InterestHobbies = () => {
                     title="Interests & Hobbies"
                     actionButton={
                         userPermissionsArray.includes('write') && (
-                            <SoftButton variant="primary" onClick={handleAddInterest}>
-                                Add Interest
-                            </SoftButton>
+                            <div style={{ marginBottom: '8px' }}>
+                                <SoftButton variant="primary" onClick={handleAddInterest}>
+                                    Add Interest
+                                </SoftButton>
+                            </div>
                         )
                     }>
                     <RegisterInterestModal
@@ -124,13 +126,9 @@ const InterestHobbies = () => {
                     <Table bordered>
                         <thead>
                             <tr>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>#</th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Interest Name
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Image
-                                </th>
+                                <th>#</th>
+                                <th>Interest Name</th>
+                                <th>Image</th>
                                 {(userPermissionsArray?.includes('update') ||
                                     userPermissionsArray?.includes('delete')) && <th>Actions</th>}
                             </tr>

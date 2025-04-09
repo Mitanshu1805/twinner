@@ -14,37 +14,21 @@ interface SupportReviewModalProps {
 
 const SupportReviewModal: React.FC<SupportReviewModalProps> = ({ show, onClose, helpId, onSuccess }) => {
     const [response, setResponse] = useState('');
-    // const dispatch = useDispatch();
     const { dispatch, appSelector } = useRedux();
     const [currentPage] = useState(1);
     const itemsPerPage = 10;
     const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
 
-    // useEffect(() => {
-    //     if (!show) {
-    //         setResponse('');
-    //     }
-    // }, [show]);
     useEffect(() => {
-        if (show) {
-            console.log('helpAndSupports>>>>', helpAndSupports);
-            const help = helpAndSupports.find((h: any) => h.help_center_id === helpId);
-            console.log('help>>>>', help);
-
-            setResponse(help?.response);
-        } else {
+        if (!show) {
             setResponse('');
+            return;
         }
-    }, [show, helpId, helpAndSupports]);
-    // useEffect(() => {
-    //     if (show && helpId && helpAndSupports.length > 0) {
-    //         const help = helpAndSupports.find((h: any) => h.help_center_id === helpId);
-    //         console.log('matched help:', help);
-    //         setResponse(help?.response || ''); // fallback to empty string if no response
-    //     } else if (!show) {
-    //         setResponse('');
-    //     }
-    // }, [show, helpId, helpAndSupports]);
+
+        const help = helpAndSupports.find((h: any) => h.help_center_id === helpId);
+        console.log('help>>>>', help);
+        setResponse(help?.response || '');
+    }, [show, helpId]); // ✅ remove helpAndSupports from dependency
 
     const handleReport = () => {
         const newReport = {

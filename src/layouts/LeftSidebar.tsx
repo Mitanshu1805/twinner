@@ -100,21 +100,6 @@ const UserBox = () => {
     );
 };
 
-/* sidebar content */
-// const SideBarContent = () => {
-//     return (
-//         <>
-//             <UserBox />
-
-//             <div id="sidebar-menu">
-//                 <AppMenu menuItems={getMenuItems()} />
-//             </div>
-
-//             <div className="clearfix" />
-//         </>
-//     );
-// };
-
 const SideBarContent = () => {
     const permissionsObj = useSelector((state: RootState) => state.Auth?.user?.data?.permissions || {});
     console.log('permissionsObj>>>>', permissionsObj); // ✅ Should log { Interest: ["read", ...] }

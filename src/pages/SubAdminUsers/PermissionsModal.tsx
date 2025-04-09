@@ -134,6 +134,18 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
         setSelectedPermissions(Array.from(updated));
     };
     // console.log('Selection Permissions', selectedPermissions);
+    const handleSelectAll = () => {
+        if (selectedPermissions.length === permissions.flatMap((p: any) => p.permissions).length) {
+            // If all are already selected, unselect all
+            setSelectedPermissions([]);
+        } else {
+            // Else, select all
+            const allPermissionIds = permissions.flatMap((p: any) =>
+                p.permissions.map((perm: any) => perm.permission_id)
+            );
+            setSelectedPermissions(allPermissionIds);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -182,6 +194,16 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, user
                         <p className="text-muted">Loading permissions...</p>
                     ) : (
                         <div className="p-2">
+                            <Button
+                                variant="outline-primary"
+                                className="mb-3"
+                                onClick={handleSelectAll}
+                                style={{ fontWeight: '500' }}>
+                                {selectedPermissions.length === permissions.flatMap((p: any) => p.permissions).length
+                                    ? 'Deselect All'
+                                    : 'Select All'}
+                            </Button>
+
                             {permissions.map((module: PermissionList, index: number) => (
                                 <div key={index} className="mb-3">
                                     <h5

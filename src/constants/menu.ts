@@ -72,6 +72,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
         url: '/permissions',
         moduleName: 'Permissions',
     },
+    {
+        key: 'updates',
+        label: 'App Updates',
+        isTitle: false,
+        icon: 'mdi mdi-view-dashboard-outline',
+        url: '/updates',
+        moduleName: 'Updates',
+    },
 ];
 
 const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
@@ -117,6 +125,14 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
         isTitle: false,
         icon: 'mdi mdi-view-dashboard-outline',
         url: '/reported-and-blocked',
+    },
+    {
+        key: 'updates',
+        label: 'App Updates',
+        isTitle: false,
+        icon: 'mdi mdi-view-dashboard-outline',
+        url: '/updates',
+        moduleName: 'Updates',
     },
 ];
 

@@ -33,7 +33,7 @@ interface User {
 
 type Permission = {
     module_name: string;
-    permissions: string; // Stored as a string (e.g., '{read}')
+    permissions: string;
 };
 
 const HelpAndSupport = () => {
@@ -44,51 +44,28 @@ const HelpAndSupport = () => {
     const [currentPage, setCurrentPage] = useState(1);
     // const itemsPerPage = 10;
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    const itemsPerPageFixed = Number(itemsPerPage).toString(); // Ensure it's a clean number string
-
-    // const startIndex = (currentPage - 1) * itemsPerPage;
-    // const paginatedUsers = helpAndSupports.slice(startIndex, startIndex + itemsPerPage);
-
+    const itemsPerPageFixed = Number(itemsPerPage).toString();
     const paginatedUsers = helpAndSupports;
 
     console.log('paginated users', paginatedUsers);
     const [showHelpReportReviewModal, setShowHelpReportReviewModal] = useState(false);
     const pagination = useSelector((state: RootState) => state.report.pagination);
     console.log('pagination>>>>>>: ', pagination);
-    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
-
-    // // Find the user's permission object for the "User" module
-    // const userPermission = permissions.find((perm) => perm.module_name === 'Help');
-
-    // // Ensure the permission string is cleaned and parsed correctly
-    // const userPermissionsArray: string[] = userPermission
-    //     ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/)
-    //     : [];
     const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
     const userPermissionsArray: string[] = permissionsObj?.Help || [];
+    // const [showHelpReportReviewModal, setShowHelpReportReviewModal] = useState(false);
+    const [selectedHelpId, setSelectedHelpId] = useState<string | null>(null);
 
     // console.log('Raw Permissions:', userPermission?.permissions);
     console.log('Parsed Permissions Array:', userPermissionsArray);
     console.log("Includes 'read'?", userPermissionsArray.includes('read'));
 
-    // const {
-    //     help_requests = [],
-    //     current_page,
-    //     total_pages,
-    //     loading,
-    //     error,
-    // } = useSelector((state: RootState) => state.report);
-    // console.log('help requests', help_requests);
-
-    // useEffect(() => {
-    //     dispatch(supportHelpList());
-    // }, [dispatch]);
     useEffect(() => {
         // console.log('Current Page Changed:', currentPage);
         // console.log('Items Page Changed:', itemsPerPage);
         console.log('Dispatching supportHelpList with:', currentPage, itemsPerPage);
         dispatch(supportHelpList(currentPage, itemsPerPage));
-    }, [dispatch, currentPage]);
+    }, [dispatch, currentPage, itemsPerPage]);
 
     useEffect(() => {
         console.log('Selected User Changed:', selectedUser);
@@ -101,22 +78,15 @@ const HelpAndSupport = () => {
         }
     };
 
-    // const handleNextPage = () => {
-    //     if (currentPage < total_pages) {
-    //         setCurrentPage((prev) => prev + 1);
-    //     }
-    // };
-
     const handlePrevPage = () => {
         if (currentPage > 1) {
             setCurrentPage((prev) => prev - 1);
         }
     };
 
-    const handleReviewHelpReport = () => {
-        if (!showHelpReportReviewModal) {
-            setShowHelpReportReviewModal(true);
-        }
+    const handleReviewHelpReport = (helpId: string) => {
+        setSelectedHelpId(helpId);
+        setShowHelpReportReviewModal(true);
     };
 
     const handleCloseHelpReviewModal = () => {
@@ -133,29 +103,13 @@ const HelpAndSupport = () => {
                     <Table bordered>
                         <thead>
                             <tr>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Profile Image
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Name
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Description
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Email
-                                </th>
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Created At
-                                </th>
-                                {userPermissionsArray?.includes('update') && (
-                                    <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                        Add Response
-                                    </th>
-                                )}
-                                <th style={{ verticalAlign: 'middle', paddingTop: '0px', paddingBottom: '22px' }}>
-                                    Response
-                                </th>
+                                <th>Profile Image</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Email</th>
+                                <th>Created At</th>
+                                {userPermissionsArray?.includes('update') && <th>Add Response</th>}
+                                <th>Response</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -193,25 +147,11 @@ const HelpAndSupport = () => {
                                                 <>
                                                     <Clipboard
                                                         size={20}
-                                                        onClick={handleReviewHelpReport}
+                                                        onClick={() => handleReviewHelpReport(help.help_center_id)}
                                                         style={{ cursor: 'pointer' }}
                                                     />
                                                 </>
                                             )}
-                                            <HelpReviewModal
-                                                show={showHelpReportReviewModal}
-                                                onClose={handleCloseHelpReviewModal}
-                                                helpId={help.help_center_id}
-                                                onSuccess={() => {
-                                                    dispatch(supportHelpList(currentPage, itemsPerPage));
-                                                    setShowReportSuccessModal(true);
-                                                }}
-                                            />
-                                            <SuccessModal
-                                                show={showReportSuccessModal}
-                                                onClose={() => setShowReportSuccessModal(false)}
-                                                message="Your response has been submitted"
-                                            />
                                         </td>
                                         <td>{help.response}</td>
                                     </tr>
@@ -238,7 +178,6 @@ const HelpAndSupport = () => {
                     flexWrap: 'wrap',
                     gap: '24px',
                 }}>
-                {/* Pagination Controls */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <SoftButton
                         variant="secondary"
@@ -249,21 +188,20 @@ const HelpAndSupport = () => {
                     </SoftButton>
 
                     <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
-                        Page {currentPage} of {pagination?.totalPages ?? 1}
+                        Page {currentPage} of {pagination?.total_pages ?? 1}
                     </span>
 
                     <SoftButton
                         variant="secondary"
                         onClick={() =>
-                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
+                            currentPage < (pagination?.total_pages ?? 1) && setCurrentPage((prev) => prev + 1)
                         }
-                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
+                        disabled={currentPage >= (pagination?.total_pages ?? 1)}
                         className="px-4 py-2">
                         Next
                     </SoftButton>
                 </div>
 
-                {/* Items Per Page */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <label
                         style={{
@@ -297,35 +235,6 @@ const HelpAndSupport = () => {
                     </select>
                 </div>
             </div>
-
-            {/* Pagination Controls */}
-            {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <SoftButton
-                        variant="secondary"
-                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
-                        disabled={currentPage <= 1}
-                        className="px-4 py-2">
-                        Previous
-                    </SoftButton>
-
-                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
-                        Page {currentPage} of {pagination?.totalPages ?? 1}
-                    </span>
-
-                    <SoftButton
-                        variant="secondary"
-                        onClick={() =>
-                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
-                        }
-                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
-                        className="px-4 py-2">
-                        Next
-                    </SoftButton>
-                </div>
-            </div> */}
-
-            {/* User Details Modal */}
             <Modal show={selectedUser !== null} onHide={() => setSelectedUser(null)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>User Details</Modal.Title>
@@ -357,6 +266,24 @@ const HelpAndSupport = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <HelpReviewModal
+                show={showHelpReportReviewModal}
+                onClose={() => {
+                    setShowHelpReportReviewModal(false);
+                    setSelectedHelpId(null);
+                }}
+                helpId={selectedHelpId!}
+                onSuccess={() => {
+                    dispatch(supportHelpList(currentPage, itemsPerPage));
+                    setShowReportSuccessModal(true);
+                }}
+            />
+
+            <SuccessModal
+                show={showReportSuccessModal}
+                onClose={() => setShowReportSuccessModal(false)}
+                message="Your response has been submitted"
+            />
         </div>
     ) : (
         <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>

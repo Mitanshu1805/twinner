@@ -82,33 +82,18 @@ const Login = () => {
     const handleResendOTP = () => {
         const phone = watch('phone_number');
 
-        // Block resend if in cooldown or if max resend attempts are reached
         if (!phone || cooldown > 0 || resendCount >= 3) return;
 
         dispatch(sendOTP(phone));
 
-        // Set cooldown based on resend attempt
         if (resendCount === 0) {
-            setCooldown(10); // 10 sec after first resend
+            setCooldown(10);
         } else if (resendCount === 1) {
-            setCooldown(30); // 30 sec after second resend
+            setCooldown(30);
         }
 
         setResendCount((prev) => prev + 1);
     };
-
-    // const schemaResolver = yupResolver(
-    //     yup.object().shape({
-    //         phone_number: yup
-    //             .string()
-    //             .required(t('Please enter Phone Number'))
-    //             .test('is-valid-phone', t('Invalid phone number format'), (value) => {
-    //                 if (!value) return false;
-    //                 const cleaned = value.replace(/[^\d]/g, ''); // remove spaces, dashes, etc.
-    //                 return /^\d{10,15}$/.test(cleaned); // must be 10-15 digits
-    //             }),
-    //     })
-    // );
 
     const schemaResolver = yupResolver(
         yup.object().shape({
@@ -142,7 +127,7 @@ const Login = () => {
 
     if (location.state) {
         const { from } = location.state as LocationState;
-        redirectUrl = from ? from.pathname : '/';
+        redirectUrl = from ? from.pathname : '/sub-admin-users';
     }
 
     return (
@@ -169,7 +154,7 @@ const Login = () => {
                                 control={control}
                                 render={({ field }) => (
                                     <PhoneInput
-                                        country={'in'}
+                                        country={'ae'}
                                         {...field}
                                         value={field.value}
                                         onChange={(value) => field.onChange('+' + value.replace(/\D/g, ''))}

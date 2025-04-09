@@ -28,13 +28,14 @@ const LockScreen = React.lazy(() => import('../pages/auth/LockScreen'));
 const Logout = React.lazy(() => import('../pages/auth/Logout'));
 
 // dashboards
-const DashBoard1 = React.lazy(() => import('../pages/dashboards/DashBoard1/'));
+// const DashBoard1 = React.lazy(() => import('../pages/dashboards/DashBoard1/'));
 const Interests = React.lazy(() => import('../pages/interests'));
 const ReportedAndBlocked = React.lazy(() => import('../pages/ReportAndBlock/'));
 const HelpAndSupport = React.lazy(() => import('../pages/HelpAndSupport'));
 const TwinnerUsers = React.lazy(() => import('../pages/TwinnerUsers/'));
 const SubAdminUsers = React.lazy(() => import('../pages/SubAdminUsers/'));
 const Permissions = React.lazy(() => import('../pages/Permissions/'));
+const Updates = React.lazy(() => import('../pages/AppUpdates'));
 // apps
 const CalendarApp = React.lazy(() => import('../pages/apps/Calendar'));
 const ChatApp = React.lazy(() => import('../pages/apps/Chat'));
@@ -201,10 +202,10 @@ const AllRoutes = () => {
                 //     path: 'dashboard',
                 //     element: <LoadComponent component={DashBoard1} />,
                 // },
-                {
-                    path: 'dashboard',
-                    element: <LoadComponent component={DashBoard1} />,
-                },
+                // {
+                //     path: 'dashboard',
+                //     element: <LoadComponent component={DashBoard1} />,
+                // },
                 {
                     path: 'sub-admin-users',
                     element: <LoadComponent component={SubAdminUsers} />,
@@ -228,6 +229,10 @@ const AllRoutes = () => {
                 {
                     path: 'permissions',
                     element: <LoadComponent component={Permissions} />,
+                },
+                {
+                    path: 'updates',
+                    element: <LoadComponent component={Updates} />,
                 },
                 {
                     path: 'apps',

@@ -45,6 +45,7 @@ interface ReportListSuccessPayload {
 interface PaginationData {
     current_page: number;
     total_pages: number;
+    limit: number;
 }
 
 interface ReportState {
@@ -68,6 +69,7 @@ const initialState: ReportState = {
 interface HelpSupportResponse {
     current_page: number;
     total_pages: number;
+    limit: number;
     total_help_requests: number;
     help_requests: helpAndSupport[];
 }
@@ -168,7 +170,8 @@ const reportReducer = (state: ReportState = initialState, action: ReportActionTy
                 pagination: {
                     total_pages: action.payload.data.total_pages,
                     current_page: action.payload.data.current_page,
-                    // limit: action.payload.data.limit,
+
+                    limit: action.payload.data.limit,
                 },
             };
 

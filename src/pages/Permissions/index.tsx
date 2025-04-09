@@ -66,17 +66,6 @@ const Permissions = () => {
         }
         setShowPermissionDeleteModal(false);
     };
-
-    // const handleDeleteModule = (moduleId: string) => {
-    //     console.log('Delete module with ID:', moduleId);
-    //     // 🔴 Here you can dispatch a delete action:
-    //     dispatch(permissionModuleDelete(moduleId));
-    //     // Then reload the list:
-
-    //     setTimeout(() => dispatch(permissionList()), 300);
-    //     setShowModuleDeleteModal(false);
-    // };
-
     return (
         <div className="p-3">
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -184,11 +173,6 @@ const Permissions = () => {
                                         )}
                                     </div>
                                 </td>
-
-                                {/* <td className="d-flex gap-3">
-                                    <FaRegEdit role="button" title="Edit Permissions" />
-                                    <FaTrash role="button" title="Delete Permissions" />
-                                </td> */}
                             </tr>
                         ))}
                     </tbody>

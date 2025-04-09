@@ -59,6 +59,7 @@ interface AdminUserState {
     loading: boolean;
     error: string | null;
     message: string | null;
+    success: boolean;
     admin_user_id: string | null;
     pagination: PaginationData | null;
 }
@@ -69,6 +70,8 @@ const initialState: AdminUserState = {
     loading: false,
     error: null,
     message: null,
+    success: false,
+
     // admin_user_id: null,
     admin_user_id: localStorage.getItem('adminUserId') || '',
 };
@@ -115,7 +118,7 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
                 loading: false,
                 error: null,
                 message: action.payload.message,
-                adminUsers: Array.isArray(action.payload.data.users) ? action.payload.data.users : [],
+                adminUsers: Array.isArray(action.payload?.data?.users) ? action.payload?.data?.users : [],
                 pagination: action.payload.data.pagination, // ✅ Fixes type error
             };
 
@@ -123,7 +126,7 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
             return { ...state, loading: false, error: action.payload.error, message: null };
 
         case SubAdminUserActionTypes.ADMIN_USERS_ADD:
-            return { ...state, loading: true, error: null };
+            return { ...state, loading: true, error: null, success: false };
 
         // Handle success when a new admin user is added
         // case SubAdminUserActionTypes.ADMIN_USERS_ADD_SUCCESS:
@@ -149,12 +152,14 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
             return {
                 ...state,
                 loading: false,
+                success: true,
+                error: null,
                 admin_user_id: action.payload.admin_user_id,
                 adminUsers: [...state.adminUsers, newAdminUser], // Add the new user to the list
             };
 
         case SubAdminUserActionTypes.ADMIN_USERS_ADD_ERROR:
-            return { ...state, loading: false, error: action.payload.error };
+            return { ...state, loading: false, error: action.payload.error, success: false };
 
         case SubAdminUserActionTypes.ADMIN_USERS_DELETE:
             return { ...state, loading: true, error: null };
@@ -170,22 +175,24 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
             return { ...state, loading: false, error: action.payload.error };
 
         case SubAdminUserActionTypes.ADMIN_USERS_EDIT:
-            return { ...state, loading: true, error: null };
+            return { ...state, loading: true, error: null, success: false };
 
         case SubAdminUserActionTypes.ADMIN_USERS_EDIT_SUCCESS:
             return {
                 ...state,
                 loading: false,
+                success: true,
+                error: null,
                 message: action.payload.message,
                 adminUsers: state.adminUsers.map((user) =>
-                    user.admin_user_id === action.payload.data.users[0].admin_user_id
-                        ? action.payload.data.users[0]
+                    user.admin_user_id === action.payload?.data?.users[0].admin_user_id
+                        ? action.payload?.data?.users[0]
                         : user
                 ),
             };
 
         case SubAdminUserActionTypes.ADMIN_USERS_EDIT_ERROR:
-            return { ...state, loading: false, error: action.payload.error };
+            return { ...state, loading: false, error: action.payload.error, success: false };
 
         case SubAdminUserActionTypes.UPDATE_ADMIN_STATUS:
             return { ...state, loading: true, error: null };
@@ -196,8 +203,8 @@ const adminUserReducer = (state: AdminUserState = initialState, action: SubAdmin
                 loading: false,
                 message: action.payload.message,
                 adminUsers: state.adminUsers.map((user) =>
-                    user.admin_user_id === action.payload.data.users[0].admin_user_id
-                        ? { ...user, is_active: action.payload.data.users[0].is_active }
+                    user.admin_user_id === action.payload?.data?.users[0].admin_user_id
+                        ? { ...user, is_active: action.payload?.data?.users[0].is_active }
                         : user
                 ),
             };

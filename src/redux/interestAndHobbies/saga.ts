@@ -43,12 +43,9 @@ function* interestAddSaga(action: any): SagaIterator {
     try {
         const response = yield call(interestAdd, action.payload);
         yield put(interestAddSuccess(response.data.message));
-    } catch (err: unknown) {
-        const error = err as AxiosError<{ message?: string }>;
-
-        const errorMessage = error.response?.data?.message || error.message || 'Error occurred';
-
-        yield put(interestAddError(errorMessage));
+    } catch (error: any) {
+        yield put(interestAddError(error));
+        console.log('error from saga>>>>>', error);
     }
 }
 

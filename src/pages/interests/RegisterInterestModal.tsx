@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 import { interestAdd, interestList, interestUpdate } from '../../redux/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
+import { IntAndHobActionTypes } from '../../redux/interestAndHobbies/constants';
 
 interface Interest {
     interest_id?: string;
@@ -16,7 +19,6 @@ interface RegisterInterestModalProps {
     onSuccess: (isUpdate: boolean) => void;
 }
 
-// Convert URL to File object
 const urlToFile = async (url: string, filename: string): Promise<File> => {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -29,10 +31,12 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
     const [interestName, setInterestName] = useState('');
     const [interestImage, setInterestImage] = useState<string | File | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const interestError = useSelector((state: RootState) => state.interest?.error);
+    console.log('interestError>>>>>>>', interestError);
 
-    // Validation states
     const [nameError, setNameError] = useState('');
     const [imageError, setImageError] = useState('');
+    const [apiError, setApiError] = useState('');
 
     const dispatch = useDispatch();
 
@@ -47,10 +51,9 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
             setPreviewImage(null);
         }
 
-        // Clear validation on modal open
         setNameError('');
         setImageError('');
-    }, [show, interestToEdit]);
+    }, [show, interestToEdit, dispatch]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null;
@@ -104,13 +107,17 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
         } else {
             dispatch(interestAdd(formData));
         }
+    };
 
-        setTimeout(() => {
+    useEffect(() => {
+        if (interestError) {
+            setApiError(interestError);
+        } else if (interestError === null && show) {
             dispatch(interestList(currentPage, itemsPerPage));
             onSuccess(!!interestToEdit);
             onClose();
-        }, 500);
-    };
+        }
+    }, [interestError]);
 
     return (
         <Modal show={show} onHide={onClose}>
@@ -118,6 +125,12 @@ const RegisterInterestModal: React.FC<RegisterInterestModalProps> = ({ show, onC
                 <Modal.Title>{interestToEdit ? 'Edit Interest' : 'Register Interest'}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                {interestError && (
+                    <div className="alert alert-danger text-center" role="alert">
+                        {apiError}
+                    </div>
+                )}
+
                 <Form>
                     <Form.Group className="mb-3">
                         <Form.Label>Interest Name</Form.Label>

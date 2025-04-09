@@ -1,3 +1,4 @@
+// import { versionList } from './../../redux/version/actions';
 // import { reportList } from './../../redux/report/actions';
 // import { UpdateAdminStatus } from './../../redux/subAdminUser/actions';
 import { APICore } from './apiCore';
@@ -237,6 +238,15 @@ function permissionAssign(data: any) {
     return api.update(`${baseUrl}`, data);
 }
 
+function versionList() {
+    const baseUrl = '/version/list';
+    return api.get(`${baseUrl}`, {});
+}
+function versionUpdate(data: any) {
+    const baseUrl = '/version/update';
+    return api.update(`${baseUrl}`, data);
+}
+
 export {
     sendOTP,
     verifyOTP,
@@ -267,4 +277,6 @@ export {
     permissionDelete,
     permissionList,
     supportHelpReview,
+    versionList,
+    versionUpdate,
 };

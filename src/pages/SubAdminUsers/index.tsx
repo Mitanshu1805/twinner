@@ -37,11 +37,7 @@ const AdminUser = () => {
     const { adminUsers = [], loading, error } = appSelector((state: RootState) => state.adminUser);
     // console.log('adminUsers: ', adminUsers);
     const pagination = useSelector((state: RootState) => state.adminUser.pagination);
-    console.log('pagination: ', pagination?.totalPages);
-
-    // const adminUsersData = adminUsers?.data?.users || [];
-    // console.log('adminUsersData: ', adminUsersData);
-    // const [toggleStates, setToggleStates] = useState<{ [key: string]: boolean }>({});
+    console.log('pagination: ', pagination);
     const [selectedAdminUser, setSelectedAdminUser] = useState<AdminUserProps | null>(null);
     const [showAdminUserRegModal, setShowAdminUserRegModal] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
@@ -52,30 +48,10 @@ const AdminUser = () => {
 
     const [adminUserToDelete, setAdminUserToDelete] = useState<string | null>(null);
 
-    // console.log('Admin Users: ', adminUsers);
-    // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
     const [currentPage, setCurrentPage] = useState(1);
     // const itemsPerPage = 10;
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // const userPermission = permissions.find((perm) => perm.module_name === 'Admin');
-    // const userPermissionOnly = permissions.find((perm) => perm.module_name === 'Permissions');
-
-    // const userPermissionsArrayOnly: string[] = userPermissionOnly
-    //     ? Array.isArray(userPermissionOnly.permissions)
-    //         ? userPermissionOnly.permissions // Already an array, use as is
-    //         : typeof userPermissionOnly.permissions === 'string'
-    //         ? userPermissionOnly.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
-    //         : []
-    //     : [];
-
-    // const userPermissionsArray: string[] = userPermission
-    //     ? Array.isArray(userPermission.permissions)
-    //         ? userPermission.permissions // Already an array, use as is
-    //         : typeof userPermission.permissions === 'string'
-    //         ? userPermission.permissions.replace(/[{}]/g, '').split(/\s*,\s*/) // Convert string to array
-    //         : []
-    //     : [];
     const permissionsObj = useSelector((state: RootState) => state.Auth.user.data.permissions);
     console.log('permissionsObj:', permissionsObj);
 
@@ -84,25 +60,11 @@ const AdminUser = () => {
 
     const userPermissionsArrayOnly: string[] = permissionsObj?.Permissions || [];
 
-    // useEffect(() => {
-    //     if (adminUsers.length > 0) {
-    //         const initialToggleStates: { [key: string]: boolean } = {};
-
-    //         adminUsers.forEach((adminUser: AdminUserProps) => {
-    //             initialToggleStates[adminUser.admin_user_id] = adminUser.is_active;
-    //         });
-
-    //         setToggleStates(initialToggleStates);
-    //     }
-    // }, [adminUsers]);
-
     useEffect(() => {
-        // Dispatch to fetch admin users whenever currentPage changes
-        const page = currentPage; // Ensure this is a number
-        const limit = itemsPerPage; // Ensure this is a number
+        const page = currentPage;
+        const limit = itemsPerPage;
 
-        dispatch(adminUserList(page, limit)); // Correctly pass the numbers to the action
-        // Pass currentPage to fetch the correct page of data
+        dispatch(adminUserList(page, limit));
     }, [dispatch, currentPage]);
 
     const handleAddAdminUser = () => {
@@ -111,7 +73,6 @@ const AdminUser = () => {
     };
 
     const handlePermissionClick = (user: AdminUserProps) => {
-        // console.log('Opening modal for user:', user);
         setSelectedUserForPermissions({ ...user });
         setShowPermissionsModal(true);
     };
@@ -125,39 +86,17 @@ const AdminUser = () => {
         setShowAdminUserRegModal(true);
     };
 
-    // const handleCloseRegModal = () => {
-    //     setShowAdminUserRegModal(false);
-    //     dispatch(adminUserList(currentPage, itemsPerPage));
-    //     setShowSuccessModal(true);
-    // };
-
     const handleClosePermissionsModal = () => {
         setShowPermissionsModal(false);
-        // dispatch(adminUserList);
     };
 
     const handleUserToggle = (admin_user_id: string, is_active: boolean) => {
-        // setToggleStates((prev) => ({
-        //     ...prev,
-        //     [admin_user_id]: is_active,
-        // }));
-
         dispatch(updateAdminStatus(admin_user_id, is_active));
 
         setTimeout(() => {
             dispatch(adminUserList(currentPage, itemsPerPage));
         }, 100);
     };
-
-    // const handleDeleteAdminUser = (admin_user_id: string) => {
-    //     if (window.confirm('Are you sure you want to delete this interest?')) {
-    //         // Dispatch the delete action
-    //         dispatch(adminUserDelete(admin_user_id));
-    //     }
-    //     setTimeout(() => {
-    //         dispatch(adminUserList(currentPage, itemsPerPage));
-    //     }, 500);
-    // };
     const handleDeleteClick = (admin_user_id: string) => {
         setAdminUserToDelete(admin_user_id);
         setShowDeleteModal(true);
@@ -172,14 +111,6 @@ const AdminUser = () => {
         }
         setShowDeleteModal(false);
     };
-
-    //     const handleDeleteAdminUser = (admin_user_id: string) => {
-    //     if (window.confirm('Are you sure you want to delete this user?')) {
-    //         dispatch(adminUserDelete(admin_user_id)).then(() => {
-    //             dispatch(adminUserList(currentPage, itemsPerPage)); // ✅ Refresh the list after delete
-    //         });
-    //     }
-    // };
 
     return userPermissionsArray.includes('read') ? (
         <div>
@@ -389,31 +320,6 @@ const AdminUser = () => {
                     </select>
                 </div>
             </div>
-            {/* <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <SoftButton
-                        variant="secondary"
-                        onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
-                        disabled={currentPage <= 1}
-                        className="px-4 py-2">
-                        Previous
-                    </SoftButton>
-
-                    <span style={{ fontWeight: '600', fontSize: '14px', color: '#4B5563' }}>
-                        Page {currentPage} of {pagination?.totalPages ?? 1}
-                    </span>
-
-                    <SoftButton
-                        variant="secondary"
-                        onClick={() =>
-                            currentPage < (pagination?.totalPages ?? 1) && setCurrentPage((prev) => prev + 1)
-                        }
-                        disabled={currentPage >= (pagination?.totalPages ?? 1)}
-                        className="px-4 py-2">
-                        Next
-                    </SoftButton>
-                </div>
-            </div> */}
         </div>
     ) : (
         <p style={{ color: 'red', fontSize: '18px', fontWeight: 'bold', textAlign: 'center', marginTop: '20px' }}>
