@@ -12,6 +12,7 @@ import ToggleSwitch from '../../components/ToggleSwitch/index';
 import { Filter } from 'react-feather';
 import { number } from 'yup';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
+import BlockRelation from './BlockRelation';
 
 interface User {
     age: string;
@@ -37,6 +38,8 @@ const UserManagement = () => {
     const loading = appSelector((state: RootState) => state.userManagement.loading);
     const error = appSelector((state: RootState) => state.userManagement.error);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showBlockModal, setShowBlockModal] = useState(false);
+
     const [twinnerUserToDelete, setTwinnerUserToDelete] = useState<string | null>(null);
     // const permissions: Permission[] = useSelector((state: RootState) => state.Auth.user.permissions);
     // const userPermission = permissions.find((perm) => perm.module_name === 'User');
@@ -247,9 +250,21 @@ const UserManagement = () => {
                     gap: '12px',
                     flexWrap: 'wrap',
                 }}>
-                <Button variant="primary" onClick={handleShowModal}>
-                    <FaFilter /> Filter Users
-                </Button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Button variant="primary" onClick={handleShowModal}>
+                        <FaFilter /> Filter Users
+                    </Button>
+
+                    <Button
+                        variant="secondary"
+                        onClick={() => {
+                            setShowBlockModal(true);
+                        }}>
+                        🚫 Blocked Users
+                    </Button>
+                </div>
+
+                <BlockRelation show={showBlockModal} onClose={() => setShowBlockModal(false)} />
 
                 <Form.Control
                     type="text"

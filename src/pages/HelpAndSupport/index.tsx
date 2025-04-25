@@ -40,6 +40,7 @@ const HelpAndSupport = () => {
     const { dispatch, appSelector } = useRedux();
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const { helpAndSupports = [], loading, error } = appSelector((state: RootState) => state.report);
+    console.log('helpAndSupports>>>>>>: ', helpAndSupports);
     const [showReportSuccessModal, setShowReportSuccessModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     // const itemsPerPage = 10;

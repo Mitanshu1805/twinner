@@ -47,6 +47,35 @@ type helpAndSupport = {
     created_at: string;
 };
 
+interface BlockRelationList {
+    // block_relations: BlockRelation[];
+    blocker_id: string;
+    blocker_first_name: string;
+    blocker_last_name: string;
+    blocker_user_name: string;
+    blocker_profile_image: File;
+    blocked_id: string;
+    blocked_first_name: string;
+    blocked_last_name: string;
+    blocked_user_name: string;
+    blocked_profile_image: File;
+    created_at: string;
+}
+
+interface BlockRelation {
+    blocker_id: string;
+    blocker_first_name: string;
+    blocker_last_name: string;
+    blocker_user_name: string;
+    blocker_profile_image: File;
+    blocked_id: string;
+    blocked_first_name: string;
+    blocked_last_name: string;
+    blocked_user_name: string;
+    blocked_profile_image: File;
+    created_at: string;
+}
+
 export type ReportActionType =
     | {
           type: ReportActionTypes.REPORT_LIST;
@@ -93,6 +122,18 @@ export type ReportActionType =
       }
     | {
           type: ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR;
+          payload: { error: string };
+      }
+    | {
+          type: ReportActionTypes.BLOCK_RELATIONS_PAGE;
+          payload: { page: number; limit: number };
+      }
+    | {
+          type: ReportActionTypes.BLOCK_RELATIONS_PAGE_SUCCESS;
+          payload: BlockRelationList[];
+      }
+    | {
+          type: ReportActionTypes.BLOCK_RELATIONS_PAGE_ERROR;
           payload: { error: string };
       };
 
@@ -159,5 +200,20 @@ export const supportHelpReviewSuccess = (message: string): ReportActionType => (
 
 export const supportHelpReviewError = (error: string): ReportActionType => ({
     type: ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR,
+    payload: { error },
+});
+
+export const blockRelationList = (page: number, limit: number): ReportActionType => ({
+    type: ReportActionTypes.BLOCK_RELATIONS_PAGE,
+    payload: { page, limit },
+});
+
+export const blockRelationListSuccess = (data: BlockRelationList[]): ReportActionType => ({
+    type: ReportActionTypes.BLOCK_RELATIONS_PAGE_SUCCESS,
+    payload: data,
+});
+
+export const blockRelationListError = (error: string): ReportActionType => ({
+    type: ReportActionTypes.BLOCK_RELATIONS_PAGE_ERROR,
     payload: { error },
 });

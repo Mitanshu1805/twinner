@@ -1,3 +1,5 @@
+// import { BlockRelation } from './../../pages/TwinnerUsers/BlockRelation';
+import { blockRelationList } from './actions';
 import { ReportActionTypes } from './constants';
 
 interface Report {
@@ -55,6 +57,7 @@ interface ReportState {
     message: string | null;
     helpAndSupports: helpAndSupport[];
     pagination: PaginationData | null;
+    block_relations: BlockRelation[];
 }
 
 const initialState: ReportState = {
@@ -64,6 +67,7 @@ const initialState: ReportState = {
     error: null,
     message: null,
     helpAndSupports: [],
+    block_relations: [],
 };
 
 interface HelpSupportResponse {
@@ -74,6 +78,13 @@ interface HelpSupportResponse {
     help_requests: helpAndSupport[];
 }
 
+interface BlockRelationResponse {
+    block_relations: BlockRelation[];
+    current_page: number;
+    total_pages: number;
+    total_block_relations: number;
+}
+
 interface helpAndSupport {
     help_center_id: string;
     name: string;
@@ -81,6 +92,21 @@ interface helpAndSupport {
     description: string;
     user_id: string;
     created_at: string;
+}
+
+interface BlockRelation {
+    blocker_id: string;
+    blocker_first_name: string;
+    blocker_last_name: string;
+    blocker_user_name: string;
+    blocker_profile_image: string;
+    blocked_id: string;
+    blocked_first_name: string;
+    blocked_last_name: string;
+    blocked_user_name: string;
+    blocked_profile_image: string;
+    created_at: string;
+    // block_relations: BlockRelationList[];
 }
 
 type ReportActionType =
@@ -98,7 +124,18 @@ type ReportActionType =
     | { type: typeof ReportActionTypes.SUPPORT_HELP_LIST_ERROR; payload: { error: string } }
     | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW; payload: SupportHelpReview }
     | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW_SUCCESS; payload: { message: string } }
-    | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR; payload: { error: string } };
+    | { type: typeof ReportActionTypes.SUPPORT_HELP_REVIEW_ERROR; payload: { error: string } }
+    | {
+          type: typeof ReportActionTypes.BLOCK_RELATIONS_PAGE;
+      }
+    | {
+          type: typeof ReportActionTypes.BLOCK_RELATIONS_PAGE_SUCCESS;
+          payload: BlockRelationResponse;
+      }
+    | {
+          type: typeof ReportActionTypes.BLOCK_RELATIONS_PAGE_ERROR;
+          payload: { error: string };
+      };
 
 const reportReducer = (state: ReportState = initialState, action: ReportActionType): ReportState => {
     switch (action.type) {
@@ -181,6 +218,28 @@ const reportReducer = (state: ReportState = initialState, action: ReportActionTy
                 loading: false,
                 error: action.payload.error,
                 message: null,
+            };
+        case ReportActionTypes.BLOCK_RELATIONS_PAGE:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+                message: null,
+            };
+
+        case ReportActionTypes.BLOCK_RELATIONS_PAGE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                error: null,
+                block_relations: action.payload.block_relations,
+            };
+
+        case ReportActionTypes.BLOCK_RELATIONS_PAGE_ERROR:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload.error,
             };
 
         default:

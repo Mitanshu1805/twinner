@@ -1,8 +1,15 @@
+// import { blockRelationList } from './actions';
 // import { reportList, reportReview } from './actions';
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
 import { SagaIterator } from '@redux-saga/core';
 
-import { reportList, reportReview, supportHelpList, supportHelpReview } from '../../helpers/api/auth';
+import {
+    reportList,
+    reportReview,
+    supportHelpList,
+    supportHelpReview,
+    blockRelationList,
+} from '../../helpers/api/auth';
 
 import {
     reportListSuccess,
@@ -13,6 +20,8 @@ import {
     supportHelpListError,
     supportHelpReviewSuccess,
     supportHelpReviewError,
+    blockRelationListSuccess,
+    blockRelationListError,
     // ReportActionType,
 } from './actions';
 
@@ -58,6 +67,21 @@ function* supportHelpReviewSaga(action: any): SagaIterator {
     }
 }
 
+function* blockRelationListSaga(action: any): SagaIterator {
+    console.log('SAGA ENTERS LOGGING 1');
+    try {
+        console.log('SAGA ENTERS LOGGING 2');
+        const { page, limit } = action.payload;
+        console.log('SAGA ENTERS LOGGING');
+        const response = yield call(blockRelationList, page, limit); // ✅ Pass empty object for data
+        console.log('SAGA ENTERS LOGGED');
+        console.log('BlockRelation List Response', response);
+        yield put(blockRelationListSuccess(response.data.data));
+    } catch (error: any) {
+        yield put(blockRelationListError(error.message || 'Error Occurred'));
+    }
+}
+
 function* watchReportList() {
     yield takeEvery(ReportActionTypes.REPORT_LIST, reportListSaga);
 }
@@ -74,11 +98,16 @@ function* watchSupportHelpReview() {
     yield takeEvery(ReportActionTypes.SUPPORT_HELP_REVIEW, supportHelpReviewSaga);
 }
 
+function* watchBlockRelationList() {
+    yield takeEvery(ReportActionTypes.BLOCK_RELATIONS_PAGE, blockRelationListSaga);
+}
+
 export default function* reportSaga() {
     yield all([
         fork(watchReportList),
         fork(watchReportReview),
         fork(watchSupportHelpList),
         fork(watchSupportHelpReview),
+        fork(watchBlockRelationList),
     ]);
 }

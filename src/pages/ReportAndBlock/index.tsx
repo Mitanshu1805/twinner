@@ -40,6 +40,8 @@ type Permission = {
 const ReportAndBlock = () => {
     const { dispatch, appSelector } = useRedux();
     const { reports = {}, loading, error } = appSelector((state: RootState) => state.report);
+    console.log('reports>>>>>>', reports);
+
     const [showReportReviewModal, setShowReportReviewModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     // const itemsPerPage = 10;

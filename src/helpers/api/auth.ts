@@ -1,3 +1,4 @@
+// import { blockRelationList } from './../../redux/report/actions';
 // import { versionList } from './../../redux/version/actions';
 // import { reportList } from './../../redux/report/actions';
 // import { UpdateAdminStatus } from './../../redux/subAdminUser/actions';
@@ -247,6 +248,21 @@ function versionUpdate(data: any) {
     return api.update(`${baseUrl}`, data);
 }
 
+function blockRelationList(currentPage: number = 1, itemsPerPage: number = 2) {
+    const baseUrl = '/support/block/relations';
+    const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+    });
+
+    console.log('Constructed Params:', params.toString()); // 🔥 Debugging
+
+    const fullUrl = `${baseUrl}?${params.toString()}`;
+    console.log('Final URL:', fullUrl); // 🔥 Debugging
+
+    return api.get(fullUrl, undefined);
+}
+
 export {
     sendOTP,
     verifyOTP,
@@ -279,4 +295,5 @@ export {
     supportHelpReview,
     versionList,
     versionUpdate,
+    blockRelationList,
 };
